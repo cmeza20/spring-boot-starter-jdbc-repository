@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.cmeza.spring.jdbc.repository.configurations.JdbcRepositoryAutoConfiguration
+org.springframework.boot.env.EnvironmentPostProcessor=com.cmeza.spring.jdbc.repository.processors.JdbcEnvironmentPostProcessor
