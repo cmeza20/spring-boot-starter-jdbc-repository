@@ -69,7 +69,7 @@ public abstract class AbstractRoutineBuilder extends AbstractJdbcBuilder<JdbcRou
     @Override
     public <T> T execute(Class<T> returnType) {
         Map.Entry<String, SimpleJdbcCall> callEntry = prepareRoutineJdbcCall(returnType);
-        return execute(() -> executeInternal(returnType, callEntry));
+        return execute(() -> JdbcNamedParameterUtils.singleResult(executeListInternal(returnType, callEntry)));
     }
 
     @Override
