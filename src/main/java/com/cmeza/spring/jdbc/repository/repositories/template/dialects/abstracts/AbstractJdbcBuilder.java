@@ -111,7 +111,7 @@ public abstract class AbstractJdbcBuilder<T> implements JdbcBuilder<T>, JdbcMeta
         if (Objects.nonNull(rowMapper)) {
             if (rowMapper instanceof JdbcRowMapper) {
                 Class<T> mappedClass = ((JdbcRowMapper<T>)rowMapper).getMappedClass();
-                ((JdbcRowMapper<T>) rowMapper).setProjectionSupport((JdbcProjectionSupport<T, T>) impl.jdbcProjectionSupportMap.get(mappedClass));
+                ((JdbcRowMapper<T>) rowMapper).init((JdbcProjectionSupport<T, T>) impl.jdbcProjectionSupportMap.get(mappedClass));
             }
             this.rowMapper = rowMapper;
         }
