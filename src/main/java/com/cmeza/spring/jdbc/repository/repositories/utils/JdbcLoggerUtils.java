@@ -2,10 +2,10 @@ package com.cmeza.spring.jdbc.repository.repositories.utils;
 
 import com.cmeza.spring.ioc.handler.metadata.TypeMetadata;
 import com.cmeza.spring.ioc.handler.metadata.impl.SimpleTypeMetadata;
+import com.cmeza.spring.jdbc.repository.mappers.JdbcRowMapper;
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.JdbcDatabaseMatadata;
 import lombok.experimental.UtilityClass;
 import org.slf4j.Logger;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
@@ -33,8 +33,8 @@ public final class JdbcLoggerUtils {
             return "Not Present";
         }
         StringBuilder stringBuilder = new StringBuilder(jdbcRowMapper.getClass().getSimpleName());
-        if (jdbcRowMapper instanceof BeanPropertyRowMapper) {
-            BeanPropertyRowMapper<?> mapper = (BeanPropertyRowMapper<?>) jdbcRowMapper;
+        if (jdbcRowMapper instanceof JdbcRowMapper) {
+            JdbcRowMapper<?> mapper = (JdbcRowMapper<?>) jdbcRowMapper;
             if (Objects.nonNull(mapper.getMappedClass())) {
                 stringBuilder.append("<")
                         .append(mapper.getMappedClass().getSimpleName())

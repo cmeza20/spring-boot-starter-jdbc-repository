@@ -1,19 +1,27 @@
 package com.cmeza.spring.jdbc.repository.mappers;
 
 import com.cmeza.spring.jdbc.repository.resolvers.JdbcProjectionSupport;
+import com.cmeza.spring.jdbc.repository.resolvers.JdbcProjectionSupportImpl;
+import lombok.Getter;
 import org.springframework.beans.BeanWrapperImpl;
-import org.springframework.beans.TypeConverter;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Objects;
 
-public abstract class JdbcRowMapper<T> extends BeanPropertyRowMapper<T> {
+@Getter
+public abstract class JdbcRowMapper<T> implements RowMapper<T> {
+    private final Class<T> mappedClass;
+    private final BeanPropertyRowMapper<T> beanPropertyRowMapper;
+    private ProjectionJdbcRowMapper<T> projectionJdbcRowMapper;
     private JdbcProjectionSupport<T, T> projectionSupport;
+    private boolean isDefaultProjectionSupport;
 
     protected JdbcRowMapper(Class<T> mappedClass) {
-        super(mappedClass);
+        this.mappedClass = mappedClass;
+        this.beanPropertyRowMapper = new BeanPropertyRowMapper<>(this.mappedClass);
     }
 
     public static <T> JdbcRowMapper<T> newInstance(Class<T> mappedClass) {
@@ -21,33 +29,28 @@ public abstract class JdbcRowMapper<T> extends BeanPropertyRowMapper<T> {
     }
 
     @Override
-    protected T constructMappedInstance(ResultSet rs, TypeConverter tc) throws SQLException {
-        if (Objects.nonNull(projectionSupport)) {
-            return projectionSupport.constructMappedInstance(rs, tc);
-        }
-        return super.constructMappedInstance(rs, tc);
-    }
-
-    @Override
     public T mapRow(ResultSet rs, int rowNumber) throws SQLException {
         T obj;
         if (Objects.nonNull(projectionSupport)) {
-            if (projectionSupport.overrideMapRow()) {
-                obj = constructMappedInstance(rs, new BeanWrapperImpl());
+            if (isDefaultProjectionSupport) {
+                obj = projectionJdbcRowMapper.mapRow(rs, rowNumber);
+            } else if (projectionSupport.overrideMapRow()) {
+                obj = projectionSupport.constructMappedInstance(rs, new BeanWrapperImpl());
             } else {
-                obj = super.mapRow(rs, rowNumber);
+                obj = beanPropertyRowMapper.mapRow(rs, rowNumber);
             }
             projectionSupport.mapRow(obj, rs, rowNumber);
         } else {
-            obj = super.mapRow(rs, rowNumber);
+            obj = beanPropertyRowMapper.mapRow(rs, rowNumber);
         }
         return obj;
     }
 
-    public JdbcRowMapper<T> setProjectionSupport(JdbcProjectionSupport<T, T> projectionSupport) {
-        if (Objects.nonNull(projectionSupport)) {
-            this.projectionSupport = projectionSupport;
-            this.initialize(projectionSupport.getProjectionImplClass());
+    public JdbcRowMapper<T> init(JdbcProjectionSupport<T, T> projectionSupport) {
+        if (this.mappedClass.isInterface()) {
+            this.projectionSupport = Objects.nonNull(projectionSupport) ? projectionSupport : new JdbcProjectionSupportImpl<>();
+            this.isDefaultProjectionSupport = Objects.isNull(projectionSupport);
+            this.projectionJdbcRowMapper = new ProjectionJdbcRowMapper<>(this.mappedClass);
         }
         return this;
     }
