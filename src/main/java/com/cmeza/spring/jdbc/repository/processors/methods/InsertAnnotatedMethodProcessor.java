@@ -4,6 +4,8 @@ import com.cmeza.spring.ioc.handler.metadata.ClassMetadata;
 import com.cmeza.spring.ioc.handler.metadata.MethodMetadata;
 import com.cmeza.spring.jdbc.repository.annotations.JdbcRepository;
 import com.cmeza.spring.jdbc.repository.annotations.methods.JdbcInsert;
+import com.cmeza.spring.jdbc.repository.naming.NamingStrategy;
+import com.cmeza.spring.jdbc.repository.naming.NoOpNamingStrategy;
 import com.cmeza.spring.jdbc.repository.repositories.executors.JdbcExecutor;
 import com.cmeza.spring.jdbc.repository.repositories.executors.definition.JdbcInsertExecutor;
 
@@ -23,6 +25,12 @@ public class InsertAnnotatedMethodProcessor extends AbstractAnnotatedMethodProce
             annotationValues.put(CATALOG, jdbcRepository.catalog());
         } else {
             annotationValues.put(CATALOG, propertiesResolver.resolveRequiredPlaceholders(annotation.catalog()));
+        }
+
+        NamingStrategy namingStrategy = this.extractNamingStrategy(annotation.columnsNamingStrategy());
+        if (!namingStrategy.getClass().isAssignableFrom(NoOpNamingStrategy.class)) {
+            annotationValues.put("columns", this.executeNamingStrategy(annotation.columns(), namingStrategy));
+            annotationValues.put("generatedKeyColumns", this.executeNamingStrategy(annotation.generatedKeyColumns(), namingStrategy));
         }
     }
 

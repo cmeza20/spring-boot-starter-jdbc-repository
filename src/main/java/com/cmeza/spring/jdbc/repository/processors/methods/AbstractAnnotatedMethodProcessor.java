@@ -9,14 +9,18 @@ import com.cmeza.spring.jdbc.repository.annotations.JdbcRepository;
 import com.cmeza.spring.jdbc.repository.aware.JdbcRepositoryAware;
 import com.cmeza.spring.jdbc.repository.contracts.JdbcContractFunctions;
 import com.cmeza.spring.jdbc.repository.mappers.JdbcRowMapper;
+import com.cmeza.spring.jdbc.repository.naming.NamingStrategy;
+import com.cmeza.spring.jdbc.repository.naming.NoOpNamingStrategy;
 import com.cmeza.spring.jdbc.repository.repositories.executors.JdbcExecutor;
 import com.cmeza.spring.jdbc.repository.repositories.utils.JdbcUtils;
 import com.cmeza.spring.jdbc.repository.resolvers.JdbcPropertyResolver;
+import org.springframework.beans.BeanUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.Assert;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 
@@ -26,6 +30,7 @@ public abstract class AbstractAnnotatedMethodProcessor<A extends Annotation> imp
     protected static final String SCHEMA = "schema";
     protected static final String CATALOG = "catalog";
     protected JdbcPropertyResolver propertiesResolver;
+    protected NamingStrategy globalNamingStrategy;
 
     protected abstract void annotationProcess(JdbcRepository jdbcRepository, A annotation, ClassMetadata classMetadata, MethodMetadata methodMetadata, Map<String, Object> annotationValues);
 
@@ -84,6 +89,21 @@ public abstract class AbstractAnnotatedMethodProcessor<A extends Annotation> imp
         }
     }
 
+    protected NamingStrategy extractNamingStrategy(Class<? extends NamingStrategy> customNamingStrategyClass) {
+        NamingStrategy customNamingStrategy = Objects.nonNull(customNamingStrategyClass) ? BeanUtils.instantiateClass(customNamingStrategyClass) : null;
+        if (Objects.nonNull(customNamingStrategy) && !customNamingStrategyClass.isAssignableFrom(NoOpNamingStrategy.class)) {
+            return customNamingStrategy;
+        } else if (Objects.nonNull(globalNamingStrategy)) {
+            return globalNamingStrategy;
+        } else {
+            return new NoOpNamingStrategy();
+        }
+    }
+
+    protected String[] executeNamingStrategy(String[] origins, NamingStrategy customNamingStrategy) {
+        return Arrays.stream(origins).map(customNamingStrategy::parse).toArray(String[]::new);
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public Class<A> getAnnotationType() {
@@ -94,4 +114,10 @@ public abstract class AbstractAnnotatedMethodProcessor<A extends Annotation> imp
     public void setPropertiesResolver(JdbcPropertyResolver propertiesResolver) {
         this.propertiesResolver = propertiesResolver;
     }
+
+    @Override
+    public void setNamingStrategy(NamingStrategy namingStrategy) {
+        this.globalNamingStrategy = namingStrategy;
+    }
+
 }

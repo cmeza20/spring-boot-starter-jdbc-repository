@@ -15,16 +15,17 @@ import com.cmeza.spring.jdbc.repository.contracts.JdbcContract;
 import com.cmeza.spring.jdbc.repository.interceptors.JdbcRepositoryTemplateMethodInterceptor;
 import com.cmeza.spring.jdbc.repository.interceptors.JdbcTemplateMethodInterceptor;
 import com.cmeza.spring.jdbc.repository.interceptors.NamedParameterJdbcTemplateMethodInterceptor;
+import com.cmeza.spring.jdbc.repository.naming.NamingStrategy;
 import com.cmeza.spring.jdbc.repository.processors.classes.RepositoryAnnotatedClassProcessor;
 import com.cmeza.spring.jdbc.repository.processors.methods.*;
 import com.cmeza.spring.jdbc.repository.processors.parameters.ParamAnnotatedParameterProcessor;
 import com.cmeza.spring.jdbc.repository.repositories.template.JdbcRepositoryTemplate;
 import com.cmeza.spring.jdbc.repository.resolvers.JdbcPropertyResolver;
 import com.cmeza.spring.jdbc.repository.resolvers.JdbcPropertyResolverImpl;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureOrder;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
@@ -44,14 +45,12 @@ public class JdbcRepositoryAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnBean(DataSource.class)
     public NamedParameterJdbcTemplate namedParameterJdbcTemplate(DataSource dataSource) {
         return new NamedParameterJdbcTemplate(dataSource);
     }
 
     @Primary
     @Bean("jdbcRepositoryTemplate")
-    @ConditionalOnBean(DataSource.class)
     public JdbcRepositoryTemplate jdbcRepositoryTemplate(DataSource dataSource) {
         return new JdbcRepositoryTemplate(dataSource);
     }
@@ -129,5 +128,11 @@ public class JdbcRepositoryAutoConfiguration {
     @Bean
     public BeanPostProcessor awareBeanPostProcessor(ApplicationContext applicationContext) {
         return new AwareBeanPostProcessor(applicationContext);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public NamingStrategy namingStrategy(JdbcRepositoryProperties jdbcRepositoryProperties) {
+        return BeanUtils.instantiateClass(jdbcRepositoryProperties.getNamingStrategy());
     }
 }
