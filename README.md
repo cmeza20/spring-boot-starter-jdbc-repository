@@ -36,6 +36,7 @@ Jdbc template repositories, inspired by Spring data Jpa
 * [Properties Placeholder](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/Properties-Placeholder)
 * [JdbcRepositoryTemplate multi tenant](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/JdbcRepositoryTemplate-multi-tenant)
 * [JdbcRepositoryTemplate manual execute](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/JdbcRepositoryTemplate)
+* [NamingStrategy](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/NamingStrategy)
 
 
 ## Maven Integration ##
@@ -45,13 +46,17 @@ Jdbc template repositories, inspired by Spring data Jpa
 <dependency>
     <groupId>com.cmeza</groupId>
     <artifactId>spring-boot-starter-jdbc-repository</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 </dependency>
 ```
 
 ### Example
 
 ```java
+import com.cmeza.spring.jdbc.repository.annotations.methods.JdbcUpdate;
+import com.cmeza.spring.jdbc.repository.naming.CamelToSnakeCaseNamingStrategy;
+import com.cmeza.spring.jdbc.repository.naming.SnakeToCamelCaseNamingStrategy;
+
 @JdbcRepository
 public interface UserRepository {
 
@@ -84,6 +89,9 @@ public interface UserRepository {
     @JdbcUpdate(value = "truncate user")
     void usersTruncate();
 
+    @JdbcUpdate(value = "insert into user(name, lastname) values (:name, :lastname)", keyColumnNames = "userId", columnsNamingStrategy = CamelToSnakeCaseNamingStrategy.class)
+    int insertUserSnakeCase(Long id);
+
 
     //Batch Update
     //------------------------------------------------------
@@ -108,6 +116,9 @@ public interface UserRepository {
     @JdbcInsert(table = "user", columns = {"name", "lastname"}, generatedKeyColumns = "id")
     KeyHolder userInsert5(User user);
 
+    @JdbcInsert(table = "user", columns = {"user_name", "last_name"}, generatedKeyColumns = "user_id", columnsNamingStrategy = SnakeToCamelCaseNamingStrategy.class)
+    int userInsertCamelCase(String name, String lastname);
+
 
     //Function
     //------------------------------------------------------
@@ -118,14 +129,19 @@ public interface UserRepository {
     Optional<User> userGetOne(@JdbcParam(value = "var_id", type = Types.INTEGER) Long id);
 
     @JdbcFunction(name = "fn_users_bin_process", outParameters = {
-            @OutParameter(value="process1", type = Types.VARCHAR),
-            @OutParameter(value="process2", type = Types.VARCHAR)
+            @OutParameter(value = "process1", type = Types.VARCHAR),
+            @OutParameter(value = "process2", type = Types.VARCHAR)
     })
     Map<String, Object> userBinProcess();
 
-    @JdbcFunction(name = "fn_users_uuid", outParameters = @OutParameter(value="result", type = Types.VARCHAR))
+    @JdbcFunction(name = "fn_users_uuid", outParameters = @OutParameter(value = "result", type = Types.VARCHAR))
     String userUUID();
 
+    @JdbcFunction(name = "fn_users_bin_process_snake_case", outParameters = {
+            @OutParameter(value = "processOne", type = Types.VARCHAR),
+            @OutParameter(value = "processTwo", type = Types.VARCHAR)
+    }, inParameterNames = "simpleParam", parametersNamingStrategy = CamelToSnakeCaseNamingStrategy.class)
+    Map<String, Object> userBinProcessSnakeCase();
 
     //Stored Procedure
     //------------------------------------------------------
@@ -141,9 +157,14 @@ public interface UserRepository {
     @JdbcProcedure(name = "sp_users_created_at_and_updated_at", outParameters = {
             @OutParameter(value = "created_at", type = Types.TIMESTAMP, order = 2),
             @OutParameter(value = "updated_at", type = Types.TIMESTAMP, order = 3)
-    } )
+    })
     Map<String, Object> userCreatedAtAndUpdatedAt(@JdbcParam(value = "var_id") Long id);
 
+    @JdbcProcedure(name = "sp_users_created_at_and_updated_at_camel_case", outParameters = {
+            @OutParameter(value = "created_at", type = Types.TIMESTAMP, order = 2),
+            @OutParameter(value = "updated_at", type = Types.TIMESTAMP, order = 3)
+    }, parametersNamingStrategy = SnakeToCamelCaseNamingStrategy.class)
+    Map<String, Object> userCreatedAtAndUpdatedAtCamelCase(@JdbcParam(value = "var_id") Long id);
 
     //Projection support
     //------------------------------------------------------

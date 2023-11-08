@@ -1,5 +1,6 @@
 package com.cmeza.spring.jdbc.repository.aware;
 
+import com.cmeza.spring.jdbc.repository.naming.NamingStrategy;
 import com.cmeza.spring.jdbc.repository.repositories.template.JdbcRepositoryTemplate;
 import com.cmeza.spring.jdbc.repository.resolvers.JdbcPropertyResolver;
 import org.springframework.beans.BeansException;
@@ -21,6 +22,7 @@ public class AwareBeanPostProcessor implements BeanPostProcessor {
             jdbcRepositoryAware.setPropertiesResolver(applicationContext.getBean(JdbcPropertyResolver.class));
             jdbcRepositoryAware.setJdbcRepositoryTemplate(applicationContext.getBean(JdbcRepositoryTemplate.class));
             jdbcRepositoryAware.setJdbcRepositoryTemplate(applicationContext.getBeansOfType(JdbcRepositoryTemplate.class));
+            jdbcRepositoryAware.setNamingStrategy(applicationContext.getBean(NamingStrategy.class));
             return bean;
         }
         return bean;

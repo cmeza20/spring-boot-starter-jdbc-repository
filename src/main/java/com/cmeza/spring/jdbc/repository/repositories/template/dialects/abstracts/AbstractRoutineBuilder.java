@@ -20,8 +20,8 @@ public abstract class AbstractRoutineBuilder extends AbstractJdbcBuilder<JdbcRou
     private static final String ROUTINE_SUPPORT_EXCEPTION_MESSAGE = "Routine does not support parameters in batch";
     private static final String OUTPARAMETER_NAME = "@OUT_RESULT";
     private static final String RESULTSET_NAME = "@ROWMAP_RESULT";
-    private final List<Map.Entry<Direction, SqlParameter>> parameters = new LinkedList<>();
     protected final String routineName;
+    private final List<Map.Entry<Direction, SqlParameter>> parameters = new LinkedList<>();
     private final SimpleJdbcCall simpleJdbcCall;
     private boolean hasOutParameter;
 
@@ -45,7 +45,7 @@ public abstract class AbstractRoutineBuilder extends AbstractJdbcBuilder<JdbcRou
         String schema = simpleJdbcCall.getSchemaName();
         Set<String> inParameterNames = simpleJdbcCall.getInParameterNames();
         if (Objects.nonNull(catalog) && !catalog.isEmpty()) {
-            logger.debug("| Catalog: {}",  catalog);
+            logger.debug("| Catalog: {}", catalog);
         }
         if (Objects.nonNull(schema) && !schema.isEmpty()) {
             logger.debug("| Schema: {}", simpleJdbcCall.getSchemaName());
@@ -243,12 +243,6 @@ public abstract class AbstractRoutineBuilder extends AbstractJdbcBuilder<JdbcRou
         return executeListInternal(callEntry);
     }
 
-    private <T> T executeInternal(@NonNull Class<T> returnType, Map.Entry<String, SimpleJdbcCall> callEntry) {
-        this.resultTypeRequired(returnType);
-        this.createRowMapperIfnotExists(returnType);
-        return this.simpleJdbcCallExecute(getMergedSqlParameterSource(), returnType, callEntry);
-    }
-
     private <T> T simpleJdbcCallExecute(SqlParameterSource parameterSource, Class<T> resultType, Map.Entry<String, SimpleJdbcCall> callEntry) {
         if (Objects.nonNull(callEntry.getKey())) {
             return (T) callEntry.getValue().execute(parameterSource).get(callEntry.getKey());
@@ -264,9 +258,9 @@ public abstract class AbstractRoutineBuilder extends AbstractJdbcBuilder<JdbcRou
                 .forEach(bean -> Arrays.stream(Objects.requireNonNull(bean.getParameterNames()))
                         .filter(name -> !name.equalsIgnoreCase("class"))
                         .forEach(name -> {
-            SqlParameter sqlParameter = new SqlParameter(name, bean.getSqlType(name));
-            parameters.add(new AbstractMap.SimpleEntry<>(Direction.IN, sqlParameter));
-        }));
+                            SqlParameter sqlParameter = new SqlParameter(name, bean.getSqlType(name));
+                            parameters.add(new AbstractMap.SimpleEntry<>(Direction.IN, sqlParameter));
+                        }));
 
         RowMapper<?> rowMapper = getRowMapper();
         boolean hasRowMapper = Objects.nonNull(rowMapper) && !(rowMapper instanceof SingleColumnRowMapper) && !(rowMapper instanceof ColumnMapRowMapper);

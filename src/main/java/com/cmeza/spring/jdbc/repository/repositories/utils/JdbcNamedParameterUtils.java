@@ -1,9 +1,12 @@
 package com.cmeza.spring.jdbc.repository.repositories.utils;
 
+import com.cmeza.spring.jdbc.repository.annotations.parameters.OutParameter;
+import com.cmeza.spring.jdbc.repository.naming.NamingStrategy;
 import com.cmeza.spring.jdbc.repository.repositories.template.parsers.ParsedJdbcSql;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.UtilityClass;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.core.SqlParameterValue;
@@ -357,6 +360,15 @@ public final class JdbcNamedParameterUtils {
         } else {
             return results.iterator().next();
         }
+    }
+
+    public OutParameter[] extractOutParameters(OutParameter[] outParameters, NamingStrategy namingStrategy) {
+        if (Objects.isNull(outParameters)) return outParameters;
+        return Arrays.stream(outParameters).map(annotation -> {
+            Map<String, Object> mapValues = AnnotationUtils.getAnnotationAttributes(annotation);
+            mapValues.put("value", namingStrategy.parse((String)mapValues.get("value")));
+            return JdbcUtils.updateAnnotation(annotation, mapValues);
+        }).toArray(OutParameter[]::new);
     }
 
     @Getter
