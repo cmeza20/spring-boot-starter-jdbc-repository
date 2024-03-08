@@ -3,6 +3,7 @@ package com.cmeza.spring.jdbc.repository.processors;
 import com.cmeza.spring.jdbc.repository.configurations.JdbcRepositoryProperties;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.boot.env.YamlPropertySourceLoader;
@@ -11,6 +12,7 @@ import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.StandardEnvironment;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePropertySource;
@@ -42,14 +44,13 @@ public class JdbcEnvironmentPostProcessor implements EnvironmentPostProcessor {
         }
     };
 
+
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         try {
             String path = environment.getProperty("spring.jdbc.repository.sqlFolder", JdbcRepositoryProperties.SQL_DEFAULT_FOLDER);
-            ResourcePatternResolver patternResolver = new PathMatchingResourcePatternResolver(application.getClassLoader());
 
-            Resource[] resources = patternResolver.getResources(path);
-
+            Resource[] resources = getResources(application.getClassLoader(), path);
             Map<String, List<Resource>> mapResources = Arrays.stream(resources)
                     .collect(Collectors.groupingBy(r -> FilenameUtils.getExtension(extractFile.apply(r).getName()).toLowerCase()));
 
@@ -107,5 +108,14 @@ public class JdbcEnvironmentPostProcessor implements EnvironmentPostProcessor {
         System.out.println("Jdbc Source registered: " + name);
     }
 
+    private Resource[] getResources(ClassLoader classLoader, String path) {
+        try {
+            PathMatchingResourcePatternResolver patternResolver = new PathMatchingResourcePatternResolver(classLoader);
+            return patternResolver.getResources(path);
+        } catch (Exception e) {
+            System.out.println("The folder is empty or not found: " + path);
+            return new Resource[0];
+        }
+    }
 }
 

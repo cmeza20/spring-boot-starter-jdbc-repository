@@ -31,7 +31,13 @@
 - Global Naming Strategy
 - Naming Strategy for JdbcFunction, JdbcInsert, JdbcProcedure and JdbcUpdate
 
+## [1.0.4] - 2024-03-08
+### Added
+- Fix folder search in classpath
+- Profiling in pom.xml
+
 [1.0.0]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/1.0.0
 [1.0.1]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/1.0.1
 [1.0.2]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/1.0.2
 [1.0.3]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/1.0.3
+[1.0.4]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/1.0.4
