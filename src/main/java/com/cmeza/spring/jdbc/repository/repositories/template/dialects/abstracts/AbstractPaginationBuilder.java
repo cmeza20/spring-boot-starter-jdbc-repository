@@ -13,7 +13,8 @@ import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.*;
-import org.springframework.jdbc.core.*;
+import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -31,32 +32,35 @@ public abstract class AbstractPaginationBuilder extends AbstractJdbcBuilder<Jdbc
     }
 
     public <R> JdbcPage<R> fetchPage(String sql, String countSql, JdbcPageRequest pageRequest, RowMapper<R> rowMapper) {
-        int hashCode = sql.hashCode();
-        try {
-            Long total = 0L;
-            String csql = getCountSql(sql, countSql, hashCode);
-            String psql = getPageSql(sql, hashCode);
+        return execute(() -> {
+            int hashCode = sql.hashCode();
 
-            if (loggeable) {
-                AbstractJdbcBuilder.log.info("| Query: [{}]", psql);
-                AbstractJdbcBuilder.log.info("| Query count: [{}]", csql);
-            }
+            try {
+                Long total = 0L;
+                String csql = getCountSql(sql, countSql, hashCode);
+                String psql = getPageSql(sql, hashCode);
 
-            if (Objects.nonNull(csql)) {
-                total = jdbcRepositoryTemplate.getJdbcOperations().query(jdbcRepositoryTemplate.getPreparedStatementCreator(csql, getParameterSources()), resultSetExtractor);
-                if (Objects.nonNull(total) && total <= 0) {
-                    return new JdbcPageImpl<>(total, pageRequest);
+                if (loggeable) {
+                    AbstractJdbcBuilder.log.info("| Query: [{}]", psql);
+                    AbstractJdbcBuilder.log.info("| Query count: [{}]", csql);
                 }
+
+                if (Objects.nonNull(csql)) {
+                    total = jdbcRepositoryTemplate.getJdbcOperations().query(jdbcRepositoryTemplate.getPreparedStatementCreator(csql, getParameterSources()), resultSetExtractor);
+                    if (Objects.nonNull(total) && total <= 0) {
+                        return new JdbcPageImpl<>(total, pageRequest);
+                    }
+                }
+
+                this.preparePageParams(pageRequest);
+
+                List<R> rows = jdbcRepositoryTemplate.getJdbcOperations().query(jdbcRepositoryTemplate.getPreparedStatementCreator(psql, getParameterSources()), rowMapper);
+
+                return new JdbcPageImpl<>(rows, Objects.nonNull(total) ? total : 0L, pageRequest);
+            } catch (JSQLParserException e) {
+                throw new JdbcPaginationException(sql, e);
             }
-
-            this.preparePageParams(pageRequest);
-
-            List<R> rows = jdbcRepositoryTemplate.getJdbcOperations().query(jdbcRepositoryTemplate.getPreparedStatementCreator(psql, getParameterSources()), rowMapper);
-
-            return new JdbcPageImpl<>(rows, Objects.nonNull(total) ? total : 0L, pageRequest);
-        } catch (JSQLParserException e) {
-            throw new JdbcPaginationException(sql, e);
-        }
+        });
     }
 
     protected String getCountSql(String sql, String countSql, int hashcode) throws JSQLParserException {

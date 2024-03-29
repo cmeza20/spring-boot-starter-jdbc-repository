@@ -44,19 +44,24 @@ public final class JdbcLoggerUtils {
         return stringBuilder.toString();
     }
 
-    public void printHeaderLog(Logger logger, boolean loggeable, JdbcDatabaseMatadata databaseMetaData, String className, RowMapper<?> rowMapper, Consumer<Logger> printExtras, String jdbcRepositoryTemplateBeanName) {
-        if (loggeable && logger.isInfoEnabled()) {
+    public void printHeaderLog(JdbcHeaderLog jdbcHeaderLog) {
+        Logger logger = jdbcHeaderLog.getLogger();
+        if (jdbcHeaderLog.isLoggeable() && logger.isInfoEnabled()) {
             logger.info("|");
-            if (Objects.nonNull(databaseMetaData)) {
-                logger.info("| Dialect: {} {}", databaseMetaData.getDatabaseProductName(), databaseMetaData.getDatabaseProductVersion());
+            if (jdbcHeaderLog.hasDatabaseMetadata()) {
+                logger.info("| Dialect: {} {}", jdbcHeaderLog.getDatabaseMetaData().getDatabaseProductName(), jdbcHeaderLog.getDatabaseMetaData().getDatabaseProductVersion());
             }
-            logger.info("| Executor: {}", className);
-            logger.info("| JdbcRepositoryTemplate: {}", jdbcRepositoryTemplateBeanName);
+            logger.info("| Executor: {}", jdbcHeaderLog.getClassName());
+            logger.info("| JdbcRepositoryTemplate: {}", jdbcHeaderLog.getJdbcRepositoryTemplateBeanName());
 
-            printExtras.accept(logger);
+            if (jdbcHeaderLog.hasKey()) {
+                logger.info("| Key Identification: {}", jdbcHeaderLog.getKey());
+            }
 
-            if (Objects.nonNull(rowMapper)) {
-                String rowMapperName = JdbcLoggerUtils.printRowMapper(rowMapper);
+            jdbcHeaderLog.getPrintExtras().accept(logger);
+
+            if (jdbcHeaderLog.hasRowMapper()) {
+                String rowMapperName = JdbcLoggerUtils.printRowMapper(jdbcHeaderLog.getRowMapper());
                 logger.info("| RowMapper: {}", rowMapperName);
             }
         }

@@ -48,6 +48,7 @@ public class JdbcInsertExecutor extends AbstractJdbcExecutor<JdbcInsertBuilder> 
                 .withGeneratedKeyColumns(jdbcInsert.generatedKeyColumns())
                 .withAccessTableColumnMetaData(jdbcInsert.accessTableColumnMetaData())
                 .withOverrideIncludeSynonymsDefault(jdbcInsert.overrideIncludeSynonymsDefault())
+                .withKey(configuration.getConfigKey())
                 .loggeable(configuration.isLoggeable());
     }
 

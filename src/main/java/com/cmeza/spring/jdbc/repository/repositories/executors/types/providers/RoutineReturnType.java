@@ -55,7 +55,7 @@ public enum RoutineReturnType implements QueryImplementation<JdbcRoutineBuilder>
         @Override
         public Object execute(JdbcRoutineBuilder builder, RowMapper<?> rowMapper, Class<?> resultType) {
             builder.withRowMapper(rowMapper);
-            return Objects.nonNull(resultType) ? builder.execute(resultType) : builder.execute();
+            return Objects.nonNull(resultType) ? builder.execute(resultType) : builder.executeList();
         }
     };
 

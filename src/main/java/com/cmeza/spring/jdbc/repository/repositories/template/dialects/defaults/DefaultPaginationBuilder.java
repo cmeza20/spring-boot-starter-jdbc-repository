@@ -46,7 +46,7 @@ public class DefaultPaginationBuilder extends AbstractPaginationBuilder {
         this.resultTypeRequired(resultType);
         this.pageRequestRequired();
         this.createRowMapperIfnotExists(resultType);
-        return execute(() -> fetchPage(query, customCountquery, pageRequest, getRowMapper()));
+        return fetchPage(query, customCountquery, pageRequest, getRowMapper());
     }
 
     @Override
@@ -54,7 +54,7 @@ public class DefaultPaginationBuilder extends AbstractPaginationBuilder {
         this.rowMapperRequired();
         this.withPageRequest(pageRequest);
         this.pageRequestRequired();
-        return execute(() -> fetchPage(query, customCountquery, pageRequest, getRowMapper()));
+        return fetchPage(query, customCountquery, pageRequest, getRowMapper());
     }
 
     @Override
@@ -63,7 +63,7 @@ public class DefaultPaginationBuilder extends AbstractPaginationBuilder {
         this.withPageRequest(pageRequest);
         this.pageRequestRequired();
         this.createRowMapperIfnotExists(resultType);
-        return execute(() -> fetchPage(query, customCountquery, pageRequest, getRowMapper()));
+        return fetchPage(query, customCountquery, pageRequest, getRowMapper());
     }
 
     protected void pageRequestRequired() {

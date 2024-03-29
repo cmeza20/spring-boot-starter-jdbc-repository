@@ -35,6 +35,7 @@ public class JdbcBatchUpdateExecutor extends AbstractJdbcExecutor<JdbcBatchUpdat
     @Override
     protected JdbcBatchUpdateBuilder bindBuilder(JdbcRepositoryTemplate jdbcTemplate, JdbcConfiguration configuration) {
         return jdbcTemplate.batchUpdate(jdbcBatchUpdate.value())
+                .withKey(configuration.getConfigKey())
                 .loggeable(configuration.isLoggeable());
     }
 

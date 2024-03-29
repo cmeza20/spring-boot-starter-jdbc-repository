@@ -49,6 +49,7 @@ public class JdbcUpdateExecutor extends AbstractJdbcExecutor<JdbcUpdateBuilder> 
     protected JdbcUpdateBuilder bindBuilder(JdbcRepositoryTemplate jdbcTemplate, JdbcConfiguration configuration) {
         return jdbcTemplate.update(jdbcUpdate.value())
                 .withKeyColumnNames(keyColumnNames)
+                .withKey(configuration.getConfigKey())
                 .loggeable(configuration.isLoggeable());
     }
 

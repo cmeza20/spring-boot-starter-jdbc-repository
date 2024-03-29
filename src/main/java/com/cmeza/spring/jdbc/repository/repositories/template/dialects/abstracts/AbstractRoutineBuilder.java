@@ -45,14 +45,14 @@ public abstract class AbstractRoutineBuilder extends AbstractJdbcBuilder<JdbcRou
         String schema = simpleJdbcCall.getSchemaName();
         Set<String> inParameterNames = simpleJdbcCall.getInParameterNames();
         if (Objects.nonNull(catalog) && !catalog.isEmpty()) {
-            logger.debug("| Catalog: {}", catalog);
+            logger.info("| Catalog: {}", catalog);
         }
         if (Objects.nonNull(schema) && !schema.isEmpty()) {
-            logger.debug("| Schema: {}", simpleJdbcCall.getSchemaName());
+            logger.info("| Schema: {}", simpleJdbcCall.getSchemaName());
         }
         this.printExtrasRoutine(logger);
         if (!inParameterNames.isEmpty()) {
-            logger.debug("| inParameterNames: {}", inParameterNames);
+            logger.info("| inParameterNames: {}", inParameterNames);
         }
 
         for (Map.Entry<Direction, SqlParameter> entry : parameters) {
@@ -61,79 +61,71 @@ public abstract class AbstractRoutineBuilder extends AbstractJdbcBuilder<JdbcRou
     }
 
     @Override
-    public <T> T execute() {
-        Map.Entry<String, SimpleJdbcCall> callEntry = prepareRoutineJdbcCall(List.class);
-        return execute(() -> JdbcNamedParameterUtils.singleResult(executeListInternal(callEntry)));
-    }
-
-    @Override
     public <T> T execute(Class<T> returnType) {
-        Map.Entry<String, SimpleJdbcCall> callEntry = prepareRoutineJdbcCall(returnType);
-        return execute(() -> JdbcNamedParameterUtils.singleResult(executeListInternal(returnType, callEntry)));
+        int type = StatementCreatorUtils.javaTypeToSqlParameterType(returnType);
+        if (type != SqlTypeValue.TYPE_UNKNOWN) {
+            Map.Entry<String, SimpleJdbcCall> callEntry = prepareRoutineJdbcCall(returnType);
+            return executeInternal(callEntry, returnType);
+        }
+        return JdbcNamedParameterUtils.singleResult(executeListInternal(returnType));
+
     }
 
     @Override
     public <T> List<T> executeList() {
         Map.Entry<String, SimpleJdbcCall> callEntry = prepareRoutineJdbcCall(List.class);
-        return execute(() -> executeListInternal(callEntry));
+        return executeListInternal(callEntry);
     }
 
     @Override
     public <T> List<T> executeList(Class<T> returnType) {
-        Map.Entry<String, SimpleJdbcCall> callEntry = prepareRoutineJdbcCall(returnType);
-        return execute(() -> executeListInternal(returnType, callEntry));
+        return executeListInternal(returnType);
     }
 
     @Override
     public <T> Set<T> executeSet() {
         Map.Entry<String, SimpleJdbcCall> callEntry = prepareRoutineJdbcCall(List.class);
-        return execute(() -> new HashSet<>(this.executeListInternal(callEntry)));
+        return new HashSet<>(this.executeListInternal(callEntry));
     }
 
     @Override
     public <T> Set<T> executeSet(Class<T> returnType) {
-        Map.Entry<String, SimpleJdbcCall> callEntry = prepareRoutineJdbcCall(returnType);
-        return execute(() -> new HashSet<>(this.executeListInternal(returnType, callEntry)));
+        return new HashSet<>(this.executeListInternal(returnType));
     }
 
     @Override
     public <T> Stream<T> executeStream() {
         Map.Entry<String, SimpleJdbcCall> callEntry = prepareRoutineJdbcCall(List.class);
-        return (Stream<T>) execute(() -> Stream.of(this.executeListInternal(callEntry)));
+        return (Stream<T>) Stream.of(this.executeListInternal(callEntry));
     }
 
     @Override
     public <T> Stream<T> executeStream(Class<T> returnType) {
-        Map.Entry<String, SimpleJdbcCall> callEntry = prepareRoutineJdbcCall(List.class);
-        return (Stream<T>) execute(() -> Stream.of(this.executeListInternal(returnType, callEntry)));
+        return (Stream<T>) Stream.of(this.executeListInternal(returnType));
     }
 
     @Override
     public <T> Optional<T> executeOptional() {
         Map.Entry<String, SimpleJdbcCall> callEntry = prepareRoutineJdbcCall(List.class);
-        return execute(() -> Optional.ofNullable(JdbcNamedParameterUtils.singleResult(executeListInternal(callEntry))));
+        return Optional.ofNullable(JdbcNamedParameterUtils.singleResult(executeListInternal(callEntry)));
     }
 
     @Override
     public <T> Optional<T> executeOptional(Class<T> returnType) {
-        Map.Entry<String, SimpleJdbcCall> callEntry = prepareRoutineJdbcCall(returnType);
-        return execute(() -> Optional.ofNullable(JdbcNamedParameterUtils.singleResult(executeListInternal(returnType, callEntry))));
+        return Optional.ofNullable(JdbcNamedParameterUtils.singleResult(executeListInternal(returnType)));
     }
 
     @Override
     public <T> T[] executeArray(Class<T> returnType) {
-        Map.Entry<String, SimpleJdbcCall> callEntry = prepareRoutineJdbcCall(returnType);
-        return execute(() -> {
-            List<T> ts = this.executeListInternal(returnType, callEntry);
-            T[] arr = (T[]) Array.newInstance(returnType, ts.size());
-            return ts.toArray(arr);
-        });
+        List<T> ts = this.executeListInternal(returnType);
+        T[] arr = (T[]) Array.newInstance(returnType, ts.size());
+        return ts.toArray(arr);
     }
 
     @Override
     public Map<String, Object> executeMap() {
         SimpleJdbcCall call = prepareRoutineJdbcCall(Object.class).getValue();
-        return execute(() -> call.execute(getMergedSqlParameterSource()));
+        return call.execute(getMergedSqlParameterSource());
     }
 
     @Override
@@ -237,18 +229,26 @@ public abstract class AbstractRoutineBuilder extends AbstractJdbcBuilder<JdbcRou
         return this.simpleJdbcCallExecute(getMergedSqlParameterSource(), List.class, callEntry);
     }
 
-    private <T> List<T> executeListInternal(@NonNull Class<T> resultType, Map.Entry<String, SimpleJdbcCall> callEntry) {
+    private <T> T executeInternal(Map.Entry<String, SimpleJdbcCall> callEntry, @NonNull Class<T> resultType) {
+        this.resultTypeRequired(resultType);
+        return this.simpleJdbcCallExecute(getMergedSqlParameterSource(), resultType, callEntry);
+    }
+
+    private <T> List<T> executeListInternal(@NonNull Class<T> resultType) {
         this.resultTypeRequired(resultType);
         this.createRowMapperIfnotExists(resultType);
+        Map.Entry<String, SimpleJdbcCall> callEntry = prepareRoutineJdbcCall(resultType);
         return executeListInternal(callEntry);
     }
 
     private <T> T simpleJdbcCallExecute(SqlParameterSource parameterSource, Class<T> resultType, Map.Entry<String, SimpleJdbcCall> callEntry) {
-        if (Objects.nonNull(callEntry.getKey())) {
-            return (T) callEntry.getValue().execute(parameterSource).get(callEntry.getKey());
-        }
+        return execute(() -> {
+            if (Objects.nonNull(callEntry.getKey())) {
+                return (T) callEntry.getValue().execute(parameterSource).get(callEntry.getKey());
+            }
 
-        return callEntry.getValue().executeFunction(resultType, parameterSource);
+            return callEntry.getValue().executeFunction(resultType, parameterSource);
+        });
     }
 
     private <T> Map.Entry<String, SimpleJdbcCall> prepareRoutineJdbcCall(Class<T> resultType) {

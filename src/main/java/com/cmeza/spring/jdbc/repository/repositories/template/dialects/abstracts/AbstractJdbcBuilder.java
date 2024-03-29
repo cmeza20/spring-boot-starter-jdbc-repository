@@ -5,6 +5,7 @@ import com.cmeza.spring.jdbc.repository.repositories.template.JdbcRepositoryTemp
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.JdbcDatabaseMatadata;
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.JdbcMetadata;
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.builders.JdbcBuilder;
+import com.cmeza.spring.jdbc.repository.repositories.utils.JdbcHeaderLog;
 import com.cmeza.spring.jdbc.repository.repositories.utils.JdbcLoggerUtils;
 import com.cmeza.spring.jdbc.repository.repositories.utils.JdbcUtils;
 import com.cmeza.spring.jdbc.repository.resolvers.JdbcProjectionSupport;
@@ -30,10 +31,11 @@ public abstract class AbstractJdbcBuilder<T> implements JdbcBuilder<T>, JdbcMeta
     public static final Logger log = LoggerFactory.getLogger(AbstractJdbcBuilder.class);
     private final MapSqlParameterSource mapParameterSource = new MapSqlParameterSource();
     private final List<SqlParameterSource> beanParameterSources = new ArrayList<>();
+    private final Impl impl;
     protected boolean loggeable;
+    protected String key;
     private RowMapper<?> rowMapper;
     private JdbcDatabaseMatadata databaseMetaData;
-    private final Impl impl;
 
     protected AbstractJdbcBuilder(Impl impl) {
         this.impl = impl;
@@ -110,10 +112,18 @@ public abstract class AbstractJdbcBuilder<T> implements JdbcBuilder<T>, JdbcMeta
     public T withRowMapper(RowMapper<?> rowMapper) {
         if (Objects.nonNull(rowMapper)) {
             if (rowMapper instanceof JdbcRowMapper) {
-                Class<T> mappedClass = ((JdbcRowMapper<T>)rowMapper).getMappedClass();
+                Class<T> mappedClass = ((JdbcRowMapper<T>) rowMapper).getMappedClass();
                 ((JdbcRowMapper<T>) rowMapper).init((JdbcProjectionSupport<T, T>) impl.jdbcProjectionSupportMap.get(mappedClass));
             }
             this.rowMapper = rowMapper;
+        }
+        return (T) this;
+    }
+
+    @Override
+    public T withRowMapper(Class<? extends RowMapper<?>> rowMapperClass) {
+        if (Objects.nonNull(rowMapperClass)) {
+            this.withRowMapper(impl.jdbcRepositoryTemplate.registerJdbcRowMapperBean(rowMapperClass));
         }
         return (T) this;
     }
@@ -138,7 +148,17 @@ public abstract class AbstractJdbcBuilder<T> implements JdbcBuilder<T>, JdbcMeta
         Throwable throwable = null;
         R result = null;
         try {
-            JdbcLoggerUtils.printHeaderLog(log, loggeable, databaseMetaData, ((T) this).getClass().getSimpleName(), rowMapper, this::printExtras, impl.getJdbcRepositoryTemplateBeanName());
+            JdbcHeaderLog jdbcHeaderLog = new JdbcHeaderLog()
+                    .setLogger(log)
+                    .setLoggeable(loggeable)
+                    .setDatabaseMetaData(databaseMetaData)
+                    .setClassName(((T) this).getClass().getSimpleName())
+                    .setRowMapper(rowMapper)
+                    .setJdbcRepositoryTemplateBeanName(impl.getJdbcRepositoryTemplateBeanName())
+                    .setKey(this.key)
+                    .setPrintExtras(this::printExtras);
+
+            JdbcLoggerUtils.printHeaderLog(jdbcHeaderLog);
             result = supplier.get();
         } catch (Exception e) {
             throwable = e;
@@ -183,6 +203,12 @@ public abstract class AbstractJdbcBuilder<T> implements JdbcBuilder<T>, JdbcMeta
         return sqlParameterSource;
     }
 
+    @Override
+    public T withKey(String key) {
+        this.key = key;
+        return (T) this;
+    }
+
     protected <E> void createRowMapperIfnotExists(Class<E> returnType) {
         if (Objects.isNull(getRowMapper())) {
             boolean isSingleColumnMapperType = JdbcUtils.isSingleColumnMapperType(returnType);
@@ -191,7 +217,9 @@ public abstract class AbstractJdbcBuilder<T> implements JdbcBuilder<T>, JdbcMeta
             } else if (isSingleColumnMapperType) {
                 withRowMapper(new SingleColumnRowMapper<>(returnType));
             } else {
-                withRowMapper(JdbcRowMapper.newInstance(returnType));
+                JdbcRowMapper<E> rm = JdbcRowMapper.newInstance(returnType);
+                rm.init((JdbcProjectionSupport<E, E>) impl.jdbcProjectionSupportMap.get(rm.getMappedClass()));
+                withRowMapper(rm);
             }
         }
     }

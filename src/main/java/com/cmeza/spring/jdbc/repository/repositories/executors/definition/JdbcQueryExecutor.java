@@ -43,7 +43,9 @@ public class JdbcQueryExecutor extends AbstractJdbcExecutor<JdbcQueryBuilder> {
 
     @Override
     protected JdbcQueryBuilder bindBuilder(JdbcRepositoryTemplate jdbcTemplate, JdbcConfiguration configuration) {
-        return jdbcTemplate.query(jdbcQuery.value()).loggeable(configuration.isLoggeable());
+        return jdbcTemplate.query(jdbcQuery.value())
+                .withKey(configuration.getConfigKey())
+                .loggeable(configuration.isLoggeable());
     }
 
     @Override
