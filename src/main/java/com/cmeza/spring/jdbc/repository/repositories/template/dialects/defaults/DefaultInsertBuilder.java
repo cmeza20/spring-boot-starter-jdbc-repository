@@ -92,20 +92,20 @@ public class DefaultInsertBuilder extends AbstractJdbcBuilder<JdbcInsertBuilder>
     @Override
     public void printExtras(Logger logger) {
         if (Objects.nonNull(catalog) && !catalog.isEmpty()) {
-            logger.debug("| Catalog: {}", catalog);
+            logger.info("| Catalog: {}", catalog);
         }
         if (Objects.nonNull(schema) && !schema.isEmpty()) {
-            logger.debug("| Schema: {}", schema);
+            logger.info("| Schema: {}", schema);
         }
-        logger.debug("| Table name: {}", tableName);
+        logger.info("| Table name: {}", tableName);
         if (Objects.nonNull(columns) && columns.length > 0) {
-            logger.debug("| Columns: {}", Arrays.toString(columns));
+            logger.info("| Columns: {}", Arrays.toString(columns));
         }
         if (Objects.nonNull(generatedKeyColumns) && generatedKeyColumns.length > 0) {
-            logger.debug("| GeneratedKeyColumns: {}", Arrays.toString(generatedKeyColumns));
+            logger.info("| GeneratedKeyColumns: {}", Arrays.toString(generatedKeyColumns));
         }
-        logger.debug("| AccessTableColumnMetaData: {}", accessTableColumnMetaData);
-        logger.debug("| OverrideIncludeSynonymsDefault: {}", overrideIncludeSynonymsDefault);
+        logger.info("| AccessTableColumnMetaData: {}", accessTableColumnMetaData);
+        logger.info("| OverrideIncludeSynonymsDefault: {}", overrideIncludeSynonymsDefault);
     }
 
     private SimpleJdbcInsert generateSimpleJdbcInsert() {

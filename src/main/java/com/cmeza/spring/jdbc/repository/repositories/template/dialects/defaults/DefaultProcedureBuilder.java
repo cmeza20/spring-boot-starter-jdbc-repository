@@ -12,7 +12,7 @@ public class DefaultProcedureBuilder extends AbstractRoutineBuilder {
 
     @Override
     protected void printExtrasRoutine(Logger logger) {
-        logger.debug("| Procedure: {}", routineName);
+        logger.info("| Procedure: {}", routineName);
     }
 
     @Override
@@ -22,7 +22,7 @@ public class DefaultProcedureBuilder extends AbstractRoutineBuilder {
 
     @Override
     protected void printParameter(Logger logger, AbstractRoutineBuilder.Direction direction, String name, String typeName) {
-        logger.debug("| Procedure Parameter: [{} - {} - {}]", direction, name, typeName);
+        logger.info("| Procedure Parameter: [{} - {} - {}]", direction, name, typeName);
     }
 
 }

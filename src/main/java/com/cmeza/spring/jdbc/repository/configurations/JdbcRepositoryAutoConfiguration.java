@@ -12,6 +12,7 @@ import com.cmeza.spring.jdbc.repository.annotations.methods.*;
 import com.cmeza.spring.jdbc.repository.annotations.parameters.JdbcParam;
 import com.cmeza.spring.jdbc.repository.aware.AwareBeanPostProcessor;
 import com.cmeza.spring.jdbc.repository.contracts.JdbcContract;
+import com.cmeza.spring.jdbc.repository.interceptors.JdbcPropertyResolverInterceptor;
 import com.cmeza.spring.jdbc.repository.interceptors.JdbcRepositoryTemplateMethodInterceptor;
 import com.cmeza.spring.jdbc.repository.interceptors.JdbcTemplateMethodInterceptor;
 import com.cmeza.spring.jdbc.repository.interceptors.NamedParameterJdbcTemplateMethodInterceptor;
@@ -118,6 +119,11 @@ public class JdbcRepositoryAutoConfiguration {
     @Bean
     public IocMethodInterceptor<NamedParameterJdbcTemplate> namedParameterJdbcTemplateMethodInterceptor() {
         return new NamedParameterJdbcTemplateMethodInterceptor();
+    }
+
+    @Bean
+    public IocMethodInterceptor<JdbcPropertyResolver> jdbcPropertyResolverMethodInterceptor() {
+        return new JdbcPropertyResolverInterceptor();
     }
 
     @Bean

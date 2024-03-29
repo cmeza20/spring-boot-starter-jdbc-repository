@@ -6,7 +6,7 @@
 
     <groupId>com.cmeza</groupId>
     <artifactId>spring-boot-starter-jdbc-repository</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Spring Boot Starter JDBC Repository</description>
@@ -52,7 +52,7 @@
 
         <spring.boot.starter.version>2.7.11</spring.boot.starter.version>
         <spring.boot.version>5.3.25</spring.boot.version>
-        <spring.ioc.handler.version>1.0.0</spring.ioc.handler.version>
+        <spring.ioc.handler.version>1.0.1</spring.ioc.handler.version>
         <jsqlparser.version>4.6</jsqlparser.version>
         <fasterxml.jackson.annotations.version>2.14.2</fasterxml.jackson.annotations.version>
         <apache.commons.io.version>1.3.2</apache.commons.io.version>

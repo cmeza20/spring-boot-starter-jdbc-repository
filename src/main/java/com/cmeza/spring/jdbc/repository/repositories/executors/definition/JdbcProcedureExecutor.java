@@ -52,6 +52,7 @@ public class JdbcProcedureExecutor extends AbstractJdbcExecutor<JdbcRoutineBuild
                 .withSchema(jdbcProcedure.schema())
                 .withInParameterNames(jdbcProcedure.inParameterNames())
                 .withAccessCallParameterMetaData(jdbcProcedure.accessCallParameterMetaData())
+                .withKey(configuration.getConfigKey())
                 .loggeable(configuration.isLoggeable());
     }
 

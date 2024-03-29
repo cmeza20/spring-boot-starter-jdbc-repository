@@ -12,7 +12,7 @@ public class DefaultFunctionBuilder extends AbstractRoutineBuilder {
 
     @Override
     protected void printExtrasRoutine(Logger logger) {
-        logger.debug("| Function: {}", routineName);
+        logger.info("| Function: {}", routineName);
     }
 
     @Override
@@ -22,7 +22,7 @@ public class DefaultFunctionBuilder extends AbstractRoutineBuilder {
 
     @Override
     protected void printParameter(Logger logger, AbstractRoutineBuilder.Direction direction, String name, String typeName) {
-        logger.debug("| Function Parameter: [{} - {} - {}]", direction, name, typeName);
+        logger.info("| Function Parameter: [{} - {} - {}]", direction, name, typeName);
     }
 
 }

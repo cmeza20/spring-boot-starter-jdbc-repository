@@ -32,62 +32,60 @@ public class DefaultQueryBuilder extends AbstractJdbcBuilder<JdbcQueryBuilder> i
 
     @Override
     public <R> R fetchOne() {
-        return execute(() -> JdbcNamedParameterUtils.singleResult(fetchListInternal()));
+        return JdbcNamedParameterUtils.singleResult(fetchListInternal());
     }
 
     @Override
     public <R> R fetchOne(Class<R> resultType) {
-        return execute(() -> JdbcNamedParameterUtils.singleResult(fetchListInternal(resultType)));
+        return JdbcNamedParameterUtils.singleResult(fetchListInternal(resultType));
     }
 
     @Override
     public <R> Optional<R> fetchOptional() {
-        return execute(() -> Optional.ofNullable(JdbcNamedParameterUtils.singleResult(fetchListInternal())));
+        return Optional.ofNullable(JdbcNamedParameterUtils.singleResult(fetchListInternal()));
     }
 
     @Override
     public <R> Optional<R> fetchOptional(Class<R> resultType) {
-        return execute(() -> Optional.ofNullable(JdbcNamedParameterUtils.singleResult(fetchListInternal(resultType))));
+        return Optional.ofNullable(JdbcNamedParameterUtils.singleResult(fetchListInternal(resultType)));
     }
 
     @Override
     public <R> List<R> fetchList() {
-        return execute(this::fetchListInternal);
+        return this.fetchListInternal();
     }
 
     @Override
     public <R> List<R> fetchList(Class<R> resultType) {
-        return execute(() -> this.fetchListInternal(resultType));
+        return this.fetchListInternal(resultType);
     }
 
     @Override
     public <R> Set<R> fetchSet() {
-        return execute(() -> new HashSet<>(this.fetchListInternal()));
+        return new HashSet<>(this.fetchListInternal());
     }
 
     @Override
     public <R> Set<R> fetchSet(Class<R> resultType) {
-        return execute(() -> new HashSet<>(this.fetchListInternal(resultType)));
+        return new HashSet<>(this.fetchListInternal(resultType));
     }
 
     @Override
     public <R> Stream<R> fetchStream() {
-        return execute(this::fetchStreamInternal);
+        return this.fetchStreamInternal();
     }
 
     @Override
     public <R> Stream<R> fetchStream(Class<R> resultType) {
-        return execute(() -> this.fetchStreamInternal(resultType));
+        return this.fetchStreamInternal(resultType);
     }
 
     @Override
     public <R> R[] fetchArray(Class<R> resultType) {
-        return execute(() -> {
-            this.createRowMapperIfnotExists(resultType);
-            List<R> list = this.fetchListInternal(resultType);
-            R[] arr = (R[]) Array.newInstance(resultType, list.size());
-            return list.toArray(arr);
-        });
+        this.createRowMapperIfnotExists(resultType);
+        List<R> list = this.fetchListInternal(resultType);
+        R[] arr = (R[]) Array.newInstance(resultType, list.size());
+        return list.toArray(arr);
     }
 
     @Override
@@ -101,25 +99,33 @@ public class DefaultQueryBuilder extends AbstractJdbcBuilder<JdbcQueryBuilder> i
     }
 
     private <T> List<T> fetchListInternal() {
-        this.rowMapperRequired();
-        return jdbcRepositoryTemplate.getJdbcOperations().query(getPreparedStatementCreator(), getRowMapper());
+        return execute(() -> {
+            this.rowMapperRequired();
+            return jdbcRepositoryTemplate.getJdbcOperations().query(getPreparedStatementCreator(), getRowMapper());
+        });
     }
 
     private <T> List<T> fetchListInternal(@NonNull Class<T> resultType) {
-        this.resultTypeRequired(resultType);
-        this.createRowMapperIfnotExists(resultType);
-        return jdbcRepositoryTemplate.getJdbcOperations().query(getPreparedStatementCreator(), getRowMapper());
+        return execute(() -> {
+            this.resultTypeRequired(resultType);
+            this.createRowMapperIfnotExists(resultType);
+            return jdbcRepositoryTemplate.getJdbcOperations().query(getPreparedStatementCreator(), getRowMapper());
+        });
     }
 
     private <T> Stream<T> fetchStreamInternal() {
-        this.rowMapperRequired();
-        return jdbcRepositoryTemplate.getJdbcOperations().queryForStream(getPreparedStatementCreator(), getRowMapper());
+        return execute(() -> {
+            this.rowMapperRequired();
+            return jdbcRepositoryTemplate.getJdbcOperations().queryForStream(getPreparedStatementCreator(), getRowMapper());
+        });
     }
 
     private <T> Stream<T> fetchStreamInternal(@NonNull Class<T> resultType) {
-        this.resultTypeRequired(resultType);
-        this.createRowMapperIfnotExists(resultType);
-        return jdbcRepositoryTemplate.getJdbcOperations().queryForStream(getPreparedStatementCreator(), getRowMapper());
+        return execute(() -> {
+            this.resultTypeRequired(resultType);
+            this.createRowMapperIfnotExists(resultType);
+            return jdbcRepositoryTemplate.getJdbcOperations().queryForStream(getPreparedStatementCreator(), getRowMapper());
+        });
     }
 
 }

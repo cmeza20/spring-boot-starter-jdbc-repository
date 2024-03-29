@@ -46,7 +46,7 @@ Jdbc template repositories, inspired by Spring data Jpa
 <dependency>
     <groupId>com.cmeza</groupId>
     <artifactId>spring-boot-starter-jdbc-repository</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
 </dependency>
 ```
 

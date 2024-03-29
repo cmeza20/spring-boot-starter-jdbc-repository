@@ -22,6 +22,10 @@ public interface JdbcBuilder<T> {
 
     T withRowMapper(RowMapper<?> rowMapper);
 
+    T withRowMapper(Class<? extends RowMapper<?>> rowMapperClass);
+
+    T withKey(String key);
+
     T loggeable(boolean loggeable);
 
 }

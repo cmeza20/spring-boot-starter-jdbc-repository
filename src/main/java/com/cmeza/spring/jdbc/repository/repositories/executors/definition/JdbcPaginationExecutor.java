@@ -48,6 +48,7 @@ public class JdbcPaginationExecutor extends AbstractJdbcExecutor<JdbcPaginationB
         return jdbcTemplate
                 .pagination(jdbcPagination.value())
                 .withCountQuery(jdbcPagination.countQuery())
+                .withKey(configuration.getConfigKey())
                 .loggeable(configuration.isLoggeable());
     }
 

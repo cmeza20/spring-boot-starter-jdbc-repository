@@ -9,8 +9,6 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 public interface JdbcRoutineBuilder extends JdbcBuilder<JdbcRoutineBuilder> {
-    <T> T execute();
-
     <T> T execute(Class<T> returnType);
 
     <T> List<T> executeList();
