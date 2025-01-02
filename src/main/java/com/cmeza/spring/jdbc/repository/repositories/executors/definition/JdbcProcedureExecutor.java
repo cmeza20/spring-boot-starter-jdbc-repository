@@ -1,8 +1,9 @@
 package com.cmeza.spring.jdbc.repository.repositories.executors.definition;
 
 import com.cmeza.spring.ioc.handler.metadata.TypeMetadata;
-import com.cmeza.spring.jdbc.repository.annotations.methods.JdbcProcedure;
+import com.cmeza.spring.jdbc.repository.annotations.methods.operations.JdbcProcedure;
 import com.cmeza.spring.jdbc.repository.repositories.configuration.JdbcConfiguration;
+import com.cmeza.spring.jdbc.repository.repositories.executors.types.Direction;
 import com.cmeza.spring.jdbc.repository.repositories.executors.types.ExecutorType;
 import com.cmeza.spring.jdbc.repository.repositories.executors.AbstractJdbcExecutor;
 import com.cmeza.spring.jdbc.repository.repositories.executors.types.ReturnType;
@@ -52,6 +53,7 @@ public class JdbcProcedureExecutor extends AbstractJdbcExecutor<JdbcRoutineBuild
                 .withSchema(jdbcProcedure.schema())
                 .withInParameterNames(jdbcProcedure.inParameterNames())
                 .withAccessCallParameterMetaData(jdbcProcedure.accessCallParameterMetaData())
+                .withRowMapperParameterName(jdbcProcedure.rowMapperParameterName())
                 .withKey(configuration.getConfigKey())
                 .loggeable(configuration.isLoggeable());
     }
@@ -85,7 +87,7 @@ public class JdbcProcedureExecutor extends AbstractJdbcExecutor<JdbcRoutineBuild
     public void validateConfiguration(JdbcConfiguration jdbcConfiguration) {
         TypeMetadata typeMetadata = jdbcConfiguration.getTypeMetadata();
         String configKey = jdbcConfiguration.getConfigKey();
-        Assert.isTrue(!typeMetadata.isVoid(), configKey + " - Void return type is not supported, use @JdbcUpdate annotation instead");
+        Assert.isTrue(!typeMetadata.isVoid(), configKey + " - Void return type is not supported, use @JdbcExecute annotation instead");
         Assert.isTrue(!typeMetadata.isEnum(), configKey + " - Enum return type is not supported");
         Assert.isTrue(!typeMetadata.isMapEntry(), configKey + " - Map.Entry return type is not supported");
         Assert.isTrue(!typeMetadata.isAssignableFrom(typeMetadata.getRawClass(), JdbcPage.class), configKey + " - JdbcPage return type is not supported, use @JdbcPagination annotation instead");

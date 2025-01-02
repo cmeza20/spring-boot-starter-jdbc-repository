@@ -1,6 +1,7 @@
 package com.cmeza.spring.jdbc.repository.processors;
 
 import com.cmeza.spring.jdbc.repository.configurations.JdbcRepositoryProperties;
+import com.cmeza.spring.jdbc.repository.repositories.exceptions.JdbcException;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
@@ -59,7 +60,7 @@ public class JdbcEnvironmentPostProcessor implements EnvironmentPostProcessor {
                     environment.getPropertySources().addAfter(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, propertySource);
                     this.printRegistered(r.getFilename());
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    throw new JdbcException(e);
                 }
             });
         }
@@ -73,7 +74,7 @@ public class JdbcEnvironmentPostProcessor implements EnvironmentPostProcessor {
                     environment.getPropertySources().addAfter(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, resourcePropertySource);
                     this.printRegistered(r.getFilename());
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    throw new JdbcException(e);
                 }
             });
         }
@@ -81,10 +82,10 @@ public class JdbcEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
     private void mapPropertiesSource(List<Resource> resources, ConfigurableEnvironment environment) {
         if (Objects.nonNull(resources)) {
-            Map<String, Object> collect = resources.stream()
-                    .peek(r -> this.printRegistered(r.getFilename()))
-                    .collect(Collectors.toMap(Resource::getFilename, this::asString));
+            resources.forEach(r -> this.printRegistered(r.getFilename()));
 
+            Map<String, Object> collect = resources.stream()
+                    .collect(Collectors.toMap(Resource::getFilename, this::asString));
 
             MapPropertySource mapPropertySource = new MapPropertySource("jdbcRepositoryQueries", collect);
             environment.getPropertySources().addAfter(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, mapPropertySource);

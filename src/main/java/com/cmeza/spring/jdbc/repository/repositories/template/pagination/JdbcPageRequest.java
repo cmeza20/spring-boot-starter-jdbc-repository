@@ -2,10 +2,13 @@ package com.cmeza.spring.jdbc.repository.repositories.template.pagination;
 
 import com.cmeza.spring.jdbc.repository.repositories.utils.JdbcPaginationUtils;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public class JdbcPageRequest {
+public class JdbcPageRequest implements Serializable {
+    private static final long serialVersionUID = -648275131076429524L;
+    
     private final int page;
     private final int size;
     private final long offset;

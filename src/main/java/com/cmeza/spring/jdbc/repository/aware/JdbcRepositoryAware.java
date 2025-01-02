@@ -5,18 +5,19 @@ import com.cmeza.spring.jdbc.repository.repositories.template.JdbcRepositoryTemp
 import com.cmeza.spring.jdbc.repository.resolvers.JdbcPropertyResolver;
 import org.springframework.beans.factory.Aware;
 
-import java.util.Map;
-
 public interface JdbcRepositoryAware extends Aware {
-    default void setPropertiesResolver(JdbcPropertyResolver propertiesResolver) {
+    default String getQualifier() {
+        return "jdbcRepositoryTemplate";
     }
 
-    default void setJdbcRepositoryTemplate(JdbcRepositoryTemplate jdbcRepositoryTemplate){
+    default boolean findQualified() {
+        return true;
     }
 
-    default void setJdbcRepositoryTemplate(Map<String, JdbcRepositoryTemplate> jdbcRepositoryTemplates){
-    }
+    void setPropertiesResolver(JdbcPropertyResolver propertiesResolver);
 
-    default void setNamingStrategy(NamingStrategy namingStrategy) {
-    }
+
+    void setJdbcRepositoryTemplate(JdbcRepositoryTemplate jdbcRepositoryTemplate);
+
+    void setNamingStrategy(NamingStrategy namingStrategy);
 }

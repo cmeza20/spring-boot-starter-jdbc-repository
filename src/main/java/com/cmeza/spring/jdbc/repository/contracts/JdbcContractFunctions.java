@@ -5,13 +5,15 @@ import com.cmeza.spring.ioc.handler.contracts.consumers.MethodConsumer;
 import com.cmeza.spring.ioc.handler.contracts.consumers.ParameterConsumer;
 import com.cmeza.spring.ioc.handler.metadata.MethodMetadata;
 import com.cmeza.spring.ioc.handler.metadata.TypeMetadata;
+import com.cmeza.spring.ioc.handler.metadata.impl.SimpleTypeMetadata;
 import com.cmeza.spring.jdbc.repository.annotations.JdbcRepository;
 import com.cmeza.spring.jdbc.repository.configurations.JdbcRepositoryProperties;
 import com.cmeza.spring.jdbc.repository.mappers.JdbcRowMapper;
+import com.cmeza.spring.jdbc.repository.projections.JdbcProjectionRowMapper;
 import com.cmeza.spring.jdbc.repository.repositories.configuration.SimpleJdbcConfiguration;
+import com.cmeza.spring.jdbc.repository.repositories.definitions.*;
 import com.cmeza.spring.jdbc.repository.repositories.exceptions.InvalidParameterSqlTypeException;
 import com.cmeza.spring.jdbc.repository.repositories.executors.JdbcExecutor;
-import com.cmeza.spring.jdbc.repository.repositories.parameters.ParameterDefinition;
 import com.cmeza.spring.jdbc.repository.repositories.template.JdbcRepositoryTemplate;
 import com.cmeza.spring.jdbc.repository.repositories.template.pagination.JdbcPageRequest;
 import com.cmeza.spring.jdbc.repository.repositories.utils.JdbcUtils;
@@ -19,6 +21,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
 import org.springframework.util.Assert;
 
@@ -34,25 +37,17 @@ public class JdbcContractFunctions implements ApplicationContextAware {
     public static final String METHOD_ROWMAPPER = "METHOD_ROWMAPPER";
     public static final String METHOD_PARAMETERS = "METHOD_PARAMETERS";
     public static final String METHOD_LOGGEABLE = "METHOD_LOGGEABLE";
+    public static final String METHOD_PARAM_MAPPINGS = "METHOD_PARAM_MAPPINGS";
+    public static final String METHOD_JOIN_TABLES = "METHOD_JOIN_TABLES";
+    public static final String METHOD_FROM_TABLE = "METHOD_JOIN_TABLE";
+    public static final String METHOD_COUNT_QUERY = "METHOD_COUNT_QUERY";
     public static final String PARAMETER_NAME = "PARAMETER_NAME";
     public static final String PARAMETER_TYPE = "PARAMETER_TYPE";
-
-    private ApplicationContext applicationContext;
-    private JdbcRepositoryTemplate jdbcRepositoryTemplate;
-    private JdbcRepositoryProperties jdbcRepositoryProperties;
-
-    protected  final ClassConsumer afterAnnotationClassProcessor = (classMetadata -> {
-        JdbcRepository jdbcRepository = classMetadata.getProcessorResult(JdbcRepository.class);
-        jdbcRepositoryTemplate = applicationContext.getBean(jdbcRepository.repositoryTemplateBeanName(), JdbcRepositoryTemplate.class);
-        jdbcRepositoryProperties = applicationContext.getBean(JdbcRepositoryProperties.class);
-    });
-
     protected final MethodConsumer afterAnnotationMethodProcessor = (classMetadata, methodMetadata) -> {
         if (!methodMetadata.isIntercepted()) {
             Assert.isTrue(methodMetadata.hasAttribute(METHOD_EXECUTOR), methodMetadata.getConfigKey() + " - An annotation is required");
         }
     };
-
     protected final ParameterConsumer onEndParameterConsumer = (classMetadata, methodMetadata, parameterMetadata, index) -> {
         if (!methodMetadata.isIntercepted()) {
             ParameterDefinition[] parameters = methodMetadata.getAttribute(METHOD_PARAMETERS, ParameterDefinition[].class);
@@ -60,6 +55,11 @@ public class JdbcContractFunctions implements ApplicationContextAware {
             String name = parameterMetadata.getAttribute(PARAMETER_NAME, String.class);
             int type = parameterMetadata.getAttribute(PARAMETER_TYPE, Integer.class, 0);
             TypeMetadata typeMetadata = parameterMetadata.getTypeMetadata();
+            boolean isRawTypeCustomArgument = false;
+            if (typeMetadata.isArray() && Objects.nonNull(typeMetadata.getArgumentClass())) {
+                SimpleTypeMetadata simpleTypeMetadata = new SimpleTypeMetadata(typeMetadata.getArgumentClass());
+                isRawTypeCustomArgument = simpleTypeMetadata.isCustomArgumentObject();
+            }
 
             ParameterDefinition parameterDefinition = new ParameterDefinition();
             parameterDefinition.setParameterName(Objects.nonNull(name) ? name : parameterMetadata.getParameter().getName());
@@ -69,7 +69,7 @@ public class JdbcContractFunctions implements ApplicationContextAware {
             parameterDefinition.setArray(typeMetadata.isArray());
             parameterDefinition.setCollection(typeMetadata.isList() || typeMetadata.isSet() || typeMetadata.isStream() || typeMetadata.isArray());
             parameterDefinition.setBean(typeMetadata.isCustomArgumentObject() && !typeMetadata.isList() && !typeMetadata.isMap() && !typeMetadata.isSet() && !typeMetadata.isArray() && !typeMetadata.isStream());
-            parameterDefinition.setBatch(typeMetadata.isCustomArgumentObject() && (typeMetadata.isList() || typeMetadata.isMap() || typeMetadata.isSet() || typeMetadata.isStream()));
+            parameterDefinition.setBatch(isRawTypeCustomArgument || (typeMetadata.isCustomArgumentObject() && (typeMetadata.isList() || typeMetadata.isMap() || typeMetadata.isSet() || typeMetadata.isStream())));
             parameterDefinition.setPageRequest(typeMetadata.getRawClass().isAssignableFrom(JdbcPageRequest.class));
             parameters[index] = parameterDefinition;
 
@@ -83,19 +83,22 @@ public class JdbcContractFunctions implements ApplicationContextAware {
             methodMetadata.addAttribute(METHOD_PARAMETERS, parameters);
         }
     };
-
+    private ApplicationContext applicationContext;
+    private JdbcRepositoryTemplate jdbcRepositoryTemplate;
     protected final MethodConsumer onStartMethodConsumer = (classMetadata, methodMetadata) -> {
         if (!methodMetadata.isIntercepted()) {
-            SimpleJdbcConfiguration.Builder builder = SimpleJdbcConfiguration.builder()
-                    .jdbcTemplate(jdbcRepositoryTemplate)
-                    .typeMetadata(methodMetadata.getTypeMetadata())
-                    .configKey(methodMetadata.getConfigKey());
+            SimpleJdbcConfiguration.Builder builder = SimpleJdbcConfiguration.builder().jdbcTemplate(jdbcRepositoryTemplate).typeMetadata(methodMetadata.getTypeMetadata()).configKey(methodMetadata.getConfigKey());
 
             methodMetadata.addAttribute(METHOD_BUILDER, builder);
             methodMetadata.addAttribute(METHOD_PARAMETERS, new ParameterDefinition[methodMetadata.getMethod().getParameterCount()]);
         }
     };
-
+    private JdbcRepositoryProperties jdbcRepositoryProperties;
+    protected final ClassConsumer afterAnnotationClassProcessor = (classMetadata -> {
+        JdbcRepository jdbcRepository = classMetadata.getProcessorResult(JdbcRepository.class);
+        jdbcRepositoryTemplate = applicationContext.getBean(jdbcRepository.repositoryTemplateBeanName(), JdbcRepositoryTemplate.class);
+        jdbcRepositoryProperties = applicationContext.getBean(JdbcRepositoryProperties.class);
+    });
     protected final MethodConsumer onEndMethodConsumer = (classMetadata, methodMetadata) -> {
         if (!methodMetadata.isIntercepted()) {
             boolean needRowMapper = methodMetadata.getAttribute(METHOD_NEED_ROWMAPPER, Boolean.class);
@@ -109,22 +112,39 @@ public class JdbcContractFunctions implements ApplicationContextAware {
 
             //RowMapper
             if (needRowMapper) {
-                Class<? extends JdbcRowMapper<?>> rowMapperClass = methodMetadata.getAttribute(METHOD_ROWMAPPER, Class.class);
+                Class<? extends RowMapper<?>> rowMapperClass = methodMetadata.getAttribute(METHOD_ROWMAPPER, Class.class);
                 boolean isSingleColumnMapperType = JdbcUtils.isSingleColumnMapperType(typeMetadata.getArgumentClass());
                 if (Objects.nonNull(rowMapperClass)) {
+                    if (typeMetadata.getArgumentClass().isInterface()) {
+                        JdbcUtils.projectionClassValidate(rowMapperClass);
+                    }
                     this.validateRowMapper(methodMetadata, rowMapperClass);
                     builder.rowMapper(jdbcRepositoryTemplate.registerJdbcRowMapperBean(rowMapperClass));
                 } else if (typeMetadata.getRawClass().isAssignableFrom(Map.class) || typeMetadata.getArgumentClass().isAssignableFrom(Map.class)) {
                     builder.rowMapper(new ColumnMapRowMapper());
                 } else if (isSingleColumnMapperType) {
                     builder.rowMapper(new SingleColumnRowMapper<>(typeMetadata.getArgumentClass()));
+                } else if (typeMetadata.getArgumentClass().isInterface()) {
+                    builder.rowMapper(JdbcProjectionRowMapper.newInstance(typeMetadata.getArgumentClass()));
                 } else {
                     builder.rowMapper(JdbcRowMapper.newInstance(typeMetadata.getArgumentClass()));
                 }
             }
 
             //Parameters
-            builder.parameters(methodMetadata.getAttribute(METHOD_PARAMETERS, ParameterDefinition[].class));
+            builder.parameters(methodMetadata.getAttribute(METHOD_PARAMETERS, ParameterDefinition[].class, new ParameterDefinition[0]));
+
+            //Mappings
+            builder.mappings(methodMetadata.getAttribute(METHOD_PARAM_MAPPINGS, MappingDefinition[].class, new MappingDefinition[0]));
+
+            //Join Tables
+            builder.joinTables(methodMetadata.getAttribute(METHOD_JOIN_TABLES, JoinTableDefinition[].class, new JoinTableDefinition[0]));
+
+            //From Table
+            builder.fromTable(methodMetadata.getAttribute(METHOD_FROM_TABLE, TableDefinition.class));
+
+            //Count Query
+            builder.countQuery(methodMetadata.getAttribute(METHOD_COUNT_QUERY, QueryDefinition.class));
 
             executor.attachConfiguration(builder.build());
             executor.print();

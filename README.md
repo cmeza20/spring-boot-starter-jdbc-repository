@@ -12,27 +12,39 @@ Jdbc template repositories, inspired by Spring data Jpa
 
 ### Methods
 * [@JdbcQuery annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcQuery-annotation)
+* [@JdbcRawQuery annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcRawQuery-annotation)
 * [@JdbcPagination annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcPagination-annotation)
+* [@JdbcRawPagination annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcRawPagination-annotation)
 * [@JdbcUpdate annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcUpdate-annotation)
-* [@JdbcBatchUpdate annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcBatchUpdate-annotation)
+* [@JdbcRawUpdate annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcRawUpdate-annotation)
 * [@JdbcInsert annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcInsert-annotation)
 * [@JdbcFunction annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcFunction-annotation)
 * [@JdbcProcedure annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcProcedure-annotation)
+* [@JdbcCall annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcCall-annotation)
+* [@JdbcExecute annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcExecute-annotation)
+***
 
+### Supports
+* [@JdbcMapping annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcMapping-annotation)
+* [@JdbcCountQuery annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcCountQuery-annotation)
+* [@JdbcRawCountQuery annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcRawCountQuery-annotation)
+* [@JdbcFromTable annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcFromTable-annotation)
+* [@JdbcJoinTable annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcJoinTable-annotation)
 ***
 
 ### Parameters
 * [@JdbcParam annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcParam-annotation)
-* [@OutParameter annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@OutParameter-annotation)
+* [@Parameter annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@Parameter-annotation)
 
 ***
 ### Mappers
 * [JdbcRowMapper interface](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/JdbcRowMapper)
+* [JdbcProjectionRowMapper interface](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/JdbcProjectionRowMapper)
 * [Support for projections](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/projections-support)
 
 ***
 ### Advanced
-* [Custom JdbcRepositoryAware](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/JdbcRepositoryAware)
+* [Interface JdbcRepositoryAware](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/JdbcRepositoryAware)
 * [Properties Placeholder](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/Properties-Placeholder)
 * [JdbcRepositoryTemplate multi tenant](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/JdbcRepositoryTemplate-multi-tenant)
 * [JdbcRepositoryTemplate manual execute](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/JdbcRepositoryTemplate)
@@ -42,136 +54,271 @@ Jdbc template repositories, inspired by Spring data Jpa
 ## Maven Integration ##
 
 ```xml
-
 <dependency>
     <groupId>com.cmeza</groupId>
     <artifactId>spring-boot-starter-jdbc-repository</artifactId>
-    <version>1.0.5</version>
+    <version>2.0.0</version>
 </dependency>
 ```
-
-### Example
+## Minimal dependencies ##
+- @EnableJdbcRepositories annotation and DataSource bean
 
 ```java
-import com.cmeza.spring.jdbc.repository.annotations.methods.JdbcUpdate;
-import com.cmeza.spring.jdbc.repository.naming.CamelToSnakeCaseNamingStrategy;
-import com.cmeza.spring.jdbc.repository.naming.SnakeToCamelCaseNamingStrategy;
+@EnableJdbcRepositories
+@SpringBootApplication
+public class SpringBootStarterJdbcRepositoryTestApplication {
 
-@JdbcRepository
-public interface UserRepository {
+    public static void main(String[] args) {
+        SpringApplication.run(SpringBootStarterJdbcRepositoryTestApplication.class, args);
+    }
 
-    //Query
-    //------------------------------------------------------
-    @JdbcQuery(value = "select * from user")
-    List<User> getAll();
+    @Bean
+    @ConfigurationProperties("spring.datasource")
+    public DataSourceProperties dataSourceProperties() {
+        return new DataSourceProperties();
+    }
 
-    @JdbcQuery(value = "select * from user where id = :id")
-    User getOne(Long id);
+    @Bean
+    public DataSource datasource(DataSourceProperties dataSourceProperties) {
+        return dataSourceProperties.initializeDataSourceBuilder().build();
+    }
 
-
-    //Pagination
-    //------------------------------------------------------
-    @JdbcPagination(value = "select * from user")
-    JdbcPage<User> getAll(JdbcPageRequest pageRequest);
-
-    @JdbcPagination(value = "select * from user", countQuery = "select count(1) from user")
-    JdbcPage<User> getAll2(JdbcPageRequest pageRequest);
-
-
-    //Update
-    //------------------------------------------------------
-    @JdbcUpdate(value = "update user set name = :name where id = :id")
-    int userUpdate(String name, Long id);
-
-    @JdbcUpdate(value = "insert into user(name, lastname) values (:name, :lastname)", keyColumnNames = "id")
-    KeyHolder userInsert(String name, String lastname);
-
-    @JdbcUpdate(value = "truncate user")
-    void usersTruncate();
-
-    @JdbcUpdate(value = "insert into user(name, lastname) values (:name, :lastname)", keyColumnNames = "userId", columnsNamingStrategy = CamelToSnakeCaseNamingStrategy.class)
-    int insertUserSnakeCase(Long id);
-
-
-    //Batch Update
-    //------------------------------------------------------
-    @JdbcBatchUpdate(value = "insert into user(name, lastname) values (:name, :lastname)")
-    int[] usersInsert(List<User> temps);
-
-    @JdbcBatchUpdate(value = "delete from user where id in :ids")
-    void deleteUsers(List<Integer> ids);
-
-
-    //Insert
-    //------------------------------------------------------
-    @JdbcInsert(table = "user", columns = {"name", "lastname"}, generatedKeyColumns = "id")
-    int userInsert(String name, String lastname);
-
-    @JdbcInsert(table = "user", columns = {"name", "lastname"}, generatedKeyColumns = "id")
-    Number userInsert3(User user);
-
-    @JdbcInsert(table = "user", columns = {"name", "lastname"}, generatedKeyColumns = "id")
-    int[] userInsert4(List<User> users);
-
-    @JdbcInsert(table = "user", columns = {"name", "lastname"}, generatedKeyColumns = "id")
-    KeyHolder userInsert5(User user);
-
-    @JdbcInsert(table = "user", columns = {"user_name", "last_name"}, generatedKeyColumns = "user_id", columnsNamingStrategy = SnakeToCamelCaseNamingStrategy.class)
-    int userInsertCamelCase(String name, String lastname);
-
-
-    //Function
-    //------------------------------------------------------
-    @JdbcFunction(name = "fn_users_get_all")
-    Set<User> userGetAll();
-
-    @JdbcFunction(name = "fn_users_get_one")
-    Optional<User> userGetOne(@JdbcParam(value = "var_id", type = Types.INTEGER) Long id);
-
-    @JdbcFunction(name = "fn_users_bin_process", outParameters = {
-            @OutParameter(value = "process1", type = Types.VARCHAR),
-            @OutParameter(value = "process2", type = Types.VARCHAR)
-    })
-    Map<String, Object> userBinProcess();
-
-    @JdbcFunction(name = "fn_users_uuid", outParameters = @OutParameter(value = "result", type = Types.VARCHAR))
-    String userUUID();
-
-    @JdbcFunction(name = "fn_users_bin_process_snake_case", outParameters = {
-            @OutParameter(value = "processOne", type = Types.VARCHAR),
-            @OutParameter(value = "processTwo", type = Types.VARCHAR)
-    }, inParameterNames = "simpleParam", parametersNamingStrategy = CamelToSnakeCaseNamingStrategy.class)
-    Map<String, Object> userBinProcessSnakeCase();
-
-    //Stored Procedure
-    //------------------------------------------------------
-    @JdbcProcedure(name = "sp_users_all")
-    List<User> usersList();
-
-    @JdbcProcedure(name = "sp_users_one")
-    Optional<User> usersOne(@JdbcParam(value = "var_id") Long id);
-
-    @JdbcProcedure(name = "sp_users_created_at", outParameters = @OutParameter(value = "created_at", type = Types.TIMESTAMP, order = 2))
-    Date userCreatedAt(@JdbcParam(value = "var_id") Long id);
-
-    @JdbcProcedure(name = "sp_users_created_at_and_updated_at", outParameters = {
-            @OutParameter(value = "created_at", type = Types.TIMESTAMP, order = 2),
-            @OutParameter(value = "updated_at", type = Types.TIMESTAMP, order = 3)
-    })
-    Map<String, Object> userCreatedAtAndUpdatedAt(@JdbcParam(value = "var_id") Long id);
-
-    @JdbcProcedure(name = "sp_users_created_at_and_updated_at_camel_case", outParameters = {
-            @OutParameter(value = "created_at", type = Types.TIMESTAMP, order = 2),
-            @OutParameter(value = "updated_at", type = Types.TIMESTAMP, order = 3)
-    }, parametersNamingStrategy = SnakeToCamelCaseNamingStrategy.class)
-    Map<String, Object> userCreatedAtAndUpdatedAtCamelCase(@JdbcParam(value = "var_id") Long id);
-
-    //Projection support
-    //------------------------------------------------------
-    @JdbcQuery(value = "select * from user where id = :id")
-    MinimalUser getMinimalUser(Long id);
 }
 ```
+
+## PostgresSql Example ##
+
+### @JdbcQuery
+```java
+@JdbcRepository
+public interface EmployeeQueryRepository {
+    //Query
+    //------------------------------------------------------
+    @JdbcQuery(table = "employee")
+    List<Employee> getAllEmployeeHarcoded();
+
+    @JdbcQuery(table = "employee", where = "id = :idParam")
+    Optional<Employee> getEmployeeOptionalWithConditionParam(@JdbcParam("idParam") Integer anotherId);
+
+    @JdbcMapping(from = "conditionOne", to = "name", type = Types.VARCHAR)
+    @JdbcMapping(from = "conditionTwo", to = "gen", type = Types.VARCHAR)
+    @JdbcQuery(table = "employee", where = "first_name = :name and gender = :gen")
+    Employee getOneEmployeeWithConditionMapping(String conditionOne, String conditionTwo);
+
+    @JdbcQuery(table = "employee", alias = "e", columns = {"e.id", "e.first_name", "e.last_name"}, where = "e.id = :id")
+    EmployeeProjection getOneEmployeeWithConditionWithProjection(Integer id);
+}
+```
+
+### @JdbcRawQuery
+```java
+@JdbcRepository
+public interface EmployeeRawQueryRepository {
+    //Raw Query
+    //------------------------------------------------------
+
+    @JdbcRawQuery(value = "${properties.employee.query.all}")
+    Set<Employee> getAllEmployeeSetFromProperties();
+
+    @JdbcRawQuery(value = "file:/jdbc-employee.sql")
+    Stream<Employee> getAllEmployeeStreamFromFile();
+
+    @JdbcRawQuery(value = "select * from sch_test.employee where id = :idParam")
+    Employee getOneEmployeeWithConditionParam(@JdbcParam("idParam") Integer anotherId);
+
+    @JdbcMapping(from = "employee.id", to = "employee_id", type = Types.BIGINT)
+    @JdbcMapping(from = "department.id", to = "department_id", type = Types.VARCHAR)
+    @JdbcRawQuery(value = "select e.* from sch_test.department_employee de " +
+            "inner join sch_test.employee e on e.id = de.employee_id " +
+            "where e.id = :employee_id and de.department_id = :department_id")
+    Employee getOneEmployeeWithObjectCondition(DepartmentEmployee departmentEmployee);
+}
+```
+
+### @JdbcPagination
+```java
+@JdbcRepository
+public interface EmployeePaginationRepository {
+    //Pagination
+    //------------------------------------------------------
+    @JdbcPagination(table = "employee")
+    JdbcPage<Employee> paginationEmployeesWithoutParameter();
+
+    @JdbcPagination(table = "employee", where = "id = :id")
+    JdbcPage<Employee> paginationEmployeesWithCondition(Integer id);
+
+    @JdbcPagination(table = "employee", where = "t.id between :from and :to", alias = "t")
+    JdbcPage<Employee> paginationEmployeesWithConditionAndPageRequest(Integer from, Integer to, JdbcPageRequest pageRequest);
+
+}
+```
+
+### @JdbcRawPagination
+```java
+@JdbcRepository
+public interface EmployeeRawPaginationRepository {
+    //Raw Pagination
+    //------------------------------------------------------
+
+    @JdbcRawCountQuery("select (:max - 50)")
+    @JdbcRawPagination(value = "select * from sch_test.employee where id <= :max")
+    JdbcPage<EmployeeProjection> paginationEmployeeProyectionWithConditionAndPageRequestAndCountQuery(Integer max, JdbcPageRequest pageRequest);
+
+    @JdbcRawPagination(value = "select * from sch_test.employee where id between :from and :to")
+    JdbcPage<Employee> paginationEmployeesWithConditionAndPageRequestRaw(Integer from, Integer to, JdbcPageRequest pageRequest);
+}
+```
+
+### @JdbcUpdate
+```java
+@JdbcRepository
+public interface EmployeeUpdateRepository {
+    //Update
+    //------------------------------------------------------
+    @JdbcMapping(from = "firstName", to = "fname", type = Types.VARCHAR)
+    @JdbcMapping(from = "lastName", to = "lname", type = Types.VARCHAR)
+    @JdbcMapping(from = "gender", to = "gen", type = Types.VARCHAR)
+    @JdbcMapping(from = "id", to = "employeeId", type = Types.INTEGER)
+    @JdbcUpdate(table = "employee", updateSets = {"first_name = :fname", "last_name = :lname", "gender = :gen"}, where = "id = :employeeId")
+    int updateWithReturningInt(Employee employee);
+
+    @JdbcUpdate(table = "employee", updateSets = {"first_name = :firstName", "last_name = :lastName", "gender = :gender"}, where = "id = :id", keyColumnNames = "id")
+    KeyHolder updateWithReturningHolder(Employee employee);
+
+    @JdbcFromTable(table = "employee", alias = "e")
+    @JdbcJoinTable(table = "department", alias = "d", on = "1 = 1")
+    @JdbcUpdate(table = "department_employee", alias = "de", updateSets = {"department_id = :deptName"},
+            where = "(de.employee_id = e.id) and (de.department_id = d.id) and (e.first_name = :firstName and e.last_name = :lastName)",
+            keyColumnNames = {"department_id", "employee_id"})
+    KeyHolder updateComplexTwoReturningHolder(String firstName, String lastName, String deptName);
+}
+```
+
+### @JdbcRawUpdate
+```java
+@JdbcRepository
+public interface EmployeeRawUpdateRepository {
+    //Raw Update
+    //------------------------------------------------------
+    @JdbcMapping(from = "firstName", to = "fname", type = Types.VARCHAR)
+    @JdbcMapping(from = "lastName", to = "lname", type = Types.VARCHAR)
+    @JdbcMapping(from = "gender", to = "gen", type = Types.VARCHAR)
+    @JdbcMapping(from = "id", to = "employeeId", type = Types.INTEGER)
+    @JdbcRawUpdate("update sch_test.employee set first_name = :fname, last_name = :lname, gender = :gen " +
+            "where id = :employeeId")
+    int updateWithReturningIntRaw(Employee employee);
+
+    @JdbcRawUpdate(value = "update sch_test.department_employee de set department_id = :departmentId from sch_test.employee e " +
+            "where de.employee_id = e.id and e.first_name = :firstName and e.last_name = :lastName",
+            keyColumnNames = {"department_id", "employee_id"})
+    KeyHolder updateComplexReturningHolderRaw(String firstName, String lastName, String departmentId);
+}
+```
+
+### @JdbcInsert
+```java
+@JdbcRepository
+public interface EmployeeInsertRepository {
+    //Insert
+    //------------------------------------------------------
+    @JdbcInsert(table = "employee", columns = {"first_name", "last_name", "gender", "birth_date", "hire_date"}, generatedKeyColumns = "id")
+    KeyHolder insertEmployeeWithModelAndReturnKeyHolder(Employee employee);
+
+    @JdbcInsert(table = "employee", columns = {"first_name", "last_name", "gender", "birth_date", "hire_date"})
+    int[] insertEmployeeBatchListAndReturnArray(List<Employee> employees);
+
+    @JdbcInsert(table = "employee", columns = {"first_name", "last_name", "gender", "birth_date", "hire_date"})
+    int[] insertEmployeeBatchSetAndReturnArray(Set<Employee> employees);
+
+    @JdbcMapping(from = "another_first_name", to = "first_name", type = Types.VARCHAR)
+    @JdbcMapping(from = "another_gender", to = "gender", type = Types.VARCHAR)
+    @JdbcInsert(table = "employee", columns = {"first_name", "last_name", "gender", "birth_date", "hire_date"})
+    int[] insertEmployeeBatchMapAndReturnArray(Map<String, Object> map);
+}
+```
+
+### @JdbcFunction
+```java
+@JdbcRepository
+public interface EmployeeFunctionRepository {
+    //Function
+    //------------------------------------------------------
+    @JdbcMapping(from = "numberOne", to = "var_number_one", type = Types.DOUBLE)
+    @JdbcMapping(from = "numberTwo", to = "var_number_two", type = Types.DOUBLE)
+    @JdbcFunction(name = "fn_sum_of_numbers_with_out_parameter", outParameters = @Parameter(value = "result", type = Types.DOUBLE))
+    Double functionSumWithOutParameter(Double numberOne, Double numberTwo);
+
+    @JdbcMapping(from = "numberOne", to = "var_number_one", type = Types.DOUBLE)
+    @JdbcMapping(from = "numberTwo", to = "var_number_two", type = Types.DOUBLE)
+    @JdbcFunction(name = "fn_multiplication_of_numbers_with_return")
+    Double functionMultiplicationWithReturn(Double numberOne, Double numberTwo);
+
+    @JdbcMapping(from = "gender", to = "var_gender", type = Types.VARCHAR)
+    @JdbcFunction(name = "fn_employees_by_gender")
+    List<Employee> functionEmployeesByGenderWithCursor(String gender);
+
+    @JdbcMapping(from = "id", to = "var_id", type = Types.INTEGER)
+    @JdbcFunction(name = "fn_employee_names_by_id_with_out_parameters", outParameters = {
+            @Parameter(value = "out_first_name", type = Types.VARCHAR),
+            @Parameter(value = "out_last_name", type = Types.VARCHAR)
+    })
+    Map<String, Object> functionEmployeeNamesWithOutParameters(Integer id);
+
+    @JdbcMapping(from = "firstName", to = "var_first_name", type = Types.VARCHAR)
+    @JdbcMapping(from = "lastName", to = "var_last_name", type = Types.VARCHAR)
+    @JdbcMapping(from = "gender", to = "var_gender", type = Types.VARCHAR)
+    @JdbcFunction(name = "fn_employees_by_object")
+    Optional<Employee> functionEmployeesByObjectWithCursor(Employee employee);
+}
+```
+
+### @JdbcProcedure
+```java
+@JdbcRepository
+public interface EmployeeProcedureRepository {
+    //Stored Procedure
+    //------------------------------------------------------
+    //POSTGRES_UnsupportedOperationException - Use @JdbcCall
+}
+```
+
+### @JdbcExecute
+```java
+@JdbcRepository
+public interface EmployeeExecuteRepository {
+    //Execute
+    //------------------------------------------------------
+
+    @JdbcExecute("delete from sch_test.department where id = :id")
+    int deleteDepartmentWithReturningInt(@JdbcParam("id") String id);
+
+    @JdbcExecute("delete from sch_test.employee where id = :id")
+    int deleteEmployeeWithReturningInt(Integer id);
+
+    @JdbcExecute("delete from sch_test.employee where first_name in (:names)")
+    int deleteEmployeesWithArrayAndReturningInt(String... names);
+
+    @JdbcMapping(from = "id", to = "var_id", type = Types.VARCHAR)
+    @JdbcMapping(from = "deptName", to = "var_dept_name", type = Types.VARCHAR)
+    @JdbcExecute("call sch_test.sp_department_create(:var_id, :var_dept_name)")
+    void executeCallDepartmentCreateWithoutResult(Department department);
+}
+```
+
+### @JdbcCall
+```java
+@JdbcRepository
+public interface EmployeeCallRepository {
+    //Call
+    //------------------------------------------------------
+
+    @JdbcMapping(from = "id", to = "var_id", type = Types.VARCHAR)
+    @JdbcMapping(from = "deptName", to = "var_dept_name", type = Types.VARCHAR)
+    @JdbcCall(value = "sp_department_create", parameters = {":var_id", ":var_dept_name"})
+    void callDepartmentCreate(Department department);
+}
+```
+
 
 License
 ----

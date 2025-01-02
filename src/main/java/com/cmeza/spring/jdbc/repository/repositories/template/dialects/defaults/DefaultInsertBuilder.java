@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.KeyHolder;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 public class DefaultInsertBuilder extends AbstractJdbcBuilder<JdbcInsertBuilder> implements JdbcInsertBuilder {
@@ -99,10 +98,10 @@ public class DefaultInsertBuilder extends AbstractJdbcBuilder<JdbcInsertBuilder>
         }
         logger.info("| Table name: {}", tableName);
         if (Objects.nonNull(columns) && columns.length > 0) {
-            logger.info("| Columns: {}", Arrays.toString(columns));
+            logger.info("| Columns: {}", (Object) columns);
         }
         if (Objects.nonNull(generatedKeyColumns) && generatedKeyColumns.length > 0) {
-            logger.info("| GeneratedKeyColumns: {}", Arrays.toString(generatedKeyColumns));
+            logger.info("| GeneratedKeyColumns: {}", (Object) generatedKeyColumns);
         }
         logger.info("| AccessTableColumnMetaData: {}", accessTableColumnMetaData);
         logger.info("| OverrideIncludeSynonymsDefault: {}", overrideIncludeSynonymsDefault);

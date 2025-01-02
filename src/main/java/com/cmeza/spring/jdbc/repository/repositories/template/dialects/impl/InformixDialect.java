@@ -3,9 +3,15 @@ package com.cmeza.spring.jdbc.repository.repositories.template.dialects.impl;
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.JdbcRepositoryOperations;
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.abstracts.AbstractDialect;
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.abstracts.AbstractJdbcBuilder;
-import com.cmeza.spring.jdbc.repository.repositories.template.dialects.builders.*;
-import com.cmeza.spring.jdbc.repository.repositories.template.dialects.defaults.*;
+import com.cmeza.spring.jdbc.repository.repositories.template.dialects.builders.JdbcPaginationBuilder;
+import com.cmeza.spring.jdbc.repository.repositories.template.dialects.builders.JdbcRoutineBuilder;
+import com.cmeza.spring.jdbc.repository.repositories.template.dialects.builders.JdbcUpdateBuilder;
+import com.cmeza.spring.jdbc.repository.repositories.template.dialects.builders.factories.JdbcSelectFactory;
+import com.cmeza.spring.jdbc.repository.repositories.template.dialects.builders.factories.JdbcUpdateFactory;
+import com.cmeza.spring.jdbc.repository.repositories.template.dialects.impl.function.InformixFunctionBuilder;
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.impl.pagination.InformixPaginationBuilder;
+import com.cmeza.spring.jdbc.repository.repositories.template.dialects.impl.procedure.InformixProcedureBuilder;
+import com.cmeza.spring.jdbc.repository.repositories.template.dialects.impl.update.InformixUpdateBuilder;
 
 public class InformixDialect extends AbstractDialect implements JdbcRepositoryOperations {
 
@@ -14,37 +20,32 @@ public class InformixDialect extends AbstractDialect implements JdbcRepositoryOp
     }
 
     @Override
-    public JdbcQueryBuilder query(String sql) {
-        return new DefaultQueryBuilder(sql, impl);
-    }
-
-    @Override
     public JdbcPaginationBuilder pagination(String sql) {
         return new InformixPaginationBuilder(sql, impl);
     }
 
     @Override
+    public JdbcPaginationBuilder pagination(JdbcSelectFactory selectBuilder) {
+        return new InformixPaginationBuilder(selectBuilder, impl);
+    }
+
+    @Override
     public JdbcUpdateBuilder update(String sql) {
-        return new DefaultUpdateBuilder(sql, impl);
+        return new InformixUpdateBuilder(sql, impl);
     }
 
     @Override
-    public JdbcBatchUpdateBuilder batchUpdate(String sql) {
-        return new DefaultBatchUpdateBuilder(sql, impl);
-    }
-
-    @Override
-    public JdbcInsertBuilder insert(String tableName) {
-        return new DefaultInsertBuilder(tableName, impl);
-    }
-
-    @Override
-    public JdbcRoutineBuilder function(String functionName) {
-        return new DefaultFunctionBuilder(functionName, impl);
+    public JdbcUpdateBuilder update(JdbcUpdateFactory jdbcUpdateFactory) {
+        return new InformixUpdateBuilder(jdbcUpdateFactory, impl);
     }
 
     @Override
     public JdbcRoutineBuilder procedure(String procedureName) {
-        return new DefaultProcedureBuilder(procedureName, impl);
+        return new InformixProcedureBuilder(procedureName, impl);
+    }
+
+    @Override
+    public JdbcRoutineBuilder function(String functionName) {
+        return new InformixFunctionBuilder(functionName, impl);
     }
 }

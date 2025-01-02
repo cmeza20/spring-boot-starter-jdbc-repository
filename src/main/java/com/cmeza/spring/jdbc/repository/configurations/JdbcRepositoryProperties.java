@@ -54,7 +54,7 @@ public final class JdbcRepositoryProperties {
             @DefaultValue("false") boolean onlyDeclaredMethods,
             @DefaultValue("false") boolean onlyMethodDeclaredAnnotations,
             @DefaultValue("false") boolean onlyParameterDeclaredAnnotations,
-            @DefaultValue("com.cmeza.spring.jdbc.repository.naming.NoOpNamingStrategy") Class<? extends NamingStrategy> namingStrategy) {
+            @DefaultValue("com.cmeza.spring.jdbc.repository.naming.impl.NoOpNamingStrategy") Class<? extends NamingStrategy> namingStrategy) {
         this.sqlFolder = sqlFolder;
         this.loggeable = loggeable;
         this.onlyDeclaredMethods = onlyDeclaredMethods;

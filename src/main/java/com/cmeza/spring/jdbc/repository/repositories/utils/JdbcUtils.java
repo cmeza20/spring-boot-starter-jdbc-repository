@@ -2,6 +2,7 @@ package com.cmeza.spring.jdbc.repository.repositories.utils;
 
 import com.cmeza.spring.jdbc.repository.repositories.exceptions.InvalidProjectionClassException;
 import com.cmeza.spring.jdbc.repository.repositories.exceptions.InvalidReturnTypeException;
+import com.cmeza.spring.jdbc.repository.repositories.exceptions.JdbcException;
 import com.cmeza.spring.jdbc.repository.repositories.executors.types.ReturnType;
 import lombok.experimental.UtilityClass;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -9,6 +10,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.jdbc.core.SqlTypeValue;
 import org.springframework.jdbc.core.StatementCreatorUtils;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -30,7 +32,7 @@ public final class JdbcUtils {
                 sqlTypes.put((Integer) field.get(null), field.getName());
             }
         } catch (Exception e) {
-            throw new RuntimeException("Extract Sql Types Error");
+            throw new JdbcException("Extract Sql Types Error");
         }
     }
 
@@ -41,12 +43,12 @@ public final class JdbcUtils {
             if (actualTypeArguments.length > 0) {
                 Type actualTypeArgument = actualTypeArguments[0];
                 if (actualTypeArgument instanceof ParameterizedType) {
-                    return (Class<?>) ((ParameterizedType)actualTypeArgument).getRawType();
+                    return (Class<?>) ((ParameterizedType) actualTypeArgument).getRawType();
                 }
                 return (Class<?>) actualTypeArgument;
             }
         }
-        throw new RuntimeException("Type not found!");
+        throw new JdbcException("Type not found!");
     }
 
     public boolean hasType(int type) {
@@ -119,5 +121,21 @@ public final class JdbcUtils {
                 .filter(e -> e.name().equals(returnType.name()))
                 .findAny()
                 .orElseGet(supplier);
+    }
+
+    public static SqlParameterSource[] createBatch(Object... candidates) {
+        return createBatch(Arrays.asList(candidates));
+    }
+
+    public static SqlParameterSource[] createBatch(Collection<?> candidates) {
+        SqlParameterSource[] batch = new SqlParameterSource[candidates.size()];
+
+        int i = 0;
+        for (Iterator<?> var3 = candidates.iterator(); var3.hasNext(); ++i) {
+            Object candidate = var3.next();
+            batch[i] = candidate instanceof Map ? new JdbcMapSqlParameterSource((Map) candidate) : new JdbcBeanPropertySqlParameterSource(candidate);
+        }
+
+        return batch;
     }
 }

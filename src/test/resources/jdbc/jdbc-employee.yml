@@ -1,0 +1,5 @@
+yml:
+  employee:
+    query:
+      all: 'select * from sch_test.employee'
+      table: 'employee'

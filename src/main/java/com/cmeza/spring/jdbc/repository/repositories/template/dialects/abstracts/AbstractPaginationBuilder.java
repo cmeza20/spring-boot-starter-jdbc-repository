@@ -12,28 +12,37 @@ import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.Statement;
-import net.sf.jsqlparser.statement.select.*;
+import net.sf.jsqlparser.statement.select.ParenthesedSelect;
+import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.statement.select.SelectItem;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public abstract class AbstractPaginationBuilder extends AbstractJdbcBuilder<JdbcPaginationBuilder> implements JdbcPaginationBuilder {
-    private static final List<SelectItem> COUNT_SELECT_ITEMS = Collections.singletonList(new SelectExpressionItem(new Column("count(1)")));
-    private final Map<Integer, String> countSqlCache = new LinkedHashMap<>();
-    private final Map<Integer, String> pageSqlCache = new LinkedHashMap<>();
+    private static final SelectItem<?> COUNT_SELECT_ITEMS = SelectItem.from(new Column("count(1)"));
+    private static final Map<Integer, String> countSqlCache = new LinkedHashMap<>();
+    private static final Map<Integer, String> pageSqlCache = new LinkedHashMap<>();
     private final ResultSetExtractor<Long> resultSetExtractor = rs -> rs.next() ? rs.getLong(1) : 0L;
     private final JdbcRepositoryTemplate jdbcRepositoryTemplate;
+
+    private String dialectName;
 
     protected AbstractPaginationBuilder(Impl impl) {
         super(impl);
         this.jdbcRepositoryTemplate = impl.getJdbcRepositoryTemplate();
+        this.dialectName = impl.getDatabaseMetaData().getDatabaseProductName();
     }
 
     public <R> JdbcPage<R> fetchPage(String sql, String countSql, JdbcPageRequest pageRequest, RowMapper<R> rowMapper) {
         return execute(() -> {
-            int hashCode = sql.hashCode();
+            int hashCode = getHashCode(sql);
 
             try {
                 Long total = 0L;
@@ -42,7 +51,7 @@ public abstract class AbstractPaginationBuilder extends AbstractJdbcBuilder<Jdbc
 
                 if (loggeable) {
                     AbstractJdbcBuilder.log.info("| Query: [{}]", psql);
-                    AbstractJdbcBuilder.log.info("| Query count: [{}]", csql);
+                    AbstractJdbcBuilder.log.info("| Count query: [{}]", csql);
                 }
 
                 if (Objects.nonNull(csql)) {
@@ -77,23 +86,23 @@ public abstract class AbstractPaginationBuilder extends AbstractJdbcBuilder<Jdbc
             }
 
             Statement stmt = CCJSqlParserUtil.parse(sql);
-            SelectBody body = ((Select) stmt).getSelectBody();
-            JdbcPaginationUtils.cleanSelect(body);
 
-            if (body instanceof PlainSelect && JdbcPaginationUtils.isSimpleCountSql((PlainSelect) body)) {
-                PlainSelect ps = (PlainSelect) body;
-                ps.setSelectItems(COUNT_SELECT_ITEMS);
+            JdbcPaginationUtils.cleanSelect(stmt);
+
+            if (stmt instanceof PlainSelect && JdbcPaginationUtils.isSimpleCountSql((PlainSelect) stmt)) {
+                PlainSelect ps = (PlainSelect) stmt;
+                ps.withSelectItems(COUNT_SELECT_ITEMS);
                 csql = ps.toString();
             } else {
-                PlainSelect ps = new PlainSelect();
-                SubSelect ss = new SubSelect();
-                ss.setSelectBody(body);
+                Alias alias = new Alias("jdbc_alias", false);
 
-                Alias alias = new Alias("jdbc_alias");
-                alias.setUseAs(false);
-                ps.setFromItem(ss);
-                ps.setSelectItems(COUNT_SELECT_ITEMS);
-                ss.setAlias(alias);
+                PlainSelect ps = new PlainSelect();
+                ParenthesedSelect parenthesedSelect = new ParenthesedSelect();
+                parenthesedSelect.setSelect((Select) stmt);
+                parenthesedSelect.setAlias(alias);
+
+                ps.setFromItem(parenthesedSelect);
+                ps.withSelectItems(COUNT_SELECT_ITEMS);
                 csql = ps.toString();
             }
 
@@ -113,6 +122,10 @@ public abstract class AbstractPaginationBuilder extends AbstractJdbcBuilder<Jdbc
             pageSqlCache.put(k, psql);
             return psql;
         }
+    }
+
+    private int getHashCode(String sql) {
+        return (dialectName + sql).hashCode();
     }
 
     protected abstract String convertToPageSql(String sql) throws JSQLParserException;

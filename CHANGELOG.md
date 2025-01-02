@@ -46,9 +46,30 @@
 - Fix logger in JdbcEnvironmentPostProcessor
 - Fix Read resource with InputStreamReader
 
+## [2.0.0] - 2025-01-02
+### Added
+- Add JdbcCall annotation
+- Add JdbcExecute annotation
+- Add JdbcRawPagination annotation
+- Add JdbcRawQuery annotation
+- Add JdbcRawUpdate annotation
+- Add JdbcCountQuery annotation
+- Add JdbcFromTable annotation
+- Add JdbcJoinTable annotation
+- Add JdbcMapping annotation
+- Add JdbcRawCountQuery annotation
+- Add JdbcProjectionRowMapper abstract class
+- Add Integration tests (Postgres, Mysql, Oracle, SqlServer, Informix)
+### Fix
+- Fix parameters from objects
+- Standalone JdbcRowMapper
+### Changed
+- @OutParameter is now @Parameter
+
 [1.0.0]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/1.0.0
 [1.0.1]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/1.0.1
 [1.0.2]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/1.0.2
 [1.0.3]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/1.0.3
 [1.0.4]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/1.0.4
 [1.0.5]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/1.0.5
+[2.0.0]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/2.0.0

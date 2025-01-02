@@ -1,5 +1,6 @@
 package com.cmeza.spring.jdbc.repository.repositories.template.dialects.builders;
 
+import com.cmeza.spring.jdbc.repository.repositories.template.dialects.builders.generics.JdbcGenericBuilder;
 import org.springframework.jdbc.core.SqlOutParameter;
 
 import java.util.List;
@@ -8,7 +9,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-public interface JdbcRoutineBuilder extends JdbcBuilder<JdbcRoutineBuilder> {
+public interface JdbcRoutineBuilder extends JdbcGenericBuilder<JdbcRoutineBuilder> {
     <T> T execute(Class<T> returnType);
 
     <T> List<T> executeList();
@@ -40,6 +41,8 @@ public interface JdbcRoutineBuilder extends JdbcBuilder<JdbcRoutineBuilder> {
     JdbcRoutineBuilder withOutParameters(SqlOutParameter... outParameters);
 
     JdbcRoutineBuilder withOutParameter(String parameter, int sqlType);
+
+    JdbcRoutineBuilder withRowMapperParameterName(String rowMapperParameterName);
 
     JdbcRoutineBuilder withAccessCallParameterMetaData(boolean value);
 

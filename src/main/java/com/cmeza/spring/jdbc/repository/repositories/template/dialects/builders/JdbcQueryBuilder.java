@@ -1,12 +1,14 @@
 package com.cmeza.spring.jdbc.repository.repositories.template.dialects.builders;
 
+import com.cmeza.spring.jdbc.repository.repositories.template.dialects.builders.generics.JdbcGenericBuilder;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-public interface JdbcQueryBuilder extends JdbcBuilder<JdbcQueryBuilder> {
+public interface JdbcQueryBuilder extends JdbcGenericBuilder<JdbcQueryBuilder> {
     <R> R fetchOne();
 
     <R> R fetchOne(Class<R> resultType);

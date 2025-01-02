@@ -1,7 +1,7 @@
 package com.cmeza.spring.jdbc.repository.repositories.executors.definition;
 
 import com.cmeza.spring.ioc.handler.metadata.TypeMetadata;
-import com.cmeza.spring.jdbc.repository.annotations.methods.JdbcInsert;
+import com.cmeza.spring.jdbc.repository.annotations.methods.operations.JdbcInsert;
 import com.cmeza.spring.jdbc.repository.repositories.configuration.JdbcConfiguration;
 import com.cmeza.spring.jdbc.repository.repositories.executors.AbstractJdbcExecutor;
 import com.cmeza.spring.jdbc.repository.repositories.executors.types.ExecutorType;

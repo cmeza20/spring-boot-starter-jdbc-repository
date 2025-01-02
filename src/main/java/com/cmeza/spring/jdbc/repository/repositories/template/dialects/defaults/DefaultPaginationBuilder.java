@@ -1,16 +1,24 @@
 package com.cmeza.spring.jdbc.repository.repositories.template.dialects.defaults;
 
+import com.cmeza.spring.jdbc.repository.repositories.definitions.QueryDefinition;
 import com.cmeza.spring.jdbc.repository.repositories.exceptions.JdbcPaginationException;
+import com.cmeza.spring.jdbc.repository.repositories.template.dialects.abstracts.AbstractJdbcBuilder;
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.abstracts.AbstractPaginationBuilder;
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.builders.JdbcPaginationBuilder;
+import com.cmeza.spring.jdbc.repository.repositories.template.dialects.builders.factories.JdbcSelectFactory;
 import com.cmeza.spring.jdbc.repository.repositories.template.pagination.JdbcPage;
 import com.cmeza.spring.jdbc.repository.repositories.template.pagination.JdbcPageRequest;
 import net.sf.jsqlparser.JSQLParserException;
 import org.slf4j.Logger;
-import org.springframework.util.Assert;
+import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 public class DefaultPaginationBuilder extends AbstractPaginationBuilder {
-    private final String query;
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractJdbcBuilder.class);
+    private JdbcSelectFactory selectBuilder;
+    private QueryDefinition countQueryDefinition;
+    private String query;
     private String customCountquery;
     private JdbcPageRequest pageRequest;
 
@@ -19,13 +27,23 @@ public class DefaultPaginationBuilder extends AbstractPaginationBuilder {
         this.query = query;
     }
 
+    public DefaultPaginationBuilder(JdbcSelectFactory selectBuilder, Impl impl) {
+        super(impl);
+        this.selectBuilder = selectBuilder;
+    }
+
     @Override
     public void printExtras(Logger logger) {
-        //Override print extras
+        if (Objects.nonNull(selectBuilder)) {
+            selectBuilder.print(LOGGER);
+        }
     }
 
     @Override
     public JdbcPaginationBuilder withPageRequest(JdbcPageRequest pageRequest) {
+        if (Objects.isNull(pageRequest)) {
+            pageRequest = JdbcPageRequest.ofPage(1, 10);
+        }
         this.pageRequest = pageRequest;
         return this;
     }
@@ -37,6 +55,12 @@ public class DefaultPaginationBuilder extends AbstractPaginationBuilder {
     }
 
     @Override
+    public JdbcPaginationBuilder withCountQuery(QueryDefinition queryDefinition) {
+        this.countQueryDefinition = queryDefinition;
+        return this;
+    }
+
+    @Override
     public <R> JdbcPage<R> fetchPage() {
         return fetchPage(pageRequest);
     }
@@ -44,30 +68,24 @@ public class DefaultPaginationBuilder extends AbstractPaginationBuilder {
     @Override
     public <R> JdbcPage<R> fetchPage(Class<R> resultType) {
         this.resultTypeRequired(resultType);
-        this.pageRequestRequired();
+        this.withPageRequest(null);
         this.createRowMapperIfnotExists(resultType);
-        return fetchPage(query, customCountquery, pageRequest, getRowMapper());
+        return fetchPage(getQuery(), getCountQuery(), this.pageRequest, getRowMapper());
     }
 
     @Override
     public <R> JdbcPage<R> fetchPage(JdbcPageRequest pageRequest) {
         this.rowMapperRequired();
         this.withPageRequest(pageRequest);
-        this.pageRequestRequired();
-        return fetchPage(query, customCountquery, pageRequest, getRowMapper());
+        return fetchPage(getQuery(), getCountQuery(), this.pageRequest, getRowMapper());
     }
 
     @Override
     public <R> JdbcPage<R> fetchPage(JdbcPageRequest pageRequest, Class<R> resultType) {
         this.resultTypeRequired(resultType);
         this.withPageRequest(pageRequest);
-        this.pageRequestRequired();
         this.createRowMapperIfnotExists(resultType);
-        return fetchPage(query, customCountquery, pageRequest, getRowMapper());
-    }
-
-    protected void pageRequestRequired() {
-        Assert.notNull(pageRequest, "JdbcPageRequest required!");
+        return fetchPage(getQuery(), getCountQuery(), this.pageRequest, getRowMapper());
     }
 
     @Override
@@ -80,4 +98,17 @@ public class DefaultPaginationBuilder extends AbstractPaginationBuilder {
         throw new JdbcPaginationException("You have to implement the dialect for pagination");
     }
 
+    private String getQuery() {
+        if (Objects.nonNull(selectBuilder)) {
+            return selectBuilder.generateQuery();
+        }
+        return query;
+    }
+
+    private String getCountQuery() {
+        if (Objects.nonNull(countQueryDefinition)) {
+            return countQueryDefinition.getQuery();
+        }
+        return customCountquery;
+    }
 }

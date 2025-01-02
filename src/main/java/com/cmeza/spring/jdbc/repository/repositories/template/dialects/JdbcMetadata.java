@@ -1,5 +1,6 @@
 package com.cmeza.spring.jdbc.repository.repositories.template.dialects;
 
+import com.cmeza.spring.jdbc.repository.repositories.utils.JdbcMapSqlParameterSource;
 import org.slf4j.Logger;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -19,7 +20,7 @@ public interface JdbcMetadata<T> {
 
     <E> RowMapper<E> getRowMapper();
 
-    MapSqlParameterSource getMapSqlParameterSource();
+    JdbcMapSqlParameterSource getMapSqlParameterSource();
 
     List<SqlParameterSource> getBeanParameterSources();
 

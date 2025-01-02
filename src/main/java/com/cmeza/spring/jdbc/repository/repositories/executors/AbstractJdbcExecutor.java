@@ -3,19 +3,23 @@ package com.cmeza.spring.jdbc.repository.repositories.executors;
 import com.cmeza.spring.ioc.handler.metadata.MethodMetadata;
 import com.cmeza.spring.ioc.handler.metadata.TypeMetadata;
 import com.cmeza.spring.jdbc.repository.repositories.configuration.JdbcConfiguration;
+import com.cmeza.spring.jdbc.repository.repositories.definitions.ParameterDefinition;
+import com.cmeza.spring.jdbc.repository.repositories.executors.types.Direction;
 import com.cmeza.spring.jdbc.repository.repositories.executors.types.ReturnType;
-import com.cmeza.spring.jdbc.repository.repositories.parameters.ParameterDefinition;
 import com.cmeza.spring.jdbc.repository.repositories.template.JdbcRepositoryTemplate;
-import com.cmeza.spring.jdbc.repository.repositories.template.dialects.builders.JdbcBuilder;
+import com.cmeza.spring.jdbc.repository.repositories.template.dialects.builders.generics.JdbcGenericBuilder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.util.Assert;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 @Slf4j
-public abstract class AbstractJdbcExecutor<T extends JdbcBuilder<T>> implements JdbcExecutor {
+public abstract class AbstractJdbcExecutor<T extends JdbcGenericBuilder<T>> implements JdbcExecutor {
 
     private JdbcConfiguration configuration;
 
@@ -25,12 +29,14 @@ public abstract class AbstractJdbcExecutor<T extends JdbcBuilder<T>> implements 
 
     @Override
     public Object execute(MethodMetadata methodMetadata, Object[] arguments) {
-        this.validateConfiguration();
         RowMapper<?> rowMapper = configuration.getRowMapper();
         TypeMetadata typeMetadata = configuration.getTypeMetadata();
         JdbcRepositoryTemplate jdbcTemplate = configuration.getJdbcTemplate();
 
         T builder = bindBuilder(jdbcTemplate, configuration);
+
+        //Mappings
+        Arrays.stream(configuration.getMappings()).forEach(builder::withMapping);
 
         List<Parameter> parameters = new ArrayList<>();
 
@@ -48,7 +54,6 @@ public abstract class AbstractJdbcExecutor<T extends JdbcBuilder<T>> implements 
     public void attachConfiguration(JdbcConfiguration jdbcConfiguration) {
         this.configuration = jdbcConfiguration;
         this.validateConfiguration();
-        this.configuration = jdbcConfiguration;
         this.validateConfiguration(jdbcConfiguration);
     }
 
@@ -83,7 +88,7 @@ public abstract class AbstractJdbcExecutor<T extends JdbcBuilder<T>> implements 
 
     protected void bindParameters(T builder, List<Parameter> parameters) {
         parameters.forEach(param -> {
-            if (param.isObject) {
+            if (param.isObject()) {
                 builder.withParameter(param.getValue());
             } else {
                 builder.withParameter(param.getName(), param.getValue(), param.getType());
@@ -143,9 +148,5 @@ public abstract class AbstractJdbcExecutor<T extends JdbcBuilder<T>> implements 
             this.direction = direction;
         }
 
-    }
-
-    protected enum Direction {
-        IN, OUT
     }
 }

@@ -11,8 +11,8 @@ public class JdbcPageImpl<T> implements JdbcPage<T>, Serializable {
 
     private static final long serialVersionUID = 4151413836228834454L;
 
-    private final List<T> content;
-    private final JdbcPageRequest pageRequest;
+    private final transient List<T> content;
+    private final transient JdbcPageRequest pageRequest;
     private final long total;
 
     public JdbcPageImpl(long total, JdbcPageRequest pageRequest) {
