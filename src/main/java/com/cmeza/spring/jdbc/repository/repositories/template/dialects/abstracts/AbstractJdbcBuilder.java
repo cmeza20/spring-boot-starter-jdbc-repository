@@ -1,68 +1,67 @@
 package com.cmeza.spring.jdbc.repository.repositories.template.dialects.abstracts;
 
-import com.cmeza.spring.jdbc.repository.mappers.JdbcRowMapper;
+import com.cmeza.spring.jdbc.repository.repositories.definitions.MappingDefinition;
+import com.cmeza.spring.jdbc.repository.repositories.exceptions.JdbcException;
 import com.cmeza.spring.jdbc.repository.repositories.template.JdbcRepositoryTemplate;
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.JdbcDatabaseMatadata;
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.JdbcMetadata;
-import com.cmeza.spring.jdbc.repository.repositories.template.dialects.builders.JdbcBuilder;
+import com.cmeza.spring.jdbc.repository.repositories.template.dialects.builders.generics.JdbcGenericBuilder;
+import com.cmeza.spring.jdbc.repository.repositories.template.dialects.providers.InParameterSourceProvider;
+import com.cmeza.spring.jdbc.repository.repositories.template.dialects.providers.MappingSourceProvider;
+import com.cmeza.spring.jdbc.repository.repositories.template.dialects.providers.ParameterSourceProvider;
+import com.cmeza.spring.jdbc.repository.repositories.template.dialects.providers.RowMapperSourceProvider;
 import com.cmeza.spring.jdbc.repository.repositories.utils.JdbcHeaderLog;
 import com.cmeza.spring.jdbc.repository.repositories.utils.JdbcLoggerUtils;
-import com.cmeza.spring.jdbc.repository.repositories.utils.JdbcUtils;
-import com.cmeza.spring.jdbc.repository.resolvers.JdbcProjectionSupport;
+import com.cmeza.spring.jdbc.repository.repositories.utils.JdbcMapSqlParameterSource;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.SingleColumnRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.jdbc.core.namedparam.SqlParameterSourceUtils;
 import org.springframework.util.Assert;
 
+import java.sql.Types;
 import java.util.*;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 @SuppressWarnings("unchecked")
-public abstract class AbstractJdbcBuilder<T> implements JdbcBuilder<T>, JdbcMetadata<T> {
+public abstract class AbstractJdbcBuilder<T> implements JdbcGenericBuilder<T>, JdbcMetadata<T> {
 
     public static final Logger log = LoggerFactory.getLogger(AbstractJdbcBuilder.class);
-    private final MapSqlParameterSource mapParameterSource = new MapSqlParameterSource();
-    private final List<SqlParameterSource> beanParameterSources = new ArrayList<>();
+    private final InParameterSourceProvider inParameterSourceProvider;
+    private final ParameterSourceProvider parameterSourceProvider;
+    private final MappingSourceProvider mappingSourceProvider;
+    private final RowMapperSourceProvider<T> rowMapperSourceProvider;
     private final Impl impl;
+
     protected boolean loggeable;
     protected String key;
-    private RowMapper<?> rowMapper;
     private JdbcDatabaseMatadata databaseMetaData;
 
     protected AbstractJdbcBuilder(Impl impl) {
         this.impl = impl;
         this.databaseMetadata(impl.getDatabaseMetaData());
+        this.inParameterSourceProvider = new InParameterSourceProvider();
+        this.mappingSourceProvider = new MappingSourceProvider();
+        this.parameterSourceProvider = new ParameterSourceProvider(inParameterSourceProvider, mappingSourceProvider);
+        this.rowMapperSourceProvider = new RowMapperSourceProvider<>(impl);
     }
 
     @Override
     public T withParameter(String parameterName, Object parameterValue) {
-        if (Objects.nonNull(parameterValue) && parameterValue.getClass().isArray()) {
-            mapParameterSource.addValue(parameterName, Arrays.asList((Object[]) parameterValue));
-        } else {
-            mapParameterSource.addValue(parameterName, parameterValue);
-        }
+        parameterSourceProvider.addParameterSource(parameterName, parameterValue, Types.NULL);
         return (T) this;
     }
 
     @Override
     public T withParameter(String parameterName, Object parameterValue, int sqlType) {
-        if (sqlType == 0) {
+        if (sqlType == Types.NULL) {
             return withParameter(parameterName, parameterValue);
         }
 
-        if (Objects.nonNull(parameterValue) && parameterValue.getClass().isArray()) {
-            mapParameterSource.addValue(parameterName, Arrays.asList((Object[]) parameterValue), sqlType);
-        } else {
-            mapParameterSource.addValue(parameterName, parameterValue, sqlType);
-        }
+        parameterSourceProvider.addParameterSource(parameterName, parameterValue, sqlType);
         return (T) this;
     }
 
@@ -78,7 +77,7 @@ public abstract class AbstractJdbcBuilder<T> implements JdbcBuilder<T>, JdbcMeta
             } else if (object.getClass().isArray()) {
                 return withParameterList(Arrays.asList((Object[]) object));
             } else {
-                beanParameterSources.addAll(Arrays.asList(SqlParameterSourceUtils.createBatch(object)));
+                parameterSourceProvider.addBeanParameterSource(object);
             }
         }
         return (T) this;
@@ -86,45 +85,31 @@ public abstract class AbstractJdbcBuilder<T> implements JdbcBuilder<T>, JdbcMeta
 
     @Override
     public T withParameterList(List<?> objects) {
-        if (Objects.nonNull(objects)) {
-            beanParameterSources.addAll(Arrays.asList(SqlParameterSourceUtils.createBatch(objects)));
-        }
+        parameterSourceProvider.addBeanParameterSourceList(objects);
         return (T) this;
     }
 
     @Override
     public T withParameterMap(Map<?, ?> objects) {
-        if (Objects.nonNull(objects)) {
-            beanParameterSources.addAll(Arrays.asList(SqlParameterSourceUtils.createBatch(objects)));
-        }
+        parameterSourceProvider.addBeanParameterSourceMap(objects);
         return (T) this;
     }
 
     @Override
     public T withParameterSet(Set<?> objects) {
-        if (Objects.nonNull(objects)) {
-            beanParameterSources.addAll(Arrays.asList(SqlParameterSourceUtils.createBatch(objects)));
-        }
+        parameterSourceProvider.addBeanParameterSourceSet(objects);
         return (T) this;
     }
 
     @Override
     public T withRowMapper(RowMapper<?> rowMapper) {
-        if (Objects.nonNull(rowMapper)) {
-            if (rowMapper instanceof JdbcRowMapper) {
-                Class<T> mappedClass = ((JdbcRowMapper<T>) rowMapper).getMappedClass();
-                ((JdbcRowMapper<T>) rowMapper).init((JdbcProjectionSupport<T, T>) impl.jdbcProjectionSupportMap.get(mappedClass));
-            }
-            this.rowMapper = rowMapper;
-        }
+        this.rowMapperSourceProvider.setRowMapper(rowMapper);
         return (T) this;
     }
 
     @Override
     public T withRowMapper(Class<? extends RowMapper<?>> rowMapperClass) {
-        if (Objects.nonNull(rowMapperClass)) {
-            this.withRowMapper(impl.jdbcRepositoryTemplate.registerJdbcRowMapperBean(rowMapperClass));
-        }
+        this.rowMapperSourceProvider.setRowMapper(rowMapperClass);
         return (T) this;
     }
 
@@ -152,8 +137,8 @@ public abstract class AbstractJdbcBuilder<T> implements JdbcBuilder<T>, JdbcMeta
                     .setLogger(log)
                     .setLoggeable(loggeable)
                     .setDatabaseMetaData(databaseMetaData)
-                    .setClassName(((T) this).getClass().getSimpleName())
-                    .setRowMapper(rowMapper)
+                    .setClassName(this.getClass().getSimpleName())
+                    .setRowMapper(rowMapperSourceProvider.getRowMapper())
                     .setJdbcRepositoryTemplateBeanName(impl.getJdbcRepositoryTemplateBeanName())
                     .setKey(this.key)
                     .setPrintExtras(this::printExtras);
@@ -163,12 +148,12 @@ public abstract class AbstractJdbcBuilder<T> implements JdbcBuilder<T>, JdbcMeta
         } catch (Exception e) {
             throwable = e;
         } finally {
-            JdbcLoggerUtils.printParametersLog(log, loggeable, getParameterSources());
+            JdbcLoggerUtils.printParametersLog(log, loggeable, getParameterSources(), inParameterSourceProvider, mappingSourceProvider);
             JdbcLoggerUtils.printResult(log, loggeable, result, mill);
         }
 
         if (Objects.nonNull(throwable)) {
-            throw new RuntimeException(throwable);
+            throw new JdbcException(throwable);
         }
 
         return result;
@@ -176,31 +161,27 @@ public abstract class AbstractJdbcBuilder<T> implements JdbcBuilder<T>, JdbcMeta
 
     @Override
     public SqlParameterSource[] getParameterSources() {
-        return Stream.concat(beanParameterSources.stream(), mapParameterSource.getValues().isEmpty() ? Stream.empty() : Stream.of(mapParameterSource)).toArray(SqlParameterSource[]::new);
+        return parameterSourceProvider.getParameterSources();
     }
 
     @Override
     public <E> RowMapper<E> getRowMapper() {
-        return (RowMapper<E>) rowMapper;
+        return (RowMapper<E>) rowMapperSourceProvider.getRowMapper();
     }
 
     @Override
-    public MapSqlParameterSource getMapSqlParameterSource() {
-        return mapParameterSource;
+    public JdbcMapSqlParameterSource getMapSqlParameterSource() {
+        return parameterSourceProvider.getMapParameterSource();
     }
 
     @Override
     public List<SqlParameterSource> getBeanParameterSources() {
-        return beanParameterSources;
+        return parameterSourceProvider.getBeanParameterSources();
     }
 
     @Override
     public MapSqlParameterSource getMergedSqlParameterSource() {
-        MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource(mapParameterSource.getValues());
-        beanParameterSources.forEach(bean ->
-                Arrays.stream(Objects.requireNonNull(bean.getParameterNames()))
-                        .forEach(name -> sqlParameterSource.addValue(name, bean.getValue(name), bean.getSqlType(name))));
-        return sqlParameterSource;
+        return parameterSourceProvider.getMergedSqlParameterSource();
     }
 
     @Override
@@ -209,44 +190,86 @@ public abstract class AbstractJdbcBuilder<T> implements JdbcBuilder<T>, JdbcMeta
         return (T) this;
     }
 
-    protected <E> void createRowMapperIfnotExists(Class<E> returnType) {
-        if (Objects.isNull(getRowMapper())) {
-            boolean isSingleColumnMapperType = JdbcUtils.isSingleColumnMapperType(returnType);
-            if (returnType.isAssignableFrom(Map.class)) {
-                withRowMapper(new ColumnMapRowMapper());
-            } else if (isSingleColumnMapperType) {
-                withRowMapper(new SingleColumnRowMapper<>(returnType));
-            } else {
-                JdbcRowMapper<E> rm = JdbcRowMapper.newInstance(returnType);
-                rm.init((JdbcProjectionSupport<E, E>) impl.jdbcProjectionSupportMap.get(rm.getMappedClass()));
-                withRowMapper(rm);
-            }
-        }
+    @Override
+    public T withMapping(String to, int sqlType) {
+        this.withMapping(to, null, sqlType);
+        return (T) this;
     }
 
-    protected void incompatibleRowMapperToMap() {
-        if (Objects.nonNull(getRowMapper()) && !getRowMapper().getClass().isAssignableFrom(ColumnMapRowMapper.class)) {
-            Assert.isNull(getRowMapper(), "The Map is not compatible with RowMapper");
-        }
+    @Override
+    public T withMapping(String to, String from) {
+        this.withMapping(to, from, Types.NULL);
+        return (T) this;
     }
 
-    protected void rowMapperRequired() {
-        Assert.notNull(getRowMapper(), "RowMapper required! or specific return type");
+    @Override
+    public T withMapping(String to, String from, int sqlType) {
+        mappingSourceProvider.addMapping(to, from, sqlType);
+        return (T) this;
+    }
+
+    @Override
+    public T withMapping(MappingDefinition mappingDefinition) {
+        mappingSourceProvider.addMapping(mappingDefinition);
+        return (T) this;
     }
 
     protected void resultTypeRequired(Class<?> resultType) {
         Assert.notNull(resultType, "Specific return type required.");
     }
 
+    //RowMappers
+    protected <E> void createRowMapperIfnotExists(Class<E> returnType) {
+        rowMapperSourceProvider.createRowMapperIfnotExists(returnType);
+    }
+
+    protected void incompatibleRowMapperToMap() {
+        rowMapperSourceProvider.incompatibleRowMapperToMap();
+    }
+
+    protected void rowMapperRequired() {
+        rowMapperSourceProvider.assertRowMapperRequired();
+    }
+
+    //ParameterSources
     protected void parameterSourcesRequired() {
-        Assert.isTrue(!(mapParameterSource.getValues().isEmpty() && beanParameterSources.isEmpty()), "ParameterSources required!");
+        parameterSourceProvider.assertParameterSourcesRequired();
+    }
+
+    protected boolean isSetAndNotContainsInParameter(String parameterName) {
+        return inParameterSourceProvider.isSetAndNotContains(parameterName);
+    }
+
+    protected boolean isInParameterNames() {
+        return inParameterSourceProvider.isSetParameterNames();
+    }
+
+    protected T setInParameterNames(String... inParameterNames) {
+        this.inParameterSourceProvider.setInParameterNames(inParameterNames);
+        return (T) this;
+    }
+
+    protected String[] getInParameterNames() {
+        return this.inParameterSourceProvider.getInParameterNames();
+    }
+
+    //Mappings
+    protected Optional<MappingDefinition> findMappingByFrom(String from) {
+        return mappingSourceProvider.findMappingByFrom(from);
+    }
+
+    protected List<MappingDefinition> getMappingDefinitions() {
+        return mappingSourceProvider.getSortedMappingDefinitions();
+    }
+
+    protected boolean isSetMappings() {
+        return mappingSourceProvider.isSetMappings();
     }
 
     @Getter
     @RequiredArgsConstructor
     public static class Impl {
         private final JdbcRepositoryTemplate jdbcRepositoryTemplate;
-        private final Map<Class<?>, JdbcProjectionSupport<?, ?>> jdbcProjectionSupportMap;
         private final JdbcDatabaseMatadata databaseMetaData;
         private final String jdbcRepositoryTemplateBeanName;
     }

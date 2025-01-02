@@ -3,15 +3,15 @@ package com.cmeza.spring.jdbc.repository.repositories.utils;
 import com.cmeza.spring.ioc.handler.metadata.TypeMetadata;
 import com.cmeza.spring.ioc.handler.metadata.impl.SimpleTypeMetadata;
 import com.cmeza.spring.jdbc.repository.mappers.JdbcRowMapper;
-import com.cmeza.spring.jdbc.repository.repositories.template.dialects.JdbcDatabaseMatadata;
+import com.cmeza.spring.jdbc.repository.repositories.definitions.MappingDefinition;
+import com.cmeza.spring.jdbc.repository.repositories.template.dialects.providers.InParameterSourceProvider;
+import com.cmeza.spring.jdbc.repository.repositories.template.dialects.providers.MappingSourceProvider;
 import lombok.experimental.UtilityClass;
 import org.slf4j.Logger;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.function.Consumer;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @UtilityClass
@@ -67,33 +67,62 @@ public final class JdbcLoggerUtils {
         }
     }
 
-    public void printParametersLog(Logger logger, boolean loggeable, SqlParameterSource[] sources) {
+    private void findParamInSourceProvider(SqlParameterSource source, int count, Map<SqlParameterSource, List<String>> sourcesFiltered, InParameterSourceProvider inParameterSourceProvider, MappingSourceProvider mappingSourceProvider) {
+        for (String paramName : source.getParameterNames()) {
+            String paramNameFiltered = paramName;
+            if (inParameterSourceProvider.isSetAndNotContains(paramName)){
+                paramNameFiltered = null;
+            } else if (mappingSourceProvider.isSetMappings()) {
+                Optional<MappingDefinition> mappingDefinitionOptional = mappingSourceProvider.findMappingByFromOrTo(paramName);
+                paramNameFiltered = mappingDefinitionOptional.map(MappingDefinition::getTo).orElse(paramName);
+            }
+
+            if (Objects.isNull(paramNameFiltered)) {
+                continue;
+            }
+
+            List<String> params = sourcesFiltered.get(source);
+            if (Objects.isNull(params)) {
+                params = new LinkedList<>();
+            }
+            params.add(String.format("|      * %s => %s", paramNameFiltered, source.getValue(paramName)));
+            sourcesFiltered.put(source, params);
+            count++;
+        }
+    }
+
+
+    public void printParametersLog(Logger logger, boolean loggeable, SqlParameterSource[] sources, InParameterSourceProvider inParameterSourceProvider, MappingSourceProvider mappingSourceProvider) {
         if (loggeable && logger.isInfoEnabled()) {
 
-            logger.info("| Parameters: {}", sources.length);
-
-            int position = 0;
+            Map<SqlParameterSource, List<String>> sourcesFiltered = new LinkedHashMap<>();
+            int count = 0;
             for (SqlParameterSource source : sources) {
-                printParameterDetailLog(logger, sources, source, position);
-                position++;
+                if (Objects.isNull(source) || Objects.isNull(source.getParameterNames())) {
+                    continue;
+                }
+
+                findParamInSourceProvider(source, count, sourcesFiltered, inParameterSourceProvider, mappingSourceProvider);
+            }
+
+            logger.info("| Parameters: {}", count);
+
+            for (Map.Entry<SqlParameterSource, List<String>> entry : sourcesFiltered.entrySet()) {
+                printParameterDetailLog(logger, entry.getKey(), entry.getValue());
             }
         }
     }
 
-    public void printParameterDetailLog(Logger logger, SqlParameterSource[] sources, SqlParameterSource source, int position) {
+    public void printParameterDetailLog(Logger logger, SqlParameterSource source, List<String> lista) {
         if (source.hasValue(CLASS_ID)) {
             Object obj = source.getValue(CLASS_ID);
             if (Objects.nonNull(obj)) {
                 logger.info("| - {}", ((Class<?>) obj).getSimpleName());
             }
-        } else if (sources.length > 1) {
-            logger.info("| - {}", position);
         }
         if (Objects.nonNull(source.getParameterNames())) {
-            for (String name : source.getParameterNames()) {
-                if (!name.equals(CLASS_ID)) {
-                    logger.info("|      * {} => {}", name, source.getValue(name));
-                }
+            for (String name : lista) {
+                logger.info(name);
             }
         }
     }

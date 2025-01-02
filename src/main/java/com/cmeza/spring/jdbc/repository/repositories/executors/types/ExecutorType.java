@@ -8,5 +8,6 @@ public enum ExecutorType {
     PROCEDURE,
     BATCH_UPDATE,
     PAGE,
-    CRUD,
+    EXECUTE,
+    CALL,
 }

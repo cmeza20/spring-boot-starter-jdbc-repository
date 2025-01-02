@@ -1,5 +1,6 @@
 package com.cmeza.spring.jdbc.repository.repositories.template.dialects.impl.pagination;
 
+import com.cmeza.spring.jdbc.repository.repositories.template.dialects.builders.factories.JdbcSelectFactory;
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.defaults.DefaultPaginationBuilder;
 import com.cmeza.spring.jdbc.repository.repositories.template.pagination.JdbcPageRequest;
 import net.sf.jsqlparser.JSQLParserException;
@@ -14,19 +15,25 @@ public class PostgresPaginationBuilder extends DefaultPaginationBuilder {
         super(query, impl);
     }
 
+    public PostgresPaginationBuilder(JdbcSelectFactory selectBuilder, Impl impl) {
+        super(selectBuilder, impl);
+    }
+
     @Override
     protected String convertToPageSql(String sql) throws JSQLParserException {
-        StringBuilder sb = new StringBuilder(sql.length() + 50);
-        sb.append(sql)
+        return new StringBuilder(sql.length() + 50)
+                .append(sql)
                 .append(" limit ")
                 .append(":").append(LIMIT_PARAM_NAME)
                 .append(" offset ")
-                .append(":").append(OFFSET_PARAM_NAME);
-        return sb.toString();
+                .append(":").append(OFFSET_PARAM_NAME)
+                .toString();
     }
 
     @Override
     protected void preparePageParams(JdbcPageRequest pageRequest) {
+        withMapping(OFFSET_PARAM_NAME, OFFSET_PARAM_NAME, Types.NUMERIC);
+        withMapping(LIMIT_PARAM_NAME, LIMIT_PARAM_NAME, Types.NUMERIC);
         withParameter(OFFSET_PARAM_NAME, pageRequest.getOffset(), Types.NUMERIC);
         withParameter(LIMIT_PARAM_NAME, pageRequest.getPageSize(), Types.NUMERIC);
     }

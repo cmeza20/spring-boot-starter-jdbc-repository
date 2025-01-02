@@ -5,6 +5,8 @@ import com.cmeza.spring.ioc.handler.metadata.ClassMetadata;
 import com.cmeza.spring.ioc.handler.processors.AnnotatedClassProcessor;
 import com.cmeza.spring.jdbc.repository.annotations.JdbcRepository;
 import com.cmeza.spring.jdbc.repository.aware.JdbcRepositoryAware;
+import com.cmeza.spring.jdbc.repository.naming.NamingStrategy;
+import com.cmeza.spring.jdbc.repository.repositories.template.JdbcRepositoryTemplate;
 import com.cmeza.spring.jdbc.repository.repositories.utils.JdbcUtils;
 import com.cmeza.spring.jdbc.repository.resolvers.JdbcPropertyResolver;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -26,5 +28,20 @@ public class RepositoryAnnotatedClassProcessor implements AnnotatedClassProcesso
     @Override
     public void setPropertiesResolver(JdbcPropertyResolver propertiesResolver) {
         this.propertiesResolver = propertiesResolver;
+    }
+
+    @Override
+    public void setJdbcRepositoryTemplate(JdbcRepositoryTemplate jdbcRepositoryTemplate) {
+        //Override empty
+    }
+
+    @Override
+    public void setNamingStrategy(NamingStrategy namingStrategy) {
+        //Override empty
+    }
+
+    @Override
+    public boolean findQualified() {
+        return false;
     }
 }

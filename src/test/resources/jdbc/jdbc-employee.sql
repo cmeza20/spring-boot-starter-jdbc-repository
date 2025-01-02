@@ -1,0 +1,1 @@
+select * from sch_test.employee

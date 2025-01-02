@@ -1,18 +1,17 @@
 package com.cmeza.spring.jdbc.repository.repositories.template;
 
 import com.cmeza.spring.jdbc.repository.configurations.JdbcRepositoryProperties;
-import com.cmeza.spring.jdbc.repository.mappers.JdbcRowMapper;
+import com.cmeza.spring.jdbc.repository.repositories.exceptions.JdbcException;
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.Dialect;
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.JdbcDatabaseMatadata;
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.JdbcRepositoryOperations;
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.abstracts.AbstractJdbcBuilder;
-import com.cmeza.spring.jdbc.repository.repositories.template.dialects.defaults.DefaultDialect;
+import com.cmeza.spring.jdbc.repository.repositories.template.dialects.DefaultDialect;
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.defaults.DefaultJdbcDatabaseMatadata;
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.impl.*;
 import com.cmeza.spring.jdbc.repository.repositories.template.parsers.ParsedJdbcSql;
 import com.cmeza.spring.jdbc.repository.repositories.utils.JdbcNamedParameterUtils;
 import com.cmeza.spring.jdbc.repository.repositories.utils.JdbcUtils;
-import com.cmeza.spring.jdbc.repository.resolvers.JdbcProjectionSupport;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
@@ -25,9 +24,13 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.jdbc.DatabaseDriver;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.jdbc.core.*;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.PreparedStatementCreatorFactory;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ConcurrentLruCache;
@@ -36,15 +39,13 @@ import javax.sql.DataSource;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
 public abstract class JdbcAbstractRepositoryTemplate<T> extends NamedParameterJdbcTemplate implements ApplicationContextAware, BeanFactoryAware, BeanNameAware {
     private final ConcurrentLruCache<String, ParsedJdbcSql> parsedSqlCache = new ConcurrentLruCache<>(DEFAULT_CACHE_LIMIT, JdbcNamedParameterUtils::parseSqlStatement);
-    private final List<JdbcProjectionSupport<?, ?>> jdbcProjectionSupports = new LinkedList<>();
 
     protected JdbcRepositoryProperties jdbcRepositoryProperties;
     private ApplicationContext applicationContext;
@@ -77,15 +78,25 @@ public abstract class JdbcAbstractRepositoryTemplate<T> extends NamedParameterJd
     }
 
     public ParsedJdbcSql getParsedJdbcSql(String sql) {
+        Assert.hasLength(sql, "Query sql must not be empty");
         return this.parsedSqlCache.get(sql);
     }
 
-    public <E> JdbcRowMapper<E> registerJdbcRowMapperBean(Class<E> clazz) {
-        this.validateRowMapper(clazz);
-
+    public <E> RowMapper<E> getRowMapperBean(Class<E> clazz) {
         String[] beanNames = applicationContext.getBeanNamesForType(clazz);
         if (beanNames.length > 0) {
-            return (JdbcRowMapper<E>) applicationContext.getBean(beanNames[0], clazz);
+            return (RowMapper<E>) applicationContext.getBean(beanNames[0], clazz);
+        }
+        return null;
+    }
+
+    public <E> RowMapper<E> registerJdbcRowMapperBean(Class<E> clazz) {
+        this.validateRowMapper(clazz);
+
+        RowMapper<E> bean = getRowMapperBean(clazz);
+
+        if (Objects.nonNull(bean)) {
+            return bean;
         } else {
             Constructor<?> resolvableConstructor = BeanUtils.getResolvableConstructor(clazz);
             Class<?> genericClass = JdbcUtils.getGenericClass(clazz);
@@ -107,7 +118,7 @@ public abstract class JdbcAbstractRepositoryTemplate<T> extends NamedParameterJd
             beanDefinition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 
             defaultListableBeanFactory.registerBeanDefinition(clazz.getSimpleName(), beanDefinition);
-            return (JdbcRowMapper<E>) applicationContext.getBean(clazz);
+            return getRowMapperBean(clazz);
         }
     }
 
@@ -120,13 +131,8 @@ public abstract class JdbcAbstractRepositoryTemplate<T> extends NamedParameterJd
         JdbcDatabaseMatadata databaseMetaData = this.getDatabaseMetaData();
 
         Dialect dialect = Dialect.from(DatabaseDriver.fromProductName(databaseMetaData.getDatabaseProductName()));
-        Map<Class<?>, JdbcProjectionSupport<?, ?>> jdbcProjectionSupportMap = jdbcProjectionSupports
-                .stream().filter(p -> {
-                    JdbcUtils.projectionClassValidate(p.getClass());
-                    return true;
-                }).collect(Collectors.toMap(JdbcProjectionSupport::getProjectionClass, Function.identity()));
 
-        AbstractJdbcBuilder.Impl impl = new AbstractJdbcBuilder.Impl((JdbcRepositoryTemplate)(T)this, jdbcProjectionSupportMap, databaseMetaData, beanName);
+        AbstractJdbcBuilder.Impl impl = new AbstractJdbcBuilder.Impl((JdbcRepositoryTemplate) (T) this, databaseMetaData, beanName);
 
         switch (dialect) {
             case MYSQL:
@@ -153,11 +159,9 @@ public abstract class JdbcAbstractRepositoryTemplate<T> extends NamedParameterJd
 
     private JdbcDatabaseMatadata getDatabaseMetaData() {
         try {
-            return org.springframework.jdbc.support.JdbcUtils.extractDatabaseMetaData(
-                    Objects.requireNonNull(this.getJdbcTemplate().getDataSource()),
-                    dbmd -> new DefaultJdbcDatabaseMatadata(dbmd.getDatabaseProductName(), dbmd.getDatabaseProductVersion()));
+            return org.springframework.jdbc.support.JdbcUtils.extractDatabaseMetaData(Objects.requireNonNull(this.getJdbcTemplate().getDataSource()), dbmd -> new DefaultJdbcDatabaseMatadata(dbmd.getDatabaseProductName(), dbmd.getDatabaseProductVersion()));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new JdbcException(e);
         }
     }
 
@@ -169,19 +173,17 @@ public abstract class JdbcAbstractRepositoryTemplate<T> extends NamedParameterJd
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
         this.jdbcRepositoryProperties = applicationContext.getBean(JdbcRepositoryProperties.class);
-        applicationContext.getBeansOfType(JdbcProjectionSupport.class).values()
-                .forEach(jdbcProjectionSupports::add);
 
         this.initDialect();
     }
 
     @Override
-    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+    public void setBeanFactory(@NonNull BeanFactory beanFactory) throws BeansException {
         this.defaultListableBeanFactory = (DefaultListableBeanFactory) beanFactory;
     }
 
     @Override
-    public void setBeanName(String beanName) {
+    public void setBeanName(@NonNull String beanName) {
         this.beanName = beanName;
     }
 }

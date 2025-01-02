@@ -1,7 +1,7 @@
 package com.cmeza.spring.jdbc.repository.repositories.configuration;
 
 import com.cmeza.spring.ioc.handler.metadata.TypeMetadata;
-import com.cmeza.spring.jdbc.repository.repositories.parameters.ParameterDefinition;
+import com.cmeza.spring.jdbc.repository.repositories.definitions.*;
 import com.cmeza.spring.jdbc.repository.repositories.template.JdbcRepositoryTemplate;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,4 +19,8 @@ public class SimpleJdbcConfiguration implements JdbcConfiguration {
     private final String configKey;
     private final boolean loggeable;
     private final boolean needRowMapper;
+    private final MappingDefinition[] mappings;
+    private final JoinTableDefinition[] joinTables;
+    private final TableDefinition fromTable;
+    private final QueryDefinition countQuery;
 }

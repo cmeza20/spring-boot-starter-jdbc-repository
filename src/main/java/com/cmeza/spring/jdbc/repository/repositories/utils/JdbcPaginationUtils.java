@@ -2,7 +2,10 @@ package com.cmeza.spring.jdbc.repository.repositories.utils;
 
 import lombok.experimental.UtilityClass;
 import net.sf.jsqlparser.expression.Function;
+import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.*;
+
+import java.util.Objects;
 
 @UtilityClass
 public final class JdbcPaginationUtils {
@@ -16,26 +19,24 @@ public final class JdbcPaginationUtils {
             return false;
         }
 
-        for (SelectItem item : select.getSelectItems()) {
+        for (SelectItem<?> item : select.getSelectItems()) {
             if (item.toString().contains("?")) {
                 return false;
             }
-            if (item instanceof SelectExpressionItem) {
-                if (((SelectExpressionItem) item).getExpression() instanceof Function) {
-                    return false;
-                }
+            if (Objects.nonNull(item.getExpression()) && item.getExpression() instanceof Function) {
+                return false;
             }
         }
         return true;
     }
 
-    public void cleanSelect(SelectBody sb) {
+    public void cleanSelect(Statement sb) {
         if (sb instanceof PlainSelect) {
             ((PlainSelect) sb).setOrderByElements(null);
         } else if (sb instanceof WithItem) {
             WithItem wi = (WithItem) sb;
-            if (wi.getSubSelect() != null) {
-                cleanSelect(wi.getSubSelect().getSelectBody());
+            if (wi.getSelect() != null) {
+                cleanSelect(wi.getSelect());
             }
         } else {
             SetOperationList sol = (SetOperationList) sb;
