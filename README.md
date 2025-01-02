@@ -38,9 +38,8 @@ Jdbc template repositories, inspired by Spring data Jpa
 
 ***
 ### Mappers
-* [JdbcRowMapper interface](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/JdbcRowMapper)
-* [JdbcProjectionRowMapper interface](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/JdbcProjectionRowMapper)
-* [Support for projections](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/projections-support)
+* [JdbcRowMapper](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/JdbcRowMapper)
+* [JdbcProjectionRowMapper](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/JdbcProjectionRowMapper)
 
 ***
 ### Advanced
@@ -48,7 +47,6 @@ Jdbc template repositories, inspired by Spring data Jpa
 * [Properties Placeholder](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/Properties-Placeholder)
 * [JdbcRepositoryTemplate multi tenant](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/JdbcRepositoryTemplate-multi-tenant)
 * [JdbcRepositoryTemplate manual execute](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/JdbcRepositoryTemplate)
-* [NamingStrategy](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/NamingStrategy)
 
 
 ## Maven Integration ##
