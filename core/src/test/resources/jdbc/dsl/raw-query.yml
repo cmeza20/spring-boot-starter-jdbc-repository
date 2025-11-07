@@ -1,0 +1,77 @@
+spring:
+  jdbc:
+    repository:
+      dsl:
+        QueryRepositoryRaw:
+          getAllEmployeeHardcoded:
+            raw-query: select * from sch_test.employee
+          getAllEmployeeSetFromProperties:
+            raw-query: ${properties.employee.query.all}
+          getAllEmployeeArrayFromYml:
+            raw-query: ${yml.employee.query.all}
+          getAllEmployeeStreamFromFile:
+            raw-query: file:/jdbc-employee.sql
+          getAllEmployeeListWithCondition:
+            raw-query: select * from sch_test.employee where id > :id
+          getOneEmployeeWithConditionParam:
+            raw-query: select * from sch_test.employee where id = :idParam
+          getEmployeeOptionalWithConditionParam:
+            raw-query: select * from sch_test.employee where id = :idParam
+          getOneEmployeeWithConditionMapping:
+            raw-query:
+              value: select * from sch_test.employee where first_name = :name and gender = :gen
+              mappings:
+                - from: conditionOne
+                  to: name
+                  type: VARCHAR
+                - from: conditionTwo
+                  to: gen
+                  type: VARCHAR
+          getOneEmployeeWithConditionAndRowMapper:
+            raw-query:
+              value: select * from sch_test.employee where id = :id
+              mapper:  com.cmeza.spring.jdbc.repository.mappers.EmployeeRowMapper
+          getOneEmployeeWithConditionAndComplexRowMapper:
+            raw-query:
+              value: select * from sch_test.employee e inner join sch_test.salary s on s.employee_id = e.id where e.id = :id
+              mapper:  com.cmeza.spring.jdbc.repository.mappers.EmployeeAndSalaryRowMapper
+          getOneEmployeeWithObjectCondition:
+            raw-query:
+              value: select e.* from sch_test.department_employee de inner join sch_test.employee e on e.id = de.employee_id where e.id = :employee_id and de.department_id = :department_id
+              mappings:
+                - from: employee.id
+                  to: employee_id
+                  type: BIGINT
+                - from: department.id
+                  to: department_id
+                  type: VARCHAR
+          getOneEmployeeWithConditionWithProjection:
+            raw-query: select e.id, e.first_name, e.last_name from sch_test.employee e where e.id = :id
+          getOneEmployeeWithConditionWithComplexProjection:
+            raw-query: select e.id, e.first_name, e.last_name, s.amount from sch_test.employee e inner join sch_test.salary s on s.employee_id = e.id where e.id = :id
+          getOneEmployeeWithConditionWithComplexProjectionImpl:
+            raw-query:
+              value: select e.id, e.first_name, e.last_name, t.title from sch_test.employee e inner join sch_test.title t on t.employee_id = e.id where e.id = :id
+              mapper:  com.cmeza.spring.jdbc.repository.mappers.projections.EmployeeAndTitleProjectionRowMapper
+          getBirthdateEmployeeWithCondition:
+            raw-query: select birth_date from sch_test.employee where id = :id
+          getEmployeeMapWithCondition:
+            raw-query: select * from sch_test.employee where id = :id
+          getAllEmployeeWithConditionArray:
+            raw-query: select * from sch_test.employee where id in (:ids)
+          getAllEmployeeWithConditionArrayAndMapping:
+            raw-query:
+              value: select * from sch_test.employee where id in (:mappingIds)
+              mappings:
+                - from: ids
+                  to: mappingIds
+                  type: INTEGER
+          getAllEmployeeWithConditionListAndMapping:
+            raw-query:
+              value: select * from sch_test.employee where id in (:employees)
+              mappings:
+                - from: ids
+                  to: employees
+                  type: INTEGER
+          getDepartmentOptionalWithCondition:
+            raw-query: select * from sch_test.department where id = :id

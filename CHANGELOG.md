@@ -66,6 +66,13 @@
 ### Changed
 - @OutParameter is now @Parameter
 
+## [2.1.0] - 2025-11-07
+### Added
+- Add DSl annotations
+- Add integracion test (Postgres) for DSL annotations
+### Renamed
+- Loggeable -> Loggable
+
 [1.0.0]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/1.0.0
 [1.0.1]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/1.0.1
 [1.0.2]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/1.0.2
@@ -73,3 +80,4 @@
 [1.0.4]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/1.0.4
 [1.0.5]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/1.0.5
 [2.0.0]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/2.0.0
+[2.1.0]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/2.1.0

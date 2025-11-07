@@ -1,0 +1,78 @@
+spring:
+  jdbc:
+    repository:
+      dsl:
+        InsertRepository:
+          insertDepartmentWithReturnInt:
+            insert:
+              table: department
+              columns:
+                - id
+                - dept_name
+          insertDepartmentWithParamAndReturnInteger:
+            insert:
+              table: department
+              columns:
+                - id
+                - dept_name
+              mappings:
+                - from: anotherId
+                  to: id
+                  type: VARCHAR
+                - from: anotherDeptName
+                  to: deptName
+                  type: VARCHAR
+          insertEmployeeWithModelAndReturnKeyHolder:
+            insert:
+              table: employee
+              columns:
+                - first_name
+                - last_name
+                - gender
+                - birth_date
+                - hire_date
+              generated-key-columns:
+                - id
+          insertEmployeeBatchListAndReturnArray:
+            insert:
+              table: employee
+              columns:
+                - first_name
+                - last_name
+                - gender
+                - birth_date
+                - hire_date
+          insertEmployeeBatchSetAndReturnArray:
+            insert:
+              table: employee
+              columns:
+                - first_name
+                - last_name
+                - gender
+                - birth_date
+                - hire_date
+          insertEmployeeBatchArrayAndReturnArray:
+            insert:
+              table: employee
+              columns:
+                - first_name
+                - last_name
+                - gender
+                - birth_date
+                - hire_date
+          insertEmployeeBatchMapAndReturnArray:
+            insert:
+              table: employee
+              columns:
+                - first_name
+                - last_name
+                - gender
+                - birth_date
+                - hire_date
+              mappings:
+                - from: another_first_name
+                  to: first_name
+                  type: VARCHAR
+                - from: another_gender
+                  to: gender
+                  type: VARCHAR

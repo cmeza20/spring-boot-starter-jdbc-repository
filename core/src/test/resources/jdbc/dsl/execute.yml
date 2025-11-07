@@ -1,0 +1,21 @@
+spring:
+  jdbc:
+    repository:
+      dsl:
+        ExecuteRepository:
+          deleteDepartmentWithReturningInt:
+            execute: delete from sch_test.department where id = :id
+          deleteEmployeeWithReturningInt:
+            execute: delete from sch_test.employee where id = :id
+          deleteEmployeesWithArrayAndReturningInt:
+            execute: delete from sch_test.employee where first_name in (:names)
+          executeCallDepartmentCreateWithoutResult:
+            execute:
+              value: call sch_test.sp_department_create(:var_id, :var_dept_name)
+              mappings:
+                - from: id
+                  to: var_id
+                  type: VARCHAR
+                - from: deptName
+                  to: var_dept_name
+                  type: VARCHAR

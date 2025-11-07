@@ -1,0 +1,49 @@
+spring:
+  config:
+    import:
+      - classpath:jdbc/dsl/call.yml
+      - classpath:jdbc/dsl/execute.yml
+      - classpath:jdbc/dsl/function.yml
+      - classpath:jdbc/dsl/insert.yml
+      - classpath:jdbc/dsl/pagination.yml
+      - classpath:jdbc/dsl/procedure.yml
+      - classpath:jdbc/dsl/raw-pagination.yml
+      - classpath:jdbc/dsl/raw-query.yml
+      - classpath:jdbc/dsl/raw-update.yml
+      - classpath:jdbc/dsl/query.yml
+      - classpath:jdbc/dsl/update.yml
+  datasource:
+    postgres:
+      url: jdbc:postgresql://localhost:5433/db_jdbc_repository
+      driver-class-name: org.postgresql.Driver
+      username: postgres
+      password: 123456
+    mysql:
+      url: jdbc:mysql://localhost:3306/sch_test
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      username: root
+      password: 123456
+    sqlserver:
+      url: jdbc:sqlserver://localhost:1433;databaseName=db_jdbc_repository;integratedSecurity=false;TrustServerCertificate=true
+      driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+      username: sa
+      password: 123456@CMMY.
+    oracle:
+      url: jdbc:oracle:thin:@localhost:1521/FREEPDB1
+      driver-class-name: oracle.jdbc.driver.OracleDriver
+      username: sch_test
+      password: 123456
+    informix:
+      url: jdbc:informix-sqli://localhost:9088/db_jdbc_repository #Database with log
+      driver-class-name: com.informix.jdbc.IfxDriver
+      username: informix
+      password: in4mix
+
+  jdbc:
+    repository:
+      sql-folder: classpath:/jdbc/**
+      loggable: true
+      only-declared-methods: false
+      only-method-declared-annotations: false
+      only-parameter-declared-annotations: false
+      naming-strategy: com.cmeza.spring.jdbc.repository.support.naming.NoOpNamingStrategy

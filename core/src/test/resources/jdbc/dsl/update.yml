@@ -1,0 +1,67 @@
+spring:
+  jdbc:
+    repository:
+      dsl:
+        UpdateRepository:
+          updateWithReturningInt:
+            update:
+              table: employee
+              update-sets:
+                - first_name = :fname
+                - last_name = :lname
+                - gender = :gen
+              where: id = :employeeId
+              mappings:
+                - from: firstName
+                  to: fname
+                  type: VARCHAR
+                - from: lastName
+                  to: lname
+                  type: VARCHAR
+                - from: gender
+                  to: gen
+                  type: VARCHAR
+                - from: id
+                  to: employeeId
+                  type: INTEGER
+          updateWithReturningHolder:
+            update:
+              table: employee
+              update-sets:
+                - first_name = :firstName
+                - last_name = :lastName
+                - gender = :gender
+              where: id = :id
+              key-column-names: id
+          updateComplexReturningHolder:
+            update:
+              table: department_employee
+              alias: de
+              update-sets: department_id = :departmentId
+              where: de.employee_id = e.id and e.first_name = :firstName and e.last_name = :lastName
+              key-column-names:
+                - department_id
+                - employee_id
+              from-table:
+                table: employee
+                alias: e
+          updateComplexTwoReturningHolder:
+            update:
+              table: department_employee
+              alias: de
+              update-sets: department_id = :deptName
+              where: (de.employee_id = e.id) and (de.department_id = d.id) and (e.first_name = :firstName and e.last_name = :lastName)
+              key-column-names:
+                - department_id
+                - employee_id
+              from-table:
+                table: employee
+                alias: e
+              join-tables:
+                - table: department
+                  alias: d
+                  'on': 1 = 1
+
+
+
+
