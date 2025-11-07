@@ -1,0 +1,15 @@
+spring:
+  jdbc:
+    repository:
+      dsl:
+        PaginationRepositoryRaw:
+          paginationEmployeesWithoutParameter:
+            raw-pagination: select * from sch_test.employee
+          paginationEmployeesWithCondition:
+            raw-pagination: select * from sch_test.employee where id = :id
+          paginationEmployeesWithConditionAndPageRequest:
+            raw-pagination: select * from sch_test.employee where id between :from and :to
+          paginationEmployeeProjectionWithConditionAndPageRequestAndCountQuery:
+            raw-pagination:
+              value: select * from sch_test.employee where id <= :max
+              raw-count-query: select (:max - 50)

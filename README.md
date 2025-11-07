@@ -1,4 +1,4 @@
-# Spring Boot Starter JDBC Repository [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.cmeza/spring-boot-starter-jdbc-repository/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.cmeza/spring-boot-starter-jdbc-repository)
+# Spring Boot Starter JDBC Repository [![Maven Central](https://maven-badges.sml.io/sonatype-central/com.cmeza/spring-boot-starter-jdbc-repository/badge.svg)](https://maven-badges.sml.io/sonatype-central/com.cmeza/spring-boot-starter-jdbc-repository)
 
 Jdbc template repositories, inspired by Spring data Jpa
 
@@ -6,6 +6,7 @@ Jdbc template repositories, inspired by Spring data Jpa
 
 * [Get Started](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/Get-Started)
 * [Properties](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/Properties)
+* [DSL](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/DSL)
 * [@JdbcRepository annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcRepository-annotation)
 
 ***
@@ -55,7 +56,7 @@ Jdbc template repositories, inspired by Spring data Jpa
 <dependency>
     <groupId>com.cmeza</groupId>
     <artifactId>spring-boot-starter-jdbc-repository</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
 </dependency>
 ```
 ## Minimal dependencies ##
@@ -93,7 +94,7 @@ public interface EmployeeQueryRepository {
     //Query
     //------------------------------------------------------
     @JdbcQuery(table = "employee")
-    List<Employee> getAllEmployeeHarcoded();
+    List<Employee> getAllEmployeeHardcoded();
 
     @JdbcQuery(table = "employee", where = "id = :idParam")
     Optional<Employee> getEmployeeOptionalWithConditionParam(@JdbcParam("idParam") Integer anotherId);
@@ -317,6 +318,43 @@ public interface EmployeeCallRepository {
 }
 ```
 
+### DSL annotation
+```java
+@JdbcRepository
+public interface DSLRepository {
+    
+    @@JdbcQuery.DSL
+    List<Employee> getAllEmployeeHardcoded();
+
+    @JdbcRawQuery.DSL
+    Set<Employee> getAllEmployeeSetFromProperties();
+
+    @JdbcPagination.DSL
+    JdbcPage<Employee> paginationEmployeesWithoutParameter();
+
+    @JdbcRawPagination.DSL
+    JdbcPage<Employee> paginationEmployeesWithConditionAndPageRequestRaw(Integer from, Integer to, JdbcPageRequest pageRequest);
+    
+    @JdbcUpdate.DSL
+    int updateWithReturningInt(Employee employee);
+
+    @JdbcRawUpdate.DSL
+    int updateWithReturningIntRaw(Employee employee);
+
+    @JdbcInsert.DSL
+    KeyHolder insertEmployeeWithModelAndReturnKeyHolder(Employee employee);
+
+    @JdbcFunction.DSL
+    Double functionSumWithOutParameter(Double numberOne, Double numberTwo);
+
+    @JdbcExecute.DSL
+    int deleteDepartmentWithReturningInt(@JdbcParam("id") String id);
+
+    @JdbcCall.DSL
+    void callDepartmentCreate(Department department);
+}
+```
+#### It is necessary to see the documentation for the DSL properties: [Properties](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/Properties)
 
 License
 ----

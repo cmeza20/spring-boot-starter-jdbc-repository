@@ -1,0 +1,60 @@
+spring:
+  jdbc:
+    repository:
+      dsl:
+        FunctionRepository:
+          functionSumWithOutParameter:
+            function:
+              name: fn_sum_of_numbers_with_out_parameter
+              out-parameters:
+                - value: result
+                  type: DOUBLE
+              mappings:
+                - from: numberOne
+                  to: var_number_one
+                  type: DOUBLE
+                - from: numberTwo
+                  to: var_number_two
+                  type: DOUBLE
+          functionMultiplicationWithReturn:
+            function:
+              name: fn_multiplication_of_numbers_with_return
+              mappings:
+                - from: numberOne
+                  to: var_number_one
+                  type: DOUBLE
+                - from: numberTwo
+                  to: var_number_two
+                  type: DOUBLE
+          functionEmployeesByGenderWithCursor:
+            function:
+              name: fn_employees_by_gender
+              mappings:
+                - from: gender
+                  to: var_gender
+                  type: VARCHAR
+          functionEmployeeNamesWithOutParameters:
+            function:
+              name: fn_employee_names_by_id_with_out_parameters
+              out-parameters:
+                - value: out_first_name
+                  type: VARCHAR
+                - value: out_last_name
+                  type: VARCHAR
+              mappings:
+                - from: id
+                  to: var_id
+                  type: INTEGER
+          functionEmployeesByObjectWithCursor:
+            function:
+              name: fn_employees_by_object
+              mappings:
+                - from: firstName
+                  to: var_first_name
+                  type: VARCHAR
+                - from: lastName
+                  to: var_last_name
+                  type: VARCHAR
+                - from: gender
+                  to: var_gender
+                  type: VARCHAR

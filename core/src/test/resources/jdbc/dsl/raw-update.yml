@@ -1,0 +1,39 @@
+spring:
+  jdbc:
+    repository:
+      dsl:
+        UpdateRepositoryRaw:
+          updateWithReturningInt:
+            raw-update:
+              value: update sch_test.employee set first_name = :fname, last_name = :lname, gender = :gen where id = :employeeId
+              mappings:
+                - from: firstName
+                  to: fname
+                  type: VARCHAR
+                - from: lastName
+                  to: lname
+                  type: VARCHAR
+                - from: gender
+                  to: gen
+                  type: VARCHAR
+                - from: id
+                  to: employeeId
+                  type: INTEGER
+          updateWithReturningHolder:
+            raw-update:
+              value: update sch_test.employee set first_name = :firstName, last_name = :lastName, gender = :gender where id = :id
+              key-column-names: id
+          updateComplexReturningHolder:
+            raw-update:
+              value: update sch_test.department_employee de set department_id = :departmentId from sch_test.employee e where de.employee_id = e.id and e.first_name = :firstName and e.last_name = :lastName
+              key-column-names:
+                - department_id
+                - employee_id
+          updateComplexTwoReturningHolder:
+            raw-update:
+              value: update sch_test.department_employee de set department_id = :deptName from sch_test.employee e inner join sch_test.department d on (1=1) where (de.employee_id = e.id) and (de.department_id = d.id) and (e.first_name = :firstName and e.last_name = :lastName)
+              key-column-names:
+                - department_id
+                - employee_id
+
+

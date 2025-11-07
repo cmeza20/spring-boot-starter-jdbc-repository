@@ -1,0 +1,142 @@
+spring:
+  jdbc:
+    repository:
+      dsl:
+        QueryRepository:
+          getAllEmployeeHardcoded:
+            query: employee
+          getAllEmployeeSetFromProperties:
+            query: ${properties.employee.query.table}
+          getAllEmployeeArrayFromYml:
+            query: ${yml.employee.query.table}
+          getAllEmployeeStreamFromFile:
+            query: file:/jdbc-employee-table.sql
+          getAllEmployeeListWithCondition:
+            query:
+              table: employee
+              where: id > :id
+          getOneEmployeeWithConditionParam:
+            query:
+              table: employee
+              where: id = :idParam
+          getEmployeeOptionalWithConditionParam:
+            query:
+              table: employee
+              where: id = :idParam
+          getOneEmployeeWithConditionMapping:
+            query:
+              table: employee
+              where: first_name = :name and gender = :gen
+              mappings:
+                - from: conditionOne
+                  to: name
+                  type: VARCHAR
+                - from: conditionTwo
+                  to: gen
+                  type: VARCHAR
+          getOneEmployeeWithConditionAndRowMapper:
+            query:
+              table: employee
+              where: id = :id
+              mapper: com.cmeza.spring.jdbc.repository.mappers.EmployeeRowMapper
+          getOneEmployeeWithConditionAndComplexRowMapper:
+            query:
+              table: employee
+              alias: e
+              where: e.id = :id
+              mapper: com.cmeza.spring.jdbc.repository.mappers.EmployeeAndSalaryRowMapper
+              join-tables:
+                - table: salary
+                  alias: s
+                  'on': 's.employee_id = e.id'
+                  join: INNER
+          getOneEmployeeWithObjectCondition:
+            query:
+              table: department_employee
+              alias: de
+              where: e.id = :employee_id and de.department_id = :department_id
+              join-tables:
+                - table: employee
+                  alias: e
+                  'on': e.id = de.employee_id
+                  join: inner
+              mappings:
+                - from: employee.id
+                  to: employee_id
+                  type: BIGINT
+                - from: department.id
+                  to: department_id
+                  type: VARCHAR
+          getOneEmployeeWithConditionWithProjection:
+            query:
+              table: employee
+              alias: e
+              columns:
+                - e.id
+                - e.first_name
+                - e.last_name
+              where: e.id = :id
+          getOneEmployeeWithConditionWithComplexProjection:
+            query:
+              table: employee
+              alias: e
+              columns:
+                - e.id
+                - e.first_name
+                - e.last_name
+                - s.amount
+              where: e.id = :id
+              join-tables:
+                - table: salary
+                  alias: s
+                  'on': s.employee_id = e.id
+                  join: inner
+          getOneEmployeeWithConditionWithComplexProjectionImpl:
+            query:
+              table: employee
+              alias: e
+              columns:
+                - e.id
+                - e.first_name
+                - e.last_name
+                - t.title
+              where: e.id = :id
+              mapper: com.cmeza.spring.jdbc.repository.mappers.projections.EmployeeAndTitleProjectionRowMapper
+              join-tables:
+                - table: title
+                  alias: t
+                  'on': t.employee_id = e.id
+                  join: inner
+          getBirthdateEmployeeWithCondition:
+            query:
+              table: employee
+              columns: birth_date
+              where: id = :id
+          getEmployeeMapWithCondition:
+            query:
+              table: employee
+              where: id = :id
+          getAllEmployeeWithConditionArray:
+            query:
+              table: employee
+              where: id in (:ids)
+          getAllEmployeeWithConditionArrayAndMapping:
+            query:
+              table: employee
+              where: id in (:mappingIds)
+              mappings:
+                - from: ids
+                  to: mappingIds
+                  type: INTEGER
+          getAllEmployeeWithConditionListAndMapping:
+            query:
+              table: employee
+              where: id in (:employees)
+              mappings:
+                - from: ids
+                  to: employees
+                  type: INTEGER
+          getDepartmentOptionalWithCondition:
+            query:
+              table: department
+              where: id = :id

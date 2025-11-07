@@ -1,0 +1,29 @@
+spring:
+  jdbc:
+    repository:
+      dsl:
+        PaginationRepository:
+          paginationEmployeesWithoutParameter:
+            pagination: employee
+          paginationEmployeesWithCondition:
+            pagination:
+              table: employee
+              where: id = :id
+          paginationEmployeesWithConditionAndPageRequest:
+            pagination:
+              table: employee
+              where: t.id between :from and :to
+              alias: t
+          paginationEmployeeProjectionWithConditionAndPageRequestAndCountQuery:
+            pagination:
+              table: employee
+              where: id <= :max_c
+              count-query:
+                table: employee
+                columns:
+                  - (:max_c - 50)
+                where: id = 1
+              mappings:
+                - from: max
+                  to: max_c
+                  type: INTEGER

@@ -1,0 +1,28 @@
+spring:
+  jdbc:
+    repository:
+      dsl:
+        ProcedureRepository:
+          procedureEmployeeCountByGenderWithOutParameter:
+            procedure:
+              name: sp_employees_count_by_gender_with_out_parameter
+              out-parameters:
+                - value: result
+                  type: INTEGER
+              mappings:
+                - from: gender
+                  to: var_gender
+                  type: VARCHAR
+          procedureEmployeesByGenderWithCursor:
+            procedure:
+              name: sp_employees_by_gender
+              mappings:
+                - from: gender
+                  to: var_gender
+                  type: VARCHAR
+          procedureEmployeeByIdWithCursor:
+            procedure: sp_employees_by_id
+
+
+
+

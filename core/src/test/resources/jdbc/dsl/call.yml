@@ -1,0 +1,18 @@
+spring:
+  jdbc:
+    repository:
+      dsl:
+        CallRepository:
+          callDepartmentCreate:
+            call:
+              value: sp_department_create
+              parameters:
+                - :var_id
+                - :var_dept_name
+              mappings:
+                - from: id
+                  to: var_id
+                  type: VARCHAR
+                - from: deptName
+                  to: var_dept_name
+                  type: VARCHAR
