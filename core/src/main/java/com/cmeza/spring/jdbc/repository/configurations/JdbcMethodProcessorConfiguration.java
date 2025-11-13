@@ -2,6 +2,7 @@ package com.cmeza.spring.jdbc.repository.configurations;
 
 import com.cmeza.spring.ioc.handler.processors.AnnotatedMethodProcessor;
 import com.cmeza.spring.ioc.handler.processors.AnnotatedParameterProcessor;
+import com.cmeza.spring.jdbc.repository.dsl.properties.JdbcRepositoryProperties;
 import com.cmeza.spring.jdbc.repository.processors.methods.operations.*;
 import com.cmeza.spring.jdbc.repository.processors.methods.supports.*;
 import com.cmeza.spring.jdbc.repository.processors.parameters.ParamAnnotatedParameterProcessor;

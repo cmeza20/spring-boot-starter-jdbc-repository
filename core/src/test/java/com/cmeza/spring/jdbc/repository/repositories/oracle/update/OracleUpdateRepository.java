@@ -6,7 +6,7 @@ import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.Jdb
 import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.JdbcJoinTable;
 import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.JdbcMapping;
 import com.cmeza.spring.jdbc.repository.constants.TestConstants;
-import com.cmeza.spring.jdbc.repository.initializers.OracleInitializer;
+import com.cmeza.spring.jdbc.repository.configurations.OracleInitializer;
 import com.cmeza.spring.jdbc.repository.models.Employee;
 import com.cmeza.spring.jdbc.repository.repositories.contracts.UpdateContract;
 import org.springframework.jdbc.support.KeyHolder;
@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Types;
 
 @Transactional(transactionManager = OracleInitializer.JDBC_TRANSACTION_MANAGER)
-@JdbcRepository(schema = TestConstants.SCHEMA, repositoryTemplateBeanName = OracleInitializer.JDBC_REPOSITORY_TEMPLATE_BEAN)
+@JdbcRepository(schema = TestConstants.SCHEMA_TEST, repositoryTemplateBeanName = OracleInitializer.JDBC_REPOSITORY_TEMPLATE_BEAN)
 public interface OracleUpdateRepository extends UpdateContract {
 
     @Override

@@ -2,4 +2,5 @@ yml:
   employee:
     query:
       all: 'select * from sch_test.employee'
+      all-oracle: 'select * from test.employee'
       table: 'employee'

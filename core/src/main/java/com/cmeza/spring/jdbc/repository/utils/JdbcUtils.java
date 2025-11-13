@@ -38,12 +38,12 @@ public final class JdbcUtils {
 
     public Class<?> getGenericClass(Class<?> clazz) {
         Type type = clazz.getGenericSuperclass();
-        if (type instanceof ParameterizedType) {
-            Type[] actualTypeArguments = ((ParameterizedType) type).getActualTypeArguments();
+        if (type instanceof ParameterizedType parameterizedType) {
+            Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
             if (actualTypeArguments.length > 0) {
                 Type actualTypeArgument = actualTypeArguments[0];
-                if (actualTypeArgument instanceof ParameterizedType) {
-                    return (Class<?>) ((ParameterizedType) actualTypeArgument).getRawType();
+                if (actualTypeArgument instanceof ParameterizedType actualParameterizedType) {
+                    return (Class<?>) actualParameterizedType.getRawType();
                 }
                 return (Class<?>) actualTypeArgument;
             }
@@ -94,8 +94,8 @@ public final class JdbcUtils {
 
     public void projectionClassValidate(Class<?> clazz) {
         Type type = clazz.getGenericSuperclass();
-        if (Objects.nonNull(type) && type instanceof ParameterizedType) {
-            Arrays.stream(((ParameterizedType) type).getActualTypeArguments()).forEach(t -> {
+        if (Objects.nonNull(type) && type instanceof ParameterizedType parameterizedType) {
+            Arrays.stream(parameterizedType.getActualTypeArguments()).forEach(t -> {
                 if (t instanceof ParameterizedType) {
                     throw new InvalidProjectionClassException(clazz.getSimpleName() + " cannot have generic parameters");
                 }
@@ -103,8 +103,8 @@ public final class JdbcUtils {
         }
         Type[] genericInterfaces = clazz.getGenericInterfaces();
         Arrays.stream(genericInterfaces).forEach(t -> {
-            if (t instanceof ParameterizedType) {
-                Arrays.stream(((ParameterizedType) t).getActualTypeArguments()).forEach(u -> {
+            if (t instanceof ParameterizedType parameterizedType) {
+                Arrays.stream(parameterizedType.getActualTypeArguments()).forEach(u -> {
                     if (u instanceof ParameterizedType) {
                         throw new InvalidProjectionClassException(clazz.getSimpleName() + " cannot have generic parameters");
                     }
@@ -137,7 +137,7 @@ public final class JdbcUtils {
         int i = 0;
         for (Iterator<?> var3 = candidates.iterator(); var3.hasNext(); ++i) {
             Object candidate = var3.next();
-            batch[i] = candidate instanceof Map ? new JdbcMapSqlParameterSource((Map) candidate) : new JdbcBeanPropertySqlParameterSource(candidate);
+            batch[i] = candidate instanceof Map map ? new JdbcMapSqlParameterSource(map) : new JdbcBeanPropertySqlParameterSource(candidate);
         }
 
         return batch;

@@ -1,7 +1,7 @@
 package com.cmeza.spring.jdbc.repository.repositories.mysql;
 
 import com.cmeza.spring.jdbc.repository.constants.TestConstants;
-import com.cmeza.spring.jdbc.repository.initializers.MysqlInitializer;
+import com.cmeza.spring.jdbc.repository.configurations.MysqlInitializer;
 import com.cmeza.spring.jdbc.repository.models.Employee;
 import com.cmeza.spring.jdbc.repository.repositories.contracts.ProcedureContract;
 import com.cmeza.spring.jdbc.repository.support.annotations.JdbcRepository;

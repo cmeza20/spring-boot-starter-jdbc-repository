@@ -6,7 +6,7 @@
 
     <groupId>com.cmeza</groupId>
     <artifactId>spring-boot-starter-jdbc-repository-parent</artifactId>
-    <version>2.1.0</version>
+    <version>3.0.0</version>
     <packaging>pom</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -42,12 +42,11 @@
     </scm>
 
     <properties>
-        <revision>2.1.0</revision>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <revision>3.0.0</revision>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <spring.boot.starter.version>2.7.18</spring.boot.starter.version>
+        <spring.boot.starter.version>3.5.7</spring.boot.starter.version>
         <spring.ioc.handler.version>1.0.3</spring.ioc.handler.version>
         <jsqlparser.version>5.0</jsqlparser.version>
         <fasterxml.jackson.annotations.version>2.14.2</fasterxml.jackson.annotations.version>
@@ -55,7 +54,7 @@
         <apache.commons.text.version>1.11.0</apache.commons.text.version>
         <hibernate.validation.version>6.2.5.Final</hibernate.validation.version>
         <apache.commons.configuration.version>1.10</apache.commons.configuration.version>
-        <spring.data.commons.version>2.7.17</spring.data.commons.version>
+        <spring.data.commons.version>3.5.5</spring.data.commons.version>
         <postgres.driver.version>42.3.3</postgres.driver.version>
         <mysql.driver.version>8.0.33</mysql.driver.version>
         <sqlserver.driver.version>12.8.1.jre11</sqlserver.driver.version>
@@ -84,6 +83,13 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-configuration-processor</artifactId>
+                <version>${spring.boot.starter.version}</version>
+                <optional>true</optional>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter</artifactId>
                 <version>${spring.boot.starter.version}</version>
                 <optional>true</optional>
             </dependency>
@@ -152,6 +158,13 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-test</artifactId>
+                <version>${spring.boot.starter.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-testcontainers</artifactId>
                 <version>${spring.boot.starter.version}</version>
                 <scope>test</scope>
             </dependency>
@@ -377,8 +390,8 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven.compiler.plugin.version}</version>
                     <configuration>
-                        <source>11</source>
-                        <target>11</target>
+                        <source>17</source>
+                        <target>17</target>
                         <forceJavacCompilerUse>true</forceJavacCompilerUse>
                         <compilerArgs>-parameters</compilerArgs>
                     </configuration>

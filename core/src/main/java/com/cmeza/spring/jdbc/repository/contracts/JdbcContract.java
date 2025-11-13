@@ -11,7 +11,7 @@ import com.cmeza.spring.ioc.handler.processors.AnnotatedMethodProcessor;
 import com.cmeza.spring.ioc.handler.processors.AnnotatedParameterProcessor;
 import com.cmeza.spring.ioc.handler.processors.IocProcessors;
 import com.cmeza.spring.jdbc.repository.support.annotations.JdbcRepository;
-import com.cmeza.spring.jdbc.repository.configurations.JdbcRepositoryProperties;
+import com.cmeza.spring.jdbc.repository.dsl.properties.JdbcRepositoryProperties;
 import com.cmeza.spring.jdbc.repository.repositories.executors.JdbcExecutor;
 import lombok.RequiredArgsConstructor;
 
