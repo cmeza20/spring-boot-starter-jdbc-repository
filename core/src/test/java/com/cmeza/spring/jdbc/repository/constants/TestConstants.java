@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TestConstants {
+    public static final String SCHEMA_TEST = "test";
     public static final String SCHEMA = "sch_test";
     public static final String ALL = "all";
     public static final String POSTGRES = "postgres";

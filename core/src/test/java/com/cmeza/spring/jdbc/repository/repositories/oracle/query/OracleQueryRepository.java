@@ -6,7 +6,7 @@ import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.Jdb
 import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.JdbcMapping;
 import com.cmeza.spring.jdbc.repository.support.annotations.parameters.JdbcParam;
 import com.cmeza.spring.jdbc.repository.constants.TestConstants;
-import com.cmeza.spring.jdbc.repository.initializers.OracleInitializer;
+import com.cmeza.spring.jdbc.repository.configurations.OracleInitializer;
 import com.cmeza.spring.jdbc.repository.mappers.EmployeeAndSalaryRowMapper;
 import com.cmeza.spring.jdbc.repository.mappers.EmployeeRowMapper;
 import com.cmeza.spring.jdbc.repository.mappers.projections.EmployeeAndTitleProjectionRowMapper;
@@ -22,7 +22,7 @@ import java.sql.Types;
 import java.util.*;
 import java.util.stream.Stream;
 
-@JdbcRepository(schema = TestConstants.SCHEMA, repositoryTemplateBeanName = OracleInitializer.JDBC_REPOSITORY_TEMPLATE_BEAN)
+@JdbcRepository(schema = TestConstants.SCHEMA_TEST, repositoryTemplateBeanName = OracleInitializer.JDBC_REPOSITORY_TEMPLATE_BEAN)
 public interface OracleQueryRepository extends QueryContract {
 
     @Override

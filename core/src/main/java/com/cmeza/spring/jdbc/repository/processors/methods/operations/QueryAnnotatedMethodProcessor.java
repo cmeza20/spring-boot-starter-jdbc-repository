@@ -2,7 +2,7 @@ package com.cmeza.spring.jdbc.repository.processors.methods.operations;
 
 import com.cmeza.spring.ioc.handler.metadata.ClassMetadata;
 import com.cmeza.spring.ioc.handler.metadata.MethodMetadata;
-import com.cmeza.spring.jdbc.repository.configurations.JdbcRepositoryProperties;
+import com.cmeza.spring.jdbc.repository.dsl.properties.JdbcRepositoryProperties;
 import com.cmeza.spring.jdbc.repository.dsl.properties.DslProperties;
 import com.cmeza.spring.jdbc.repository.processors.methods.abstracts.AbstractAnnotatedMethodProcessor;
 import com.cmeza.spring.jdbc.repository.processors.methods.supports.managers.JoinTablesManager;

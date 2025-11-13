@@ -5,7 +5,7 @@ import com.cmeza.spring.jdbc.repository.support.annotations.methods.operations.J
 import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.JdbcMapping;
 import com.cmeza.spring.jdbc.repository.support.annotations.parameters.JdbcParam;
 import com.cmeza.spring.jdbc.repository.constants.TestConstants;
-import com.cmeza.spring.jdbc.repository.initializers.PostgresInitializer;
+import com.cmeza.spring.jdbc.repository.configurations.PostgresInitializer;
 import com.cmeza.spring.jdbc.repository.mappers.EmployeeAndSalaryRowMapper;
 import com.cmeza.spring.jdbc.repository.mappers.EmployeeRowMapper;
 import com.cmeza.spring.jdbc.repository.mappers.projections.EmployeeAndTitleProjectionRowMapper;

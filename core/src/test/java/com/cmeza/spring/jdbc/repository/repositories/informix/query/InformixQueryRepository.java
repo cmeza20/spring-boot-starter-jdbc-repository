@@ -6,7 +6,7 @@ import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.Jdb
 import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.JdbcMapping;
 import com.cmeza.spring.jdbc.repository.support.annotations.parameters.JdbcParam;
 import com.cmeza.spring.jdbc.repository.constants.TestConstants;
-import com.cmeza.spring.jdbc.repository.initializers.InformixInitializer;
+import com.cmeza.spring.jdbc.repository.configurations.InformixInitializer;
 import com.cmeza.spring.jdbc.repository.mappers.EmployeeAndSalaryRowMapper;
 import com.cmeza.spring.jdbc.repository.mappers.EmployeeRowMapper;
 import com.cmeza.spring.jdbc.repository.mappers.projections.EmployeeAndTitleProjectionRowMapper;

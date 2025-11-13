@@ -8,6 +8,7 @@ import com.cmeza.spring.ioc.handler.processors.AnnotatedMethodProcessor;
 import com.cmeza.spring.ioc.handler.processors.AnnotatedParameterProcessor;
 import com.cmeza.spring.jdbc.repository.aware.AwareBeanPostProcessor;
 import com.cmeza.spring.jdbc.repository.contracts.JdbcContract;
+import com.cmeza.spring.jdbc.repository.dsl.properties.JdbcRepositoryProperties;
 import com.cmeza.spring.jdbc.repository.processors.classes.RepositoryAnnotatedClassProcessor;
 import com.cmeza.spring.jdbc.repository.repositories.template.JdbcRepositoryTemplate;
 import com.cmeza.spring.jdbc.repository.resolvers.JdbcPropertyResolver;

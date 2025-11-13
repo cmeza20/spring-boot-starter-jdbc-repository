@@ -1,6 +1,6 @@
 package com.cmeza.spring.jdbc.repository.processors;
 
-import com.cmeza.spring.jdbc.repository.configurations.JdbcRepositoryProperties;
+import com.cmeza.spring.jdbc.repository.dsl.properties.JdbcRepositoryProperties;
 import com.cmeza.spring.jdbc.repository.support.exceptions.JdbcException;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.boot.SpringApplication;

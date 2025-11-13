@@ -6,17 +6,21 @@ import com.cmeza.spring.jdbc.repository.repositories.contracts.ExecuteContract;
 import com.cmeza.spring.jdbc.repository.repositories.contracts.QueryContract;
 import com.cmeza.spring.jdbc.repository.tests.contracts.CallTestContract;
 import com.cmeza.spring.jdbc.repository.utils.AssertUtils;
-import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import java.util.Optional;
 
-@RequiredArgsConstructor
 public abstract class AbstractCallTest extends AbstractException implements CallTestContract {
 
     private final CallContract callContract;
     private final QueryContract queryContract;
     private final ExecuteContract executeContract;
+
+    public AbstractCallTest(CallContract callContract, QueryContract queryContract, ExecuteContract executeContract) {
+        this.callContract = callContract;
+        this.queryContract = queryContract;
+        this.executeContract = executeContract;
+    }
 
     @Test
     @Override

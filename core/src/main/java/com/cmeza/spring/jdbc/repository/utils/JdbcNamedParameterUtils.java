@@ -142,8 +142,8 @@ public final class JdbcNamedParameterUtils {
     }
 
     private void evaluateParameterSourceValue(Object value, StringBuilder actualSql) {
-        if (value instanceof SqlParameterValue) {
-            value = ((SqlParameterValue) value).getValue();
+        if (value instanceof SqlParameterValue val) {
+            value = val.getValue();
         }
         if (value instanceof Iterable) {
             Iterator<?> entryIter = ((Iterable<?>) value).iterator();
@@ -162,8 +162,7 @@ public final class JdbcNamedParameterUtils {
     }
 
     private void evaluateParameterSourceValueArray(Object entryItem, StringBuilder actualSql) {
-        if (entryItem instanceof Object[]) {
-            Object[] expressionList = (Object[]) entryItem;
+        if (entryItem instanceof Object[] expressionList) {
             actualSql.append('(');
             for (int m = 0; m < expressionList.length; m++) {
                 if (m > 0) {
