@@ -28,8 +28,7 @@ public class SqlServerPaginationBuilder extends DefaultPaginationBuilder {
     @Override
     protected String convertToPageSql(String sql) throws JSQLParserException {
         Statement stmt = CCJSqlParserUtil.parse(sql);
-        if (stmt instanceof PlainSelect) {
-            PlainSelect ps = (PlainSelect) stmt;
+        if (stmt instanceof PlainSelect ps) {
             if (ps.getOrderByElements() == null || ps.getOrderByElements().isEmpty()) {
                 OrderByElement orderByElement = new OrderByElement();
                 orderByElement.withExpression(new Column("1"));

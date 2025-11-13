@@ -1,6 +1,6 @@
 package com.cmeza.spring.jdbc.repository.repositories.template;
 
-import com.cmeza.spring.jdbc.repository.configurations.JdbcRepositoryProperties;
+import com.cmeza.spring.jdbc.repository.dsl.properties.JdbcRepositoryProperties;
 import com.cmeza.spring.jdbc.repository.support.exceptions.JdbcException;
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.Dialect;
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.JdbcDatabaseMatadata;
@@ -135,9 +135,7 @@ public abstract class JdbcAbstractRepositoryTemplate<T> extends NamedParameterJd
         AbstractJdbcBuilder.Impl impl = new AbstractJdbcBuilder.Impl((JdbcRepositoryTemplate) (T) this, databaseMetaData, beanName);
 
         switch (dialect) {
-            case MYSQL:
-            case MARIADB:
-            case SQLITE:
+            case MYSQL, MARIADB, SQLITE:
                 jdbcRepositoryOperations = new MySQLDialect(impl);
                 break;
             case ORACLE:

@@ -4,7 +4,7 @@ import com.cmeza.spring.jdbc.repository.support.annotations.JdbcRepository;
 import com.cmeza.spring.jdbc.repository.support.annotations.methods.operations.JdbcInsert;
 import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.JdbcMapping;
 import com.cmeza.spring.jdbc.repository.constants.TestConstants;
-import com.cmeza.spring.jdbc.repository.initializers.InformixInitializer;
+import com.cmeza.spring.jdbc.repository.configurations.InformixInitializer;
 import com.cmeza.spring.jdbc.repository.models.Employee;
 import com.cmeza.spring.jdbc.repository.repositories.contracts.InsertContract;
 import org.springframework.jdbc.support.KeyHolder;

@@ -1,6 +1,6 @@
 package com.cmeza.spring.jdbc.repository.processors.methods.operations;
 
-import com.cmeza.spring.jdbc.repository.configurations.JdbcRepositoryProperties;
+import com.cmeza.spring.jdbc.repository.dsl.properties.JdbcRepositoryProperties;
 import com.cmeza.spring.jdbc.repository.processors.methods.abstracts.AbstractAnnotatedDslMethodProcessor;
 import com.cmeza.spring.jdbc.repository.utils.JdbcUtils;
 import com.cmeza.spring.jdbc.repository.support.annotations.methods.operations.JdbcPagination;

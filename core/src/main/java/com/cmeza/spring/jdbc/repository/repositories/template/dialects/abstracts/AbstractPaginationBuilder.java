@@ -89,7 +89,7 @@ public abstract class AbstractPaginationBuilder extends AbstractJdbcBuilder<Jdbc
 
             JdbcPaginationUtils.cleanSelect(stmt);
 
-            if (stmt instanceof PlainSelect && JdbcPaginationUtils.isSimpleCountSql((PlainSelect) stmt)) {
+            if (stmt instanceof PlainSelect a && JdbcPaginationUtils.isSimpleCountSql(a)) {
                 PlainSelect ps = (PlainSelect) stmt;
                 ps.withSelectItems(COUNT_SELECT_ITEMS);
                 csql = ps.toString();

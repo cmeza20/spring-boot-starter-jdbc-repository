@@ -1,7 +1,7 @@
 package com.cmeza.spring.jdbc.repository.aware;
 
 import com.cmeza.spring.jdbc.repository.constants.TestConstants;
-import com.cmeza.spring.jdbc.repository.initializers.OracleInitializer;
+import com.cmeza.spring.jdbc.repository.configurations.OracleInitializer;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 

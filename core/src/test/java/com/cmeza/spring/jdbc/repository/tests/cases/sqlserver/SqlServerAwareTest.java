@@ -2,7 +2,7 @@ package com.cmeza.spring.jdbc.repository.tests.cases.sqlserver;
 
 import com.cmeza.spring.jdbc.repository.aware.SqlServerJdbcRepositoryAware;
 import com.cmeza.spring.jdbc.repository.constants.TestConstants;
-import com.cmeza.spring.jdbc.repository.initializers.SqlServerInitializer;
+import com.cmeza.spring.jdbc.repository.configurations.SqlServerInitializer;
 import com.cmeza.spring.jdbc.repository.tests.abstracts.AbstractAwareTest;
 import com.cmeza.spring.jdbc.repository.tests.utils.EnabledIfProfile;
 import org.springframework.beans.factory.annotation.Autowired;

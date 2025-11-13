@@ -1,7 +1,7 @@
 package com.cmeza.spring.jdbc.repository.repositories.postgres.call;
 
 import com.cmeza.spring.jdbc.repository.constants.TestConstants;
-import com.cmeza.spring.jdbc.repository.initializers.PostgresInitializer;
+import com.cmeza.spring.jdbc.repository.configurations.PostgresInitializer;
 import com.cmeza.spring.jdbc.repository.models.Department;
 import com.cmeza.spring.jdbc.repository.repositories.contracts.CallContract;
 import com.cmeza.spring.jdbc.repository.support.annotations.JdbcRepository;

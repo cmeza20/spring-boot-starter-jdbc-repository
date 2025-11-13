@@ -80,8 +80,8 @@ public class JdbcMapSqlParameterSource extends AbstractSqlParameterSource implem
         if (values != null) {
             values.forEach((key, value) -> {
                 this.values.put(key, value);
-                if (value instanceof SqlParameterValue) {
-                    this.registerSqlType(key, ((SqlParameterValue) value).getSqlType());
+                if (value instanceof SqlParameterValue val) {
+                    this.registerSqlType(key, val.getSqlType());
                 }
 
             });
@@ -93,8 +93,8 @@ public class JdbcMapSqlParameterSource extends AbstractSqlParameterSource implem
     public JdbcMapSqlParameterSource addValue(String paramName, @Nullable Object value) {
         Assert.notNull(paramName, "Parameter name must not be null");
         this.values.put(paramName, value);
-        if (value instanceof SqlParameterValue) {
-            this.registerSqlType(paramName, ((SqlParameterValue) value).getSqlType());
+        if (value instanceof SqlParameterValue val) {
+            this.registerSqlType(paramName, val.getSqlType());
         }
 
         return this;

@@ -31,10 +31,9 @@ public final class JdbcPaginationUtils {
     }
 
     public void cleanSelect(Statement sb) {
-        if (sb instanceof PlainSelect) {
-            ((PlainSelect) sb).setOrderByElements(null);
-        } else if (sb instanceof WithItem) {
-            WithItem wi = (WithItem) sb;
+        if (sb instanceof PlainSelect plainSelect) {
+            plainSelect.setOrderByElements(null);
+        } else if (sb instanceof WithItem wi) {
             if (wi.getSelect() != null) {
                 cleanSelect(wi.getSelect());
             }

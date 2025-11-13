@@ -121,14 +121,11 @@ public class ParameterSourceProvider {
 
     private void iterateParameterSource(SqlParameterSource parameterSource) {
         String[] parameterNames = parameterSource.getParameterNames();
-        if (parameterSource instanceof JdbcBeanPropertiesMapping && mappingSourceProvider.isSetMappings() && Objects.nonNull(parameterNames)) {
+        if (parameterSource instanceof JdbcBeanPropertiesMapping jdbcBeanPropertiesMapping && mappingSourceProvider.isSetMappings() && Objects.nonNull(parameterNames)) {
 
             for (String parameterName : parameterNames) {
                 Optional<MappingDefinition> mappingDefinitionOptional = mappingSourceProvider.findMappingByFrom(parameterName);
-                if (mappingDefinitionOptional.isPresent()) {
-                    MappingDefinition mappingDefinition = mappingDefinitionOptional.get();
-                    ((JdbcBeanPropertiesMapping)parameterSource).addMappingDefinition(mappingDefinition);
-                }
+                mappingDefinitionOptional.ifPresent(jdbcBeanPropertiesMapping::addMappingDefinition);
             }
 
         }

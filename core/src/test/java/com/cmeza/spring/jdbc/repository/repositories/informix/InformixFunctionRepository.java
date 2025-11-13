@@ -5,7 +5,7 @@ import com.cmeza.spring.jdbc.repository.support.annotations.methods.operations.J
 import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.JdbcMapping;
 import com.cmeza.spring.jdbc.repository.support.annotations.parameters.Parameter;
 import com.cmeza.spring.jdbc.repository.constants.TestConstants;
-import com.cmeza.spring.jdbc.repository.initializers.InformixInitializer;
+import com.cmeza.spring.jdbc.repository.configurations.InformixInitializer;
 import com.cmeza.spring.jdbc.repository.models.Employee;
 import com.cmeza.spring.jdbc.repository.repositories.contracts.FunctionContract;
 import org.springframework.transaction.annotation.Transactional;

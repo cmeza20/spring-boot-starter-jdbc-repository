@@ -49,6 +49,9 @@ Jdbc template repositories, inspired by Spring data Jpa
 * [JdbcRepositoryTemplate multi tenant](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/JdbcRepositoryTemplate-multi-tenant)
 * [JdbcRepositoryTemplate manual execute](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/JdbcRepositoryTemplate)
 
+## Dependencies ##
+* Java: 17 or higher
+* Spring Boot: 3.0.0 or higher
 
 ## Maven Integration ##
 
@@ -56,7 +59,7 @@ Jdbc template repositories, inspired by Spring data Jpa
 <dependency>
     <groupId>com.cmeza</groupId>
     <artifactId>spring-boot-starter-jdbc-repository</artifactId>
-    <version>2.1.0</version>
+    <version>3.0.0</version>
 </dependency>
 ```
 ## Minimal dependencies ##
@@ -71,12 +74,14 @@ public class SpringBootStarterJdbcRepositoryTestApplication {
         SpringApplication.run(SpringBootStarterJdbcRepositoryTestApplication.class, args);
     }
 
+    //Optional: for manual configuration
     @Bean
     @ConfigurationProperties("spring.datasource")
     public DataSourceProperties dataSourceProperties() {
         return new DataSourceProperties();
     }
 
+    //Optional: for manual configuration
     @Bean
     public DataSource datasource(DataSourceProperties dataSourceProperties) {
         return dataSourceProperties.initializeDataSourceBuilder().build();

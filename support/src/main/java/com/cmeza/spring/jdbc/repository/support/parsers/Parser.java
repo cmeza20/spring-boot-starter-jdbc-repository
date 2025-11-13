@@ -47,8 +47,7 @@ public final class Parser {
             TypeFilter typeFilter = new AssignableTypeFilter(IParser.class);
             scanner.addIncludeFilter(typeFilter);
             scanner.findCandidateComponents("com.cmeza.spring.jdbc.repository.support.parsers").forEach(beanDefinition -> {
-                if (beanDefinition instanceof ScannedGenericBeanDefinition) {
-                    ScannedGenericBeanDefinition scannedGenericBeanDefinition = (ScannedGenericBeanDefinition) beanDefinition;
+                if (beanDefinition instanceof ScannedGenericBeanDefinition scannedGenericBeanDefinition) {
                     try {
                         String className = scannedGenericBeanDefinition.getBeanClassName();
                         Class<?> beanClass = Class.forName(className);

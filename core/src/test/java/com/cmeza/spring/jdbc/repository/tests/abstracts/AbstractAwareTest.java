@@ -8,6 +8,7 @@ import com.cmeza.spring.jdbc.repository.tests.contracts.AwareTestContract;
 import com.cmeza.spring.jdbc.repository.utils.AssertUtils;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
+import org.springframework.util.PlaceholderResolutionException;
 
 @RequiredArgsConstructor
 public abstract class AbstractAwareTest extends AbstractException implements AwareTestContract {
@@ -30,7 +31,7 @@ public abstract class AbstractAwareTest extends AbstractException implements Awa
         String table = propertiesResolver.resolvePlaceholders("${properties.employee.query.table}");
         AssertUtils.assertEquals(table, "employee", String.class);
 
-        testException(IllegalArgumentException.class, () -> propertiesResolver.resolveRequiredPlaceholders("${required.not.found}"), "AbstractAwareTest::testPropertiesResolver", "Could not resolve placeholder 'required.not.found' in value \"${required.not.found}\"");
+        testException(PlaceholderResolutionException.class, () -> propertiesResolver.resolveRequiredPlaceholders("${required.not.found}"), "AbstractAwareTest::testPropertiesResolver", "Could not resolve placeholder 'required.not.found' in value \"${required.not.found}\"");
     }
 
     @Test

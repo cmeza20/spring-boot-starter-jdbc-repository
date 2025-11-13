@@ -4,7 +4,7 @@ import com.cmeza.spring.jdbc.repository.support.annotations.JdbcRepository;
 import com.cmeza.spring.jdbc.repository.support.annotations.methods.operations.JdbcCall;
 import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.JdbcMapping;
 import com.cmeza.spring.jdbc.repository.constants.TestConstants;
-import com.cmeza.spring.jdbc.repository.initializers.SqlServerInitializer;
+import com.cmeza.spring.jdbc.repository.configurations.SqlServerInitializer;
 import com.cmeza.spring.jdbc.repository.models.Department;
 import com.cmeza.spring.jdbc.repository.repositories.contracts.CallContract;
 import org.springframework.transaction.annotation.Transactional;

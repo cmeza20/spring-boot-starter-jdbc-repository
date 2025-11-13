@@ -2,7 +2,7 @@ package com.cmeza.spring.jdbc.repository.tests.cases.postgres;
 
 import com.cmeza.spring.jdbc.repository.aware.PostgresJdbcRepositoryAware;
 import com.cmeza.spring.jdbc.repository.constants.TestConstants;
-import com.cmeza.spring.jdbc.repository.initializers.PostgresInitializer;
+import com.cmeza.spring.jdbc.repository.configurations.PostgresInitializer;
 import com.cmeza.spring.jdbc.repository.tests.abstracts.AbstractAwareTest;
 import com.cmeza.spring.jdbc.repository.tests.utils.EnabledIfProfile;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -2,7 +2,7 @@ package com.cmeza.spring.jdbc.repository.tests.cases.informix;
 
 import com.cmeza.spring.jdbc.repository.aware.InformixJdbcRepositoryAware;
 import com.cmeza.spring.jdbc.repository.constants.TestConstants;
-import com.cmeza.spring.jdbc.repository.initializers.InformixInitializer;
+import com.cmeza.spring.jdbc.repository.configurations.InformixInitializer;
 import com.cmeza.spring.jdbc.repository.tests.abstracts.AbstractAwareTest;
 import com.cmeza.spring.jdbc.repository.tests.utils.EnabledIfProfile;
 import org.springframework.beans.factory.annotation.Autowired;

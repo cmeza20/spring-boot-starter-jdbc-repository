@@ -4,7 +4,7 @@ import com.cmeza.spring.jdbc.repository.support.annotations.JdbcRepository;
 import com.cmeza.spring.jdbc.repository.support.annotations.methods.operations.JdbcRawPagination;
 import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.JdbcRawCountQuery;
 import com.cmeza.spring.jdbc.repository.constants.TestConstants;
-import com.cmeza.spring.jdbc.repository.initializers.InformixInitializer;
+import com.cmeza.spring.jdbc.repository.configurations.InformixInitializer;
 import com.cmeza.spring.jdbc.repository.models.Employee;
 import com.cmeza.spring.jdbc.repository.projections.EmployeeProjection;
 import com.cmeza.spring.jdbc.repository.repositories.contracts.PaginationContract;

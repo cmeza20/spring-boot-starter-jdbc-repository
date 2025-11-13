@@ -5,7 +5,7 @@ import com.cmeza.spring.ioc.handler.metadata.ClassMetadata;
 import com.cmeza.spring.ioc.handler.metadata.MethodMetadata;
 import com.cmeza.spring.ioc.handler.processors.AnnotatedMethodProcessor;
 import com.cmeza.spring.ioc.handler.utils.IocUtil;
-import com.cmeza.spring.jdbc.repository.configurations.JdbcRepositoryProperties;
+import com.cmeza.spring.jdbc.repository.dsl.properties.JdbcRepositoryProperties;
 import com.cmeza.spring.jdbc.repository.contracts.JdbcContractFunctions;
 import com.cmeza.spring.jdbc.repository.dsl.properties.DslProperties;
 import com.cmeza.spring.jdbc.repository.processors.methods.supports.managers.MappingsManager;

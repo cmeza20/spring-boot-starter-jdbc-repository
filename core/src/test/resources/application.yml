@@ -14,30 +14,55 @@ spring:
       - classpath:jdbc/dsl/update.yml
   datasource:
     postgres:
-      url: jdbc:postgresql://localhost:5433/db_jdbc_repository
+      url: jdbc:postgresql://localhost:${spring.datasource.postgres.port}/${spring.datasource.postgres.database}
       driver-class-name: org.postgresql.Driver
       username: postgres
       password: 123456
+      database: db_jdbc_repository
+      port: 5435
+      docker:
+        name: postgres:16-alpine
+        enabled: true
     mysql:
-      url: jdbc:mysql://localhost:3306/sch_test
+      url: jdbc:mysql://localhost:${spring.datasource.mysql.port}/${spring.datasource.mysql.database}
       driver-class-name: com.mysql.cj.jdbc.Driver
       username: root
-      password: 123456
+      password:
+      database: sch_test
+      port: 3306
+      docker:
+        name: mysql:8.4
+        enabled: true
     sqlserver:
-      url: jdbc:sqlserver://localhost:1433;databaseName=db_jdbc_repository;integratedSecurity=false;TrustServerCertificate=true
+      url: jdbc:sqlserver://localhost:${spring.datasource.sqlserver.port};databaseName=${spring.datasource.sqlserver.database};integratedSecurity=false;TrustServerCertificate=true
       driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
       username: sa
       password: 123456@CMMY.
+      database: db_jdbc_repository
+      port: 1433
+      docker:
+        name: mcr.microsoft.com/mssql/server:2022-CU16-ubuntu-22.04
+        enabled: true
     oracle:
-      url: jdbc:oracle:thin:@localhost:1521/FREEPDB1
+      url: jdbc:oracle:thin:@localhost:${spring.datasource.oracle.port}/${spring.datasource.oracle.database}
       driver-class-name: oracle.jdbc.driver.OracleDriver
-      username: sch_test
-      password: 123456
+      username: test
+      password: test
+      database: FREEPDB1
+      port: 1521
+      docker:
+        name: gvenzl/oracle-free:23-slim
+        enabled: true
     informix:
-      url: jdbc:informix-sqli://localhost:9088/db_jdbc_repository #Database with log
+      url: jdbc:informix-sqli://localhost:${spring.datasource.informix.port}/${spring.datasource.informix.database}:INFORMIXSERVER=informix
       driver-class-name: com.informix.jdbc.IfxDriver
       username: informix
       password: in4mix
+      database: sysadmin
+      port: 9088
+      docker:
+        name: ibmcom/informix-developer-database:latest
+        enabled: true
 
   jdbc:
     repository:
