@@ -23,6 +23,11 @@ public interface PostgresProcedureRepository extends ProcedureContract {
 
     @Override
     @JdbcProcedure(name = "POSTGRES_UnsupportedOperationException")
+    List<Employee> procedureEmployeesByGenderWithCursorAndClassAttribute(Employee employee);
+
+    @Override
+    @JdbcProcedure(name = "POSTGRES_UnsupportedOperationException")
     Optional<Employee> procedureEmployeeByIdWithCursor(Integer id);
+
 
 }

@@ -20,6 +20,15 @@ spring:
                 - from: gender
                   to: var_gender
                   type: VARCHAR
+          procedureEmployeesByGenderWithCursorAndClassAttribute:
+            procedure:
+              name: sp_employees_by_gender
+              mappings:
+                - from: gender
+                  to: var_gender
+                  type: VARCHAR
+              param-filters:
+                - gender
           procedureEmployeeByIdWithCursor:
             procedure: sp_employees_by_id
 

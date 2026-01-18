@@ -28,6 +28,15 @@ public class OracleProcedureTest extends AbstractProcedureTest {
 
     @Test
     @Override
+    public void testProcedureEmployeesByGenderWithCursorAndClassAttribute() {
+        testException(UnsupportedOperationException.class,
+                super::testProcedureEmployeesByGenderWithCursorAndClassAttribute,
+                "OracleProcedureTest::testProcedureEmployeesByGenderWithCursorAndClassAttribute",
+                "Return List not supported for Oracle Procedure, use JdbcRawQuery");
+    }
+
+    @Test
+    @Override
     public void testProcedureEmployeeByIdWithCursor() {
         testException(UnsupportedOperationException.class,
                 super::testProcedureEmployeeByIdWithCursor,

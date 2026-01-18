@@ -45,6 +45,19 @@ spring:
                 - from: department.id
                   to: department_id
                   type: VARCHAR
+          getOneEmployeeWithObjectConditionAndClassAttribute:
+            raw-query:
+              value: select e.* from sch_test.department_employee de inner join sch_test.employee e on e.id = de.employee_id where e.id = :employee_id and de.department_id = :department_id
+              mappings:
+                - from: employee.id
+                  to: employee_id
+                  type: BIGINT
+                - from: department.id
+                  to: department_id
+                  type: VARCHAR
+              param-filters:
+                - employee.id
+                - department.id
           getOneEmployeeWithConditionWithProjection:
             raw-query: select e.id, e.first_name, e.last_name from sch_test.employee e where e.id = :id
           getOneEmployeeWithConditionWithComplexProjection:

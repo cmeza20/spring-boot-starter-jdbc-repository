@@ -9,6 +9,12 @@ spring:
             pagination:
               table: employee
               where: id = :id
+          paginationEmployeesWithConditionAndClassAttributes:
+            pagination:
+              table: employee
+              where: id = :id
+              param-filters:
+                - id
           paginationEmployeesWithConditionAndPageRequest:
             pagination:
               table: employee

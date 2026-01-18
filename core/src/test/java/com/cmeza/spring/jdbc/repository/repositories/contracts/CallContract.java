@@ -6,4 +6,6 @@ public interface CallContract {
     String DSL = "CallRepository";
 
     void callDepartmentCreate(Department department);
+
+    void callDepartmentCreateWithClassAttributes(Department department);
 }

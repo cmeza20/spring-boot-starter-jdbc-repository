@@ -52,4 +52,13 @@ public class MysqlFunctionTest extends AbstractFunctionTest {
                 "MysqlFunctionTest::testFunctionEmployeesByObjectWithCursor",
                 "Optional not supported for MySQL Function, use JdbcProcedure");
     }
+
+    @Test
+    @Override
+    public void testFunctionEmployeesByObjectWithCursorAndClassAttributes() {
+        testException(UnsupportedOperationException.class,
+                super::testFunctionEmployeesByObjectWithCursorAndClassAttributes,
+                "MysqlFunctionTest::testFunctionEmployeesByObjectWithCursorAndClassAttributes",
+                "Optional not supported for MySQL Function, use JdbcProcedure");
+    }
 }

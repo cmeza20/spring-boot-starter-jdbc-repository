@@ -5,5 +5,7 @@ public interface ProcedureTestContract {
 
     void testProcedureEmployeesByGenderWithCursor();
 
+    void testProcedureEmployeesByGenderWithCursorAndClassAttribute();
+
     void testProcedureEmployeeByIdWithCursor();
 }

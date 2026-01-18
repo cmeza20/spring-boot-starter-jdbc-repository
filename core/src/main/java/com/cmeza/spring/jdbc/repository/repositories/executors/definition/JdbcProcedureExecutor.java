@@ -75,7 +75,7 @@ public class JdbcProcedureExecutor extends AbstractJdbcExecutor<JdbcRoutineBuild
                 return;
             }
             if (param.isObject()) {
-                builder.withParameter(param.getValue());
+                builder.withParameter(param.getValue(), this.paramFilters);
             } else {
                 builder.withParameter(param.getName(), param.getValue(), param.getType());
             }

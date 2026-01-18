@@ -3,6 +3,8 @@ package com.cmeza.spring.jdbc.repository.processors.methods.operations;
 import com.cmeza.spring.ioc.handler.metadata.ClassMetadata;
 import com.cmeza.spring.ioc.handler.metadata.MethodMetadata;
 import com.cmeza.spring.jdbc.repository.dsl.properties.JdbcRepositoryProperties;
+import com.cmeza.spring.jdbc.repository.support.properties.supports.JdbcCountQueryProperties;
+import com.cmeza.spring.jdbc.repository.support.properties.supports.JdbcJoinTableProperties;
 import com.cmeza.spring.jdbc.repository.utils.JdbcConstants;
 import com.cmeza.spring.jdbc.repository.utils.JdbcMessageUtils;
 import com.cmeza.spring.jdbc.repository.support.properties.methods.JdbcPaginationProperties;
@@ -18,6 +20,7 @@ import com.cmeza.spring.jdbc.repository.support.annotations.methods.operations.J
 import com.cmeza.spring.jdbc.repository.support.naming.NamingStrategy;
 import com.cmeza.spring.jdbc.repository.support.naming.NoOpNamingStrategy;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -40,12 +43,18 @@ public class PaginationAnnotatedMethodProcessor extends AbstractAnnotatedMethodP
         }
 
         //Count Query
-        CountQueryManager countQueryManager = new CountQueryManager(propertiesResolver, jdbcPaginationProperties.getCountQuery());
-        countQueryManager.process(classMetadata, methodMetadata);
+        JdbcCountQueryProperties countQuery = jdbcPaginationProperties.getCountQuery();
+        if (Objects.nonNull(countQuery)) {
+            CountQueryManager countQueryManager = new CountQueryManager(propertiesResolver, countQuery);
+            countQueryManager.process(classMetadata, methodMetadata);
+        }
 
         //Join tables
-        JoinTablesManager joinTablesManager = new JoinTablesManager(propertiesResolver, jdbcPaginationProperties.getJoinTables());
-        joinTablesManager.process(classMetadata, methodMetadata);
+        List<JdbcJoinTableProperties> joinTables = jdbcPaginationProperties.getJoinTables();
+        if (Objects.nonNull(joinTables) && !joinTables.isEmpty()) {
+            JoinTablesManager joinTablesManager = new JoinTablesManager(propertiesResolver, joinTables);
+            joinTablesManager.process(classMetadata, methodMetadata);
+        }
 
         return jdbcPaginationProperties;
     }

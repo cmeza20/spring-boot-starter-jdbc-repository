@@ -127,17 +127,28 @@ public final class JdbcUtils {
                 .orElseGet(supplier);
     }
 
-    public static SqlParameterSource[] createBatch(Object... candidates) {
-        return createBatch(Arrays.asList(candidates));
+    public static SqlParameterSource[] createBatch(Object candidate) {
+        return createBatch(List.of(candidate), null);
+    }
+    public static SqlParameterSource[] createBatch(Object candidate, String[] onlyPropertyNames) {
+        return createBatch(List.of(candidate), onlyPropertyNames);
     }
 
-    public static SqlParameterSource[] createBatch(Collection<?> candidates) {
+    public static SqlParameterSource[] createBatch(Object[] candidates) {
+        return createBatch(Arrays.asList(candidates), null);
+    }
+
+    public static SqlParameterSource[] createBatch(Object[] candidates, String[] onlyPropertyNames) {
+        return createBatch(Arrays.asList(candidates), onlyPropertyNames);
+    }
+
+    public static SqlParameterSource[] createBatch(Collection<?> candidates, String[] onlyPropertyNames) {
         SqlParameterSource[] batch = new SqlParameterSource[candidates.size()];
 
         int i = 0;
         for (Iterator<?> var3 = candidates.iterator(); var3.hasNext(); ++i) {
             Object candidate = var3.next();
-            batch[i] = candidate instanceof Map map ? new JdbcMapSqlParameterSource(map) : new JdbcBeanPropertySqlParameterSource(candidate);
+            batch[i] = candidate instanceof Map map ? new JdbcMapSqlParameterSource(map) : new JdbcBeanPropertySqlParameterSource(candidate, onlyPropertyNames);
         }
 
         return batch;

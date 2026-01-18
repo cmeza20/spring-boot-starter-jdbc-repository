@@ -86,22 +86,41 @@ public class ParameterSourceProvider {
     }
 
     public ParameterSourceProvider addBeanParameterSourceList(List<?> object) {
-        addBeanParameterSource(JdbcUtils.createBatch(object));
+        addBeanParameterSource(JdbcUtils.createBatch(object, null));
+        return this;
+    }
+    public ParameterSourceProvider addBeanParameterSourceList(List<?> object, String[] onlyAttributes) {
+        addBeanParameterSource(JdbcUtils.createBatch(object, onlyAttributes));
         return this;
     }
 
     public ParameterSourceProvider addBeanParameterSourceMap(Map<?, ?> object) {
-        addBeanParameterSource(JdbcUtils.createBatch(object));
+        addBeanParameterSource(JdbcUtils.createBatch(object, null));
+        return this;
+    }
+
+    public ParameterSourceProvider addBeanParameterSourceMap(Map<?, ?> object, String[] onlyAttributes) {
+        addBeanParameterSource(JdbcUtils.createBatch(object, onlyAttributes));
         return this;
     }
 
     public ParameterSourceProvider addBeanParameterSourceSet(Set<?> object) {
-        addBeanParameterSource(JdbcUtils.createBatch(object));
+        addBeanParameterSource(JdbcUtils.createBatch(object, null));
+        return this;
+    }
+
+    public ParameterSourceProvider addBeanParameterSourceSet(Set<?> object, String[] onlyAttributes) {
+        addBeanParameterSource(JdbcUtils.createBatch(object, onlyAttributes));
         return this;
     }
 
     public ParameterSourceProvider addBeanParameterSource(Object object) {
-        addBeanParameterSource(JdbcUtils.createBatch(object));
+        addBeanParameterSource(JdbcUtils.createBatch(object, null));
+        return this;
+    }
+
+    public ParameterSourceProvider addBeanParameterSource(Object object, String[] onlyAttributes) {
+        addBeanParameterSource(JdbcUtils.createBatch(object, onlyAttributes));
         return this;
     }
 

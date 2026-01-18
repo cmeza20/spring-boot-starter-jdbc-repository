@@ -8,6 +8,7 @@ import com.cmeza.spring.jdbc.repository.processors.methods.abstracts.AbstractAnn
 import com.cmeza.spring.jdbc.repository.processors.methods.supports.managers.JoinTablesManager;
 import com.cmeza.spring.jdbc.repository.repositories.executors.JdbcExecutor;
 import com.cmeza.spring.jdbc.repository.repositories.executors.definition.JdbcQueryExecutor;
+import com.cmeza.spring.jdbc.repository.support.properties.supports.JdbcJoinTableProperties;
 import com.cmeza.spring.jdbc.repository.utils.JdbcConstants;
 import com.cmeza.spring.jdbc.repository.utils.JdbcMessageUtils;
 import com.cmeza.spring.jdbc.repository.support.annotations.JdbcRepository;
@@ -17,6 +18,7 @@ import com.cmeza.spring.jdbc.repository.support.naming.NoOpNamingStrategy;
 import com.cmeza.spring.jdbc.repository.support.parsers.methods.JdbcQueryParser;
 import com.cmeza.spring.jdbc.repository.support.properties.methods.JdbcQueryProperties;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -46,8 +48,11 @@ public class QueryAnnotatedMethodProcessor extends AbstractAnnotatedMethodProces
         }
 
         //Join tables
-        JoinTablesManager joinTablesManager = new JoinTablesManager(propertiesResolver, jdbcQueryProperties.getJoinTables());
-        joinTablesManager.process(classMetadata, methodMetadata);
+        List<JdbcJoinTableProperties> joinTables = jdbcQueryProperties.getJoinTables();
+        if (Objects.nonNull(joinTables) && !joinTables.isEmpty()) {
+            JoinTablesManager joinTablesManager = new JoinTablesManager(propertiesResolver, joinTables);
+            joinTablesManager.process(classMetadata, methodMetadata);
+        }
 
         return jdbcQueryProperties;
     }

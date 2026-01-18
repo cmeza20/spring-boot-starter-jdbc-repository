@@ -1,9 +1,9 @@
 package com.cmeza.spring.jdbc.repository.repositories.template.dialects.defaults;
 
-import com.cmeza.spring.jdbc.repository.support.annotations.methods.operations.JdbcCall;
 import com.cmeza.spring.jdbc.repository.repositories.template.JdbcRepositoryTemplate;
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.abstracts.AbstractJdbcBuilder;
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.builders.JdbcCallBuilder;
+import com.cmeza.spring.jdbc.repository.support.annotations.methods.operations.JdbcCall;
 import com.cmeza.spring.jdbc.repository.support.factories.JdbcCallFactory;
 import com.cmeza.spring.jdbc.repository.support.factories.defaults.DefaultCallFactory;
 import org.slf4j.Logger;
@@ -22,6 +22,7 @@ public class DefaultCallBuilder extends AbstractJdbcBuilder<JdbcCallBuilder> imp
     @Override
     public void printExtras(Logger logger) {
         jdbcCallFactory.print(logger);
+        super.printExtras(logger);
     }
 
     @Override

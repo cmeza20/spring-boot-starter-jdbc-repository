@@ -29,6 +29,15 @@ public class InformixRawUpdateTest extends AbstractUpdateTest {
 
     @Test
     @Override
+    public void testUpdateWithReturningHolderAndClassAttribute() {
+        testException(UnsupportedOperationException.class,
+                super::testUpdateWithReturningHolderAndClassAttribute,
+                "InformixRawUpdateTest::testUpdateWithReturningHolderAndClassAttribute",
+                "KeyHolder not supported for Informix Update");
+    }
+
+    @Test
+    @Override
     public void testUpdateComplexReturningHolder() {
         testException(UnsupportedOperationException.class,
                 super::testUpdateComplexReturningHolder,

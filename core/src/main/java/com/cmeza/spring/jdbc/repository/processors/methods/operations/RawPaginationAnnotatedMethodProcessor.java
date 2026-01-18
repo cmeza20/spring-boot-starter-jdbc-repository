@@ -8,6 +8,7 @@ import com.cmeza.spring.jdbc.repository.processors.methods.abstracts.AbstractAnn
 import com.cmeza.spring.jdbc.repository.processors.methods.supports.managers.RawCountQueryManager;
 import com.cmeza.spring.jdbc.repository.repositories.executors.JdbcExecutor;
 import com.cmeza.spring.jdbc.repository.repositories.executors.definition.JdbcPaginationExecutor;
+import com.cmeza.spring.jdbc.repository.support.properties.supports.JdbcRawCountQueryProperties;
 import com.cmeza.spring.jdbc.repository.utils.JdbcConstants;
 import com.cmeza.spring.jdbc.repository.utils.JdbcMessageUtils;
 import com.cmeza.spring.jdbc.repository.support.annotations.JdbcRepository;
@@ -36,8 +37,12 @@ public class RawPaginationAnnotatedMethodProcessor extends AbstractAnnotatedMeth
         }
 
         //Count query
-        RawCountQueryManager rawCountQueryManager = new RawCountQueryManager(propertiesResolver, jdbcRawPaginationProperties.getRawCountQuery());
-        rawCountQueryManager.process(classMetadata, methodMetadata);
+        JdbcRawCountQueryProperties rawCountQuery = jdbcRawPaginationProperties.getRawCountQuery();
+        if (Objects.nonNull(rawCountQuery)) {
+            RawCountQueryManager rawCountQueryManager = new RawCountQueryManager(propertiesResolver, rawCountQuery);
+            rawCountQueryManager.process(classMetadata, methodMetadata);
+        }
+
 
         return jdbcRawPaginationProperties;
     }

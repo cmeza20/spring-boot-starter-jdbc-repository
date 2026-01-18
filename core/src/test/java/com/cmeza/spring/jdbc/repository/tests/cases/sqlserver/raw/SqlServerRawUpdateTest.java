@@ -29,6 +29,15 @@ public class SqlServerRawUpdateTest extends AbstractUpdateTest {
 
     @Test
     @Override
+    public void testUpdateWithReturningHolderAndClassAttribute() {
+        testException(UnsupportedOperationException.class,
+                super::testUpdateWithReturningHolderAndClassAttribute,
+                "SqlServerRawUpdateTest::testUpdateWithReturningHolderAndClassAttribute",
+                "KeyHolder not supported for SqlServer Update");
+    }
+
+    @Test
+    @Override
     public void testUpdateComplexReturningHolder() {
         testException(UnsupportedOperationException.class,
                 super::testUpdateComplexReturningHolder,

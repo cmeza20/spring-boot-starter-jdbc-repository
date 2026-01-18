@@ -13,6 +13,8 @@ public interface PaginationContract {
 
     JdbcPage<Employee> paginationEmployeesWithCondition(Integer id);
 
+    JdbcPage<Employee> paginationEmployeesWithConditionAndClassAttributes(Employee employee);
+
     JdbcPage<Employee> paginationEmployeesWithConditionAndPageRequest(Integer from, Integer to, JdbcPageRequest pageRequest);
 
     JdbcPage<EmployeeProjection> paginationEmployeeProjectionWithConditionAndPageRequestAndCountQuery(Integer max, JdbcPageRequest pageRequest);

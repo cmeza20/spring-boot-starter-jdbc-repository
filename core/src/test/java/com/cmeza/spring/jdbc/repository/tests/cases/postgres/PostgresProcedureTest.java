@@ -39,6 +39,15 @@ public class PostgresProcedureTest extends AbstractProcedureTest {
 
     @Test
     @Override
+    public void testProcedureEmployeesByGenderWithCursorAndClassAttribute() {
+        testException(UnsupportedOperationException.class,
+                super::testProcedureEmployeesByGenderWithCursor,
+                "PostgresProcedureTest::testProcedureEmployeesByGenderWithCursorAndClassAttribute",
+                UNSUPPORTED_OPERATION_MESSAGE);
+    }
+
+    @Test
+    @Override
     public void testProcedureEmployeeCountByGenderWithOutParameter() {
         testException(UnsupportedOperationException.class,
                 super::testProcedureEmployeeCountByGenderWithOutParameter,

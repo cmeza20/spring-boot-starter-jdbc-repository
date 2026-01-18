@@ -67,6 +67,26 @@ spring:
                 - from: department.id
                   to: department_id
                   type: VARCHAR
+          getOneEmployeeWithObjectConditionAndClassAttribute:
+            query:
+              table: department_employee
+              alias: de
+              where: e.id = :employee_id and de.department_id = :department_id
+              join-tables:
+                - table: employee
+                  alias: e
+                  'on': e.id = de.employee_id
+                  join: inner
+              mappings:
+                - from: employee.id
+                  to: employee_id
+                  type: BIGINT
+                - from: department.id
+                  to: department_id
+                  type: VARCHAR
+              param-filters:
+                - employee.id
+                - department.id
           getOneEmployeeWithConditionWithProjection:
             query:
               table: employee

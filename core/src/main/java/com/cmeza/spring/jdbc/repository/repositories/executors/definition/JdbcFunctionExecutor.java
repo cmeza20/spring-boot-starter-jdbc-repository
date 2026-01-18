@@ -75,7 +75,7 @@ public class JdbcFunctionExecutor extends AbstractJdbcExecutor<JdbcRoutineBuilde
                 return;
             }
             if (param.isObject()) {
-                builder.withParameter(param.getValue());
+                builder.withParameter(param.getValue(), paramFilters);
             } else {
                 builder.withParameter(param.getName(), param.getValue(), param.getType());
             }

@@ -29,6 +29,10 @@ public interface InformixProcedureRepository extends ProcedureContract {
 
     @Override
     @JdbcProcedure(name = "Informix_UnsupportedOperationException")
+    List<Employee> procedureEmployeesByGenderWithCursorAndClassAttribute(Employee employee);
+
+    @Override
+    @JdbcProcedure(name = "Informix_UnsupportedOperationException")
     Optional<Employee> procedureEmployeeByIdWithCursor(Integer id);
 
 }

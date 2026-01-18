@@ -8,7 +8,6 @@ import com.cmeza.spring.jdbc.repository.constants.TestConstants;
 import com.cmeza.spring.jdbc.repository.configurations.SqlServerInitializer;
 import com.cmeza.spring.jdbc.repository.models.Employee;
 import com.cmeza.spring.jdbc.repository.repositories.contracts.FunctionContract;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Types;
 import java.util.List;
@@ -40,10 +39,10 @@ public interface SqlServerFunctionRepository extends FunctionContract {
     Map<String, Object> functionEmployeeNamesWithOutParameters(Integer id);
 
     @Override
-    @Transactional(transactionManager = SqlServerInitializer.JDBC_TRANSACTION_MANAGER)
-    @JdbcMapping(from = "firstName", to = "@var_first_name", type = Types.VARCHAR)
-    @JdbcMapping(from = "lastName", to = "@var_last_name", type = Types.VARCHAR)
-    @JdbcMapping(from = "gender", to = "@var_gender", type = Types.VARCHAR)
     @JdbcFunction(name = "SQLSERVER_UnsupportedOperationException")
     Optional<Employee> functionEmployeesByObjectWithCursor(Employee employee);
+
+    @Override
+    @JdbcFunction(name = "SQLSERVER_UnsupportedOperationException")
+    Optional<Employee> functionEmployeesByObjectWithCursorAndClassAttributes(Employee employee);
 }

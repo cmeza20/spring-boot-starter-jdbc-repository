@@ -1,7 +1,7 @@
 package com.cmeza.spring.jdbc.repository.repositories.template.dialects.builders;
 
-import com.cmeza.spring.jdbc.repository.support.annotations.methods.operations.JdbcCall;
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.builders.generics.JdbcGenericBuilder;
+import com.cmeza.spring.jdbc.repository.support.annotations.methods.operations.JdbcCall;
 
 public interface JdbcCallBuilder extends JdbcGenericBuilder<JdbcCallBuilder> {
     void execute();

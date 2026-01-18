@@ -15,11 +15,19 @@ public interface JdbcGenericBuilder<T> {
 
     T withParameter(Object object);
 
+    T withParameter(Object object, String[] onlyAttributes);
+
     T withParameterList(List<?> objects);
+
+    T withParameterList(List<?> objects, String[] onlyAttributes);
 
     T withParameterMap(Map<?, ?> objects);
 
+    T withParameterMap(Map<?, ?> objects, String[] onlyAttributes);
+
     T withParameterSet(Set<?> objects);
+
+    T withParameterSet(Set<?> objects, String[] onlyAttributes);
 
     T withRowMapper(RowMapper<?> rowMapper);
 
@@ -36,4 +44,6 @@ public interface JdbcGenericBuilder<T> {
     T withMapping(String to, String from, int sqlType);
 
     T withMapping(MappingDefinition mappingDefinition);
+
+    T withParamFilter(String... paramFilters);
 }

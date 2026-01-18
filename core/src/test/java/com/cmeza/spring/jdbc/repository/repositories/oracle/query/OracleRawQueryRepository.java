@@ -5,6 +5,7 @@ import com.cmeza.spring.jdbc.repository.records.EmployeeRecord;
 import com.cmeza.spring.jdbc.repository.support.annotations.JdbcRepository;
 import com.cmeza.spring.jdbc.repository.support.annotations.methods.operations.JdbcRawQuery;
 import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.JdbcMapping;
+import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.JdbcParamFilter;
 import com.cmeza.spring.jdbc.repository.support.annotations.parameters.JdbcParam;
 import com.cmeza.spring.jdbc.repository.constants.TestConstants;
 import com.cmeza.spring.jdbc.repository.configurations.OracleInitializer;
@@ -76,6 +77,15 @@ public interface OracleRawQueryRepository extends QueryContract {
             "inner join test.employee e on e.id = de.employee_id " +
             "where e.id = :employee_id and de.department_id = :department_id")
     Employee getOneEmployeeWithObjectCondition(DepartmentEmployee departmentEmployee);
+
+    @Override
+    @JdbcParamFilter({"employee.id", "department.id"})
+    @JdbcMapping(from = "employee.id", to = "employee_id", type = Types.BIGINT)
+    @JdbcMapping(from = "department.id", to = "department_id", type = Types.VARCHAR)
+    @JdbcRawQuery(value = "select e.* from test.department_employee de " +
+            "inner join test.employee e on e.id = de.employee_id " +
+            "where e.id = :employee_id and de.department_id = :department_id")
+    Employee getOneEmployeeWithObjectConditionAndClassAttribute(DepartmentEmployee departmentEmployee);
 
     @Override
     @JdbcRawQuery(value = "select e.id, e.first_name, e.last_name from test.employee e where e.id = :id")

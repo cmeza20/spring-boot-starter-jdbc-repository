@@ -9,6 +9,8 @@ import com.cmeza.spring.jdbc.repository.processors.methods.supports.managers.Fro
 import com.cmeza.spring.jdbc.repository.processors.methods.supports.managers.JoinTablesManager;
 import com.cmeza.spring.jdbc.repository.repositories.executors.JdbcExecutor;
 import com.cmeza.spring.jdbc.repository.repositories.executors.definition.JdbcUpdateExecutor;
+import com.cmeza.spring.jdbc.repository.support.properties.supports.JdbcFromTableProperties;
+import com.cmeza.spring.jdbc.repository.support.properties.supports.JdbcJoinTableProperties;
 import com.cmeza.spring.jdbc.repository.utils.JdbcConstants;
 import com.cmeza.spring.jdbc.repository.utils.JdbcMessageUtils;
 import com.cmeza.spring.jdbc.repository.support.annotations.JdbcRepository;
@@ -18,6 +20,7 @@ import com.cmeza.spring.jdbc.repository.support.naming.NoOpNamingStrategy;
 import com.cmeza.spring.jdbc.repository.support.parsers.methods.JdbcUpdateParser;
 import com.cmeza.spring.jdbc.repository.support.properties.methods.JdbcUpdateProperties;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -39,12 +42,18 @@ public class UpdateAnnotatedMethodProcessor extends AbstractAnnotatedMethodProce
         }
 
         //Join tables
-        JoinTablesManager joinTablesManager = new JoinTablesManager(propertiesResolver, jdbcUpdateProperties.getJoinTables());
-        joinTablesManager.process(classMetadata, methodMetadata);
+        List<JdbcJoinTableProperties> joinTables = jdbcUpdateProperties.getJoinTables();
+        if  (Objects.nonNull(joinTables) && !joinTables.isEmpty()) {
+            JoinTablesManager joinTablesManager = new JoinTablesManager(propertiesResolver, joinTables);
+            joinTablesManager.process(classMetadata, methodMetadata);
+        }
 
         //From table
-        FromTableManager fromTableManager = new FromTableManager(propertiesResolver, jdbcUpdateProperties.getFromTable());
-        fromTableManager.process(classMetadata, methodMetadata);
+        JdbcFromTableProperties fromTable = jdbcUpdateProperties.getFromTable();
+        if (Objects.nonNull(fromTable)) {
+            FromTableManager fromTableManager = new FromTableManager(propertiesResolver, fromTable);
+            fromTableManager.process(classMetadata, methodMetadata);
+        }
 
         return jdbcUpdateProperties;
     }
