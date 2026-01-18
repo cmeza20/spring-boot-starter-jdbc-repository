@@ -59,6 +59,8 @@ public abstract class AbstractRoutineBuilder extends AbstractJdbcBuilder<JdbcRou
             logger.info("| inParameterNames: {}", inParameterNames);
         }
 
+        super.printExtras(logger);
+
         for (Map.Entry<Direction, SqlParameter> entry : parameters) {
             printParameter(logger, entry.getKey(), entry.getValue().getName(), JdbcUtils.getType(entry.getValue().getSqlType()));
         }

@@ -45,6 +45,7 @@ public class DefaultQueryBuilder extends AbstractJdbcBuilder<JdbcQueryBuilder> i
         } else if (StringUtils.isNotEmpty(query)) {
             logger.info("| Query: [{}]", query);
         }
+        super.printExtras(logger);
     }
 
     @Override

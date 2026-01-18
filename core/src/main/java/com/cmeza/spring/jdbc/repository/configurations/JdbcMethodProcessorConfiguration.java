@@ -105,6 +105,11 @@ public class JdbcMethodProcessorConfiguration {
     }
 
     @Bean
+    public AnnotatedMethodProcessor<JdbcParamFilter> paramFilterAnnotatedMethodProcessor() {
+        return new ParamFilterAnnotatedMethodProcessor();
+    }
+
+    @Bean
     public AnnotatedParameterProcessor<JdbcParam> paramAnnotatedParameterProcessor() {
         return new ParamAnnotatedParameterProcessor();
     }

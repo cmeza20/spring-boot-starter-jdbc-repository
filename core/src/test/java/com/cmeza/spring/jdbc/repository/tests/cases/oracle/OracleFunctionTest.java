@@ -52,4 +52,13 @@ public class OracleFunctionTest extends AbstractFunctionTest {
                 "OracleFunctionTest::testFunctionEmployeesByObjectWithCursor",
                 "Optional not supported for Oracle Function, use JdbcRawQuery");
     }
+
+    @Test
+    @Override
+    public void testFunctionEmployeesByObjectWithCursorAndClassAttributes() {
+        testException(UnsupportedOperationException.class,
+                super::testFunctionEmployeesByObjectWithCursorAndClassAttributes,
+                "OracleFunctionTest::testFunctionEmployeesByObjectWithCursorAndClassAttributes",
+                "Optional not supported for Oracle Function, use JdbcRawQuery");
+    }
 }

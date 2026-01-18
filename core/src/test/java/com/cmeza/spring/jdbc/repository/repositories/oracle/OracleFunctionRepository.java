@@ -40,4 +40,8 @@ public interface OracleFunctionRepository extends FunctionContract {
     @Override
     @JdbcFunction(name = "ORACLE_UnsupportedOperationException")
     Optional<Employee> functionEmployeesByObjectWithCursor(Employee employee);
+
+    @Override
+    @JdbcFunction(name = "ORACLE_UnsupportedOperationException")
+    Optional<Employee> functionEmployeesByObjectWithCursorAndClassAttributes(Employee employee);
 }

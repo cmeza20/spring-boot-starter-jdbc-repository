@@ -5,9 +5,11 @@ public interface PaginationTestContract {
 
     void testPaginationEmployeesWithCondition();
 
+    void testPaginationEmployeesWithConditionAndClassAttributes();
+
     void testPaginationEmployeesWithConditionAndPageRequest();
 
     void testPaginationEmployeesWithConditionAndPageRequestBounds();
 
-    void testPaginationEmployeeProyectionWithConditionAndPageRequestAndCountQuery();
+    void testPaginationEmployeeProjectionWithConditionAndPageRequestAndCountQuery();
 }

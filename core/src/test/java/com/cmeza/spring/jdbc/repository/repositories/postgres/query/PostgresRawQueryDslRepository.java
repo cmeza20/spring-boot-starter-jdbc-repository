@@ -66,6 +66,10 @@ public interface PostgresRawQueryDslRepository extends QueryContract {
 
     @Override
     @JdbcRawQuery.DSL
+    Employee getOneEmployeeWithObjectConditionAndClassAttribute(DepartmentEmployee departmentEmployee);
+
+    @Override
+    @JdbcRawQuery.DSL
     EmployeeProjection getOneEmployeeWithConditionWithProjection(Integer id);
 
     @Override

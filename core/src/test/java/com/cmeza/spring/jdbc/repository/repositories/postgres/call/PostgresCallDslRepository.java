@@ -15,4 +15,9 @@ public interface PostgresCallDslRepository extends CallContract {
     @JdbcCall.DSL
     @Transactional(transactionManager = PostgresInitializer.JDBC_TRANSACTION_MANAGER)
     void callDepartmentCreate(Department department);
+
+    @Override
+    @JdbcCall.DSL
+    @Transactional(transactionManager = PostgresInitializer.JDBC_TRANSACTION_MANAGER)
+    void callDepartmentCreateWithClassAttributes(Department department);
 }

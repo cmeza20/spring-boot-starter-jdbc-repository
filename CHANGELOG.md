@@ -85,6 +85,16 @@
 ### Changed
 - JdbcProjectionRowMapper method 'mapPropertyDescriptor' updated
 
+## [3.0.2] - 2026-01-17
+### Added
+- Add JdbcParamFilter annotation
+- Add param filter DSL
+- Add param filter contract for Builders
+- Add insert void return type
+- UUID param support
+### Fix
+- Mapping DSL for support annotations
+
 [1.0.0]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/1.0.0
 [1.0.1]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/1.0.1
 [1.0.2]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/1.0.2
@@ -95,3 +105,4 @@
 [2.1.0]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/2.1.0
 [3.0.0]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/3.0.0
 [3.0.1]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/3.0.1
+[3.0.2]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/3.0.2

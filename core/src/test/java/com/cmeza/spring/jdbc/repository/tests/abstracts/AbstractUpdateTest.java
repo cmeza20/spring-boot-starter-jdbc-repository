@@ -6,20 +6,30 @@ import com.cmeza.spring.jdbc.repository.repositories.contracts.UpdateContract;
 import com.cmeza.spring.jdbc.repository.tests.contracts.UpdateTestContract;
 import com.cmeza.spring.jdbc.repository.utils.AssertUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.support.KeyHolder;
 
 import java.util.Map;
 
+@Slf4j
 @RequiredArgsConstructor
 public abstract class AbstractUpdateTest extends AbstractException implements UpdateTestContract {
 
     private final UpdateContract updateContract;
     private final QueryContract queryContract;
 
+    @BeforeAll
+    static void setup() {
+        log.info("Setup UpdateTest");
+    }
+
     @Test
     @Override
     public void testUpdateWithReturningInt() {
+        log.info("Init testUpdateWithReturningInt");
+
         Employee employee = new Employee()
                 .setFirstName("Alberto")
                 .setLastName("Rodriguez")
@@ -40,6 +50,8 @@ public abstract class AbstractUpdateTest extends AbstractException implements Up
     @Test
     @Override
     public void testUpdateWithReturningHolder() {
+        log.info("Init testUpdateWithReturningHolder");
+
         Employee employee = new Employee()
                 .setFirstName("Ana")
                 .setLastName("Mendoza")
@@ -53,7 +65,25 @@ public abstract class AbstractUpdateTest extends AbstractException implements Up
 
     @Test
     @Override
+    public void testUpdateWithReturningHolderAndClassAttribute() {
+        log.info("Init testUpdateWithReturningHolderAndClassAttribute");
+
+        Employee employee = new Employee()
+                .setFirstName("Ana")
+                .setLastName("Mendoza")
+                .setGender("M")
+                .setId(25);
+        KeyHolder keyHolder = updateContract.updateWithReturningHolderAndClassAttribute(employee);
+        AssertUtils.assertNotNull(keyHolder);
+        AssertUtils.assertObject(keyHolder, KeyHolder.class);
+        AssertUtils.assertEquals(keyHolder.getKey(), equalsNumber("25", classId()), classId());
+    }
+
+    @Test
+    @Override
     public void testUpdateComplexReturningHolder() {
+        log.info("Init testUpdateComplexReturningHolder");
+
         KeyHolder keyHolder = updateContract.updateComplexReturningHolder("Yongqiao", "Berztiss", "d005");
         AssertUtils.assertNotNull(keyHolder);
         AssertUtils.assertObject(keyHolder, KeyHolder.class);
@@ -70,6 +100,8 @@ public abstract class AbstractUpdateTest extends AbstractException implements Up
     @Test
     @Override
     public void testUpdateComplexTwoReturningHolder() {
+        log.info("Init testUpdateComplexTwoReturningHolder");
+
         KeyHolder keyHolder = updateContract.updateComplexTwoReturningHolder("Divier", "Reistad", "d009");
         AssertUtils.assertNotNull(keyHolder);
         AssertUtils.assertObject(keyHolder, KeyHolder.class);

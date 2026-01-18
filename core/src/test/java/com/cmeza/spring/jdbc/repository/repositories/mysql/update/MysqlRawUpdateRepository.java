@@ -6,6 +6,7 @@ import com.cmeza.spring.jdbc.repository.constants.TestConstants;
 import com.cmeza.spring.jdbc.repository.configurations.MysqlInitializer;
 import com.cmeza.spring.jdbc.repository.models.Employee;
 import com.cmeza.spring.jdbc.repository.repositories.contracts.UpdateContract;
+import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.JdbcParamFilter;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +29,12 @@ public interface MysqlRawUpdateRepository extends UpdateContract {
     @JdbcRawUpdate(value = "update sch_test.employee set first_name = :firstName, last_name = :lastName, gender = :gender " +
             "where id = :id", keyColumnNames = "id")
     KeyHolder updateWithReturningHolder(Employee employee);
+
+    @Override
+    @JdbcParamFilter({"firstName", "lastName", "gender"})
+    @JdbcRawUpdate(value = "update sch_test.employee set first_name = :firstName, last_name = :lastName, gender = :gender " +
+            "where id = :id", keyColumnNames = "id")
+    KeyHolder updateWithReturningHolderAndClassAttribute(Employee employee);
 
     @Override
     @JdbcRawUpdate(value = "update sch_test.department_employee de inner join sch_test.employee e on de.employee_id = e.id " +

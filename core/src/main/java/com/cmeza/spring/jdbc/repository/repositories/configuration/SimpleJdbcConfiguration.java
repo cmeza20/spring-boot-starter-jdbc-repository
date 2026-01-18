@@ -23,4 +23,5 @@ public class SimpleJdbcConfiguration implements JdbcConfiguration {
     private final JoinTableDefinition[] joinTables;
     private final TableDefinition fromTable;
     private final QueryDefinition countQuery;
+    private final ParamFilterDefinition paramFilter;
 }

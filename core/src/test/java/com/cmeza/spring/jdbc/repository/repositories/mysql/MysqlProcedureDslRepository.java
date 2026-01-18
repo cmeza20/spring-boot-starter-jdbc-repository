@@ -26,6 +26,10 @@ public interface MysqlProcedureDslRepository extends ProcedureContract {
 
     @Override
     @JdbcProcedure.DSL
+    List<Employee> procedureEmployeesByGenderWithCursorAndClassAttribute(Employee employee);
+
+    @Override
+    @JdbcProcedure.DSL
     Optional<Employee> procedureEmployeeByIdWithCursor(@JdbcParam("id") Integer id);
 
 }

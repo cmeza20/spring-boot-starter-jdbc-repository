@@ -36,4 +36,8 @@ public interface PostgresFunctionDslRepository extends FunctionContract {
     @Override
     @JdbcFunction.DSL
     Optional<Employee> functionEmployeesByObjectWithCursor(Employee employee);
+
+    @Override
+    @JdbcFunction.DSL
+    Optional<Employee> functionEmployeesByObjectWithCursorAndClassAttributes(Employee employee);
 }

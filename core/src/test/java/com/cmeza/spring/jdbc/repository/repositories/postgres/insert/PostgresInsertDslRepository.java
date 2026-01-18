@@ -43,5 +43,9 @@ public interface PostgresInsertDslRepository extends InsertContract {
 
     @Override
     @JdbcInsert.DSL
+    int[] insertEmployeeBatchArrayAndReturnArrayAndClassAttributes(Employee[] employees);
+
+    @Override
+    @JdbcInsert.DSL
     int[] insertEmployeeBatchMapAndReturnArray(Map<String, Object> map);
 }

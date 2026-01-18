@@ -18,10 +18,12 @@ public class JdbcBeanPropertyManager {
     private static final List<String> ignorePropertyNames = List.of("class", "bytes", "empty", "size", "entrySet");
     private final Map<String, MappingDefinition> additionalProperties = new HashMap<>();
     private final BeanWrapper beanWrapper;
+    private final String[] onlyPropertyNames;
     private String[] propertyNames;
 
-    public JdbcBeanPropertyManager(Object object) {
+    public JdbcBeanPropertyManager(Object object, String[] onlyPropertyNames) {
         this.beanWrapper = PropertyAccessorFactory.forBeanPropertyAccess(object);
+        this.onlyPropertyNames = onlyPropertyNames;
     }
 
     public boolean hasValue(String paramName) {
@@ -81,22 +83,26 @@ public class JdbcBeanPropertyManager {
     }
 
     private void iterateDescriptors(int level, PropertyDescriptor propertyDescriptor, List<String> names, String prefix, BeanWrapper beanWrapper) {
+        TypeMetadata typeMetadata = new SimpleTypeMetadata(propertyDescriptor.getPropertyType());
         String name = propertyDescriptor.getName();
-        if (!ignorePropertyNames.contains(name) && beanWrapper.isReadableProperty(name)) {
-            TypeMetadata typeMetadata = new SimpleTypeMetadata(propertyDescriptor.getPropertyType());
+
+        boolean matchPropertyNames = Objects.isNull(onlyPropertyNames) || Arrays.asList(onlyPropertyNames).contains(prefix + name);
+        boolean isObject = typeMetadata.isCustomArgumentObject() && !propertyDescriptor.getPropertyType().getPackageName().startsWith("java");
+
+        if (!ignorePropertyNames.contains(name) && (matchPropertyNames || isObject) && beanWrapper.isReadableProperty(name)) {
             if (this.collectionsCondition(typeMetadata)) {
                 return;
             }
 
-            if (typeMetadata.isCustomArgumentObject() && !propertyDescriptor.getPropertyType().getPackageName().startsWith("java")) {
-                this.evalCustomObject(names, level, name, prefix);
+            if (isObject) {
+                this.evalCustomObject(names, level, name, prefix, matchPropertyNames);
             } else {
                 names.add(prefix + name);
             }
         }
     }
 
-    private void evalCustomObject(List<String> names, int level, String name, String prefix) {
+    private void evalCustomObject(List<String> names, int level, String name, String prefix, boolean matchPropertyNames) {
         BeanWrapper beanWrapperTarget = this.parseBeanWrapper(beanWrapper, name);
         if (Objects.nonNull(beanWrapperTarget)) {
             PropertyDescriptor[] propertyDescriptorsInternal = beanWrapperTarget.getPropertyDescriptors();
@@ -104,7 +110,7 @@ public class JdbcBeanPropertyManager {
                 String internalPrefix = prefix + name + TAG_SEPARATOR;
                 this.iterate(level, propertyDescriptorsInternal, names, internalPrefix, beanWrapperTarget);
             }
-        } else {
+        } else if (matchPropertyNames) {
             names.add(prefix + name);
         }
     }

@@ -28,4 +28,9 @@ public interface PostgresExecuteDslRepository extends ExecuteContract {
     @Transactional(transactionManager = PostgresInitializer.JDBC_TRANSACTION_MANAGER)
     @JdbcExecute.DSL
     void executeCallDepartmentCreateWithoutResult(Department department);
+
+    @Override
+    @Transactional(transactionManager = PostgresInitializer.JDBC_TRANSACTION_MANAGER)
+    @JdbcExecute.DSL
+    void executeCallDepartmentCreateWithoutResultAndClassAttributes(Department department);
 }

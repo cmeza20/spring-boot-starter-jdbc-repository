@@ -1,13 +1,13 @@
 package com.cmeza.spring.jdbc.repository.support.properties.parameters;
 
 import com.cmeza.spring.jdbc.repository.support.binding.SqlType;
-import com.cmeza.spring.jdbc.repository.support.properties.abstracts.AbstractProperties;
+import com.cmeza.spring.jdbc.repository.support.properties.abstracts.AbstractSupport;
 import lombok.Data;
 
 import java.util.Map;
 
 @Data
-public class ParameterProperties extends AbstractProperties {
+public class ParameterProperties extends AbstractSupport {
     private String value;
     private SqlType type = new SqlType(0);
     private int order;

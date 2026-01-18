@@ -21,4 +21,6 @@ public interface JdbcInsertBuilder extends JdbcGenericBuilder<JdbcInsertBuilder>
     JdbcInsertBuilder withAccessTableColumnMetaData(boolean value);
 
     JdbcInsertBuilder withOverrideIncludeSynonymsDefault(boolean value);
+
+    boolean isBatch();
 }

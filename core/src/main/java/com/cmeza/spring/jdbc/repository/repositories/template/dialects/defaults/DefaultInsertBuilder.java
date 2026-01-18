@@ -89,6 +89,11 @@ public class DefaultInsertBuilder extends AbstractJdbcBuilder<JdbcInsertBuilder>
     }
 
     @Override
+    public boolean isBatch() {
+        return getParameterSources().length > 1;
+    }
+
+    @Override
     public void printExtras(Logger logger) {
         if (Objects.nonNull(catalog) && !catalog.isEmpty()) {
             logger.info("| Catalog: {}", catalog);
@@ -100,6 +105,9 @@ public class DefaultInsertBuilder extends AbstractJdbcBuilder<JdbcInsertBuilder>
         if (Objects.nonNull(columns) && columns.length > 0) {
             logger.info("| Columns: {}", (Object) columns);
         }
+
+        super.printExtras(logger);
+
         if (Objects.nonNull(generatedKeyColumns) && generatedKeyColumns.length > 0) {
             logger.info("| GeneratedKeyColumns: {}", (Object) generatedKeyColumns);
         }

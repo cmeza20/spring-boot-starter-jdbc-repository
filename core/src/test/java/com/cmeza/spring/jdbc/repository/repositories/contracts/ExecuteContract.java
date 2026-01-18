@@ -13,4 +13,6 @@ public interface ExecuteContract {
     int deleteEmployeesWithArrayAndReturningInt(String... names);
 
     void executeCallDepartmentCreateWithoutResult(Department department);
+
+    void executeCallDepartmentCreateWithoutResultAndClassAttributes(Department department);
 }

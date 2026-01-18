@@ -23,6 +23,10 @@ public interface PostgresUpdateDslRepository extends UpdateContract {
 
     @Override
     @JdbcUpdate.DSL
+    KeyHolder updateWithReturningHolderAndClassAttribute(Employee employee);
+
+    @Override
+    @JdbcUpdate.DSL
     KeyHolder updateComplexReturningHolder(String firstName, String lastName, String departmentId);
 
     @Override

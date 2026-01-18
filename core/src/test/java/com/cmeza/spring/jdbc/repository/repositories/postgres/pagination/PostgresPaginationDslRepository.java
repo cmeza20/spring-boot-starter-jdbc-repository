@@ -23,6 +23,10 @@ public interface PostgresPaginationDslRepository extends PaginationContract {
 
     @Override
     @JdbcPagination.DSL
+    JdbcPage<Employee> paginationEmployeesWithConditionAndClassAttributes(Employee employee);
+
+    @Override
+    @JdbcPagination.DSL
     JdbcPage<Employee> paginationEmployeesWithConditionAndPageRequest(Integer from, Integer to, JdbcPageRequest pageRequest);
 
     @Override

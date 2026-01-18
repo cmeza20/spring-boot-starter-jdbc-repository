@@ -8,8 +8,8 @@ public class JdbcBeanPropertySqlParameterSource extends AbstractSqlParameterSour
 
     private final JdbcBeanPropertyManager jdbcBeanPropertyManager;
 
-    public JdbcBeanPropertySqlParameterSource(Object object) {
-        this.jdbcBeanPropertyManager = new JdbcBeanPropertyManager(object);
+    public JdbcBeanPropertySqlParameterSource(Object object, String[] onlyPropertyNames) {
+        this.jdbcBeanPropertyManager = new JdbcBeanPropertyManager(object, onlyPropertyNames);
     }
 
     public boolean hasValue(String paramName) {

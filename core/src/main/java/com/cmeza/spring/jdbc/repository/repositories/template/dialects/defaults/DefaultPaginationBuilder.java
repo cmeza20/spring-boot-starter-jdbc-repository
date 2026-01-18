@@ -37,6 +37,7 @@ public class DefaultPaginationBuilder extends AbstractPaginationBuilder {
         if (Objects.nonNull(selectBuilder)) {
             selectBuilder.print(LOGGER);
         }
+        super.printExtras(logger);
     }
 
     @Override

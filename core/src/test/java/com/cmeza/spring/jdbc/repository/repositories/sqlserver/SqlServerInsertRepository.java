@@ -7,6 +7,7 @@ import com.cmeza.spring.jdbc.repository.constants.TestConstants;
 import com.cmeza.spring.jdbc.repository.configurations.SqlServerInitializer;
 import com.cmeza.spring.jdbc.repository.models.Employee;
 import com.cmeza.spring.jdbc.repository.repositories.contracts.InsertContract;
+import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.JdbcParamFilter;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +45,11 @@ public interface SqlServerInsertRepository extends InsertContract {
     @Override
     @JdbcInsert(table = "employee", columns = {"first_name", "last_name", "gender", "birth_date", "hire_date"})
     int[] insertEmployeeBatchArrayAndReturnArray(Employee[] employees);
+
+    @Override
+    @JdbcParamFilter({"firstName", "lastName", "gender", "birthDate", "hireDate"})
+    @JdbcInsert(table = "employee", columns = {"first_name", "last_name", "gender", "birth_date", "hire_date"})
+    int[] insertEmployeeBatchArrayAndReturnArrayAndClassAttributes(Employee[] employees);
 
     @Override
     @JdbcMapping(from = "another_first_name", to = "first_name", type = Types.VARCHAR)

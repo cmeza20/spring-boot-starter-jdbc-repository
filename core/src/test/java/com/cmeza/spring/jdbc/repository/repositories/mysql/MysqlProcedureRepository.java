@@ -3,6 +3,7 @@ package com.cmeza.spring.jdbc.repository.repositories.mysql;
 import com.cmeza.spring.jdbc.repository.support.annotations.JdbcRepository;
 import com.cmeza.spring.jdbc.repository.support.annotations.methods.operations.JdbcProcedure;
 import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.JdbcMapping;
+import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.JdbcParamFilter;
 import com.cmeza.spring.jdbc.repository.support.annotations.parameters.JdbcParam;
 import com.cmeza.spring.jdbc.repository.support.annotations.parameters.Parameter;
 import com.cmeza.spring.jdbc.repository.constants.TestConstants;
@@ -28,6 +29,12 @@ public interface MysqlProcedureRepository extends ProcedureContract {
     @JdbcMapping(from = "gender", to = "var_gender", type = Types.VARCHAR)
     @JdbcProcedure(name = "sp_employees_by_gender")
     List<Employee> procedureEmployeesByGenderWithCursor(String gender);
+
+    @Override
+    @JdbcParamFilter("gender")
+    @JdbcMapping(from = "gender", to = "var_gender", type = Types.VARCHAR)
+    @JdbcProcedure(name = "sp_employees_by_gender")
+    List<Employee> procedureEmployeesByGenderWithCursorAndClassAttribute(Employee employee);
 
     @Override
     @JdbcProcedure(name = "sp_employees_by_id")

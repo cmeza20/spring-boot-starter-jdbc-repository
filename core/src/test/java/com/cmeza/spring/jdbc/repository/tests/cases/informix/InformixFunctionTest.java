@@ -63,4 +63,13 @@ public class InformixFunctionTest extends AbstractFunctionTest {
                 "InformixFunctionTest::testFunctionEmployeesByObjectWithCursor",
                 UNSUPPORTED_OPERATION_MESSAGE);
     }
+
+    @Test
+    @Override
+    public void testFunctionEmployeesByObjectWithCursorAndClassAttributes() {
+        testException(UnsupportedOperationException.class,
+                super::testFunctionEmployeesByObjectWithCursorAndClassAttributes,
+                "InformixFunctionTest::testFunctionEmployeesByObjectWithCursorAndClassAttributes",
+                UNSUPPORTED_OPERATION_MESSAGE);
+    }
 }

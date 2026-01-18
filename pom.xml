@@ -6,7 +6,7 @@
 
     <groupId>com.cmeza</groupId>
     <artifactId>spring-boot-starter-jdbc-repository-parent</artifactId>
-    <version>3.0.1</version>
+    <version>3.0.2</version>
     <packaging>pom</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -42,7 +42,7 @@
     </scm>
 
     <properties>
-        <revision>3.0.1</revision>
+        <revision>3.0.2</revision>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
