@@ -24,6 +24,8 @@ public interface QueryTestContract {
 
     void testGetOneEmployeeWithObjectCondition();
 
+    void testGetOneEmployeeWithObjectConditionAndClassAttribute();
+
     void testGetOneEmployeeWithConditionWithProjection();
 
     void testGetOneEmployeeWithConditionWithComplexProjection();

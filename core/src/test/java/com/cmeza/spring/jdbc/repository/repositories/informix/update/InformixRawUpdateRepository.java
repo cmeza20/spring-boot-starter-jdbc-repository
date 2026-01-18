@@ -31,6 +31,10 @@ public interface InformixRawUpdateRepository extends UpdateContract {
 
     @Override
     @JdbcRawUpdate(value = "INFORMIX_UnsupportedOperationException")
+    KeyHolder updateWithReturningHolderAndClassAttribute(Employee employee);
+
+    @Override
+    @JdbcRawUpdate(value = "INFORMIX_UnsupportedOperationException")
     KeyHolder updateComplexReturningHolder(String firstName, String lastName, String departmentId);
 
     @Override

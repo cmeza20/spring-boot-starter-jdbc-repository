@@ -5,6 +5,8 @@ public interface UpdateTestContract {
 
     void testUpdateWithReturningHolder();
 
+    void testUpdateWithReturningHolderAndClassAttribute();
+
     void testUpdateComplexReturningHolder();
 
     void testUpdateComplexTwoReturningHolder();

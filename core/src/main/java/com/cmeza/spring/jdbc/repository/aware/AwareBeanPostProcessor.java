@@ -23,7 +23,8 @@ public class AwareBeanPostProcessor implements BeanPostProcessor {
 
     @Override
     public Object postProcessBeforeInitialization(@NonNull Object bean, @NonNull String beanName) throws BeansException {
-        if (bean instanceof JdbcRepositoryAware jdbcRepositoryAware) {
+        if (bean instanceof JdbcRepositoryAware) {
+            JdbcRepositoryAware jdbcRepositoryAware = (JdbcRepositoryAware) bean;
 
             String jdbcRepositoryBeanName = jdbcRepositoryAware.getQualifier();
             Assert.hasLength(jdbcRepositoryBeanName, "JdbcRepositoryAware qualifier is required!");

@@ -4,6 +4,7 @@ import com.cmeza.spring.jdbc.repository.support.annotations.JdbcRepository;
 import com.cmeza.spring.jdbc.repository.support.annotations.methods.operations.JdbcQuery;
 import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.JdbcJoinTable;
 import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.JdbcMapping;
+import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.JdbcParamFilter;
 import com.cmeza.spring.jdbc.repository.support.annotations.parameters.JdbcParam;
 import com.cmeza.spring.jdbc.repository.constants.TestConstants;
 import com.cmeza.spring.jdbc.repository.configurations.OracleInitializer;
@@ -74,6 +75,14 @@ public interface OracleQueryRepository extends QueryContract {
     @JdbcJoinTable(table = "employee", alias = "e", on = "e.id = de.employee_id", join = JdbcJoinTable.Join.INNER)
     @JdbcQuery(table = "department_employee", alias = "de", where = "e.id = :employee_id and de.department_id = :department_id")
     Employee getOneEmployeeWithObjectCondition(DepartmentEmployee departmentEmployee);
+
+    @Override
+    @JdbcParamFilter({"employee.id", "department.id"})
+    @JdbcMapping(from = "employee.id", to = "employee_id", type = Types.BIGINT)
+    @JdbcMapping(from = "department.id", to = "department_id", type = Types.VARCHAR)
+    @JdbcJoinTable(table = "employee", alias = "e", on = "e.id = de.employee_id", join = JdbcJoinTable.Join.INNER)
+    @JdbcQuery(table = "department_employee", alias = "de", where = "e.id = :employee_id and de.department_id = :department_id")
+    Employee getOneEmployeeWithObjectConditionAndClassAttribute(DepartmentEmployee departmentEmployee);
 
     @Override
     @JdbcQuery(table = "employee", alias = "e", columns = {"e.id", "e.first_name", "e.last_name"}, where = "e.id = :id")

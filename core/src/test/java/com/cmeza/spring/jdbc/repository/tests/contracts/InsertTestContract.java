@@ -14,5 +14,7 @@ public interface InsertTestContract {
 
     void testInsertEmployeeBatchArrayAndReturnArray();
 
+    void testInsertEmployeeBatchArrayAndReturnArrayAndClassAttributes();
+
     void testInsertEmployeeBatchMapAndReturnArray();
 }

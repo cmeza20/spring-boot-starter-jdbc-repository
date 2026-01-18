@@ -33,6 +33,19 @@ spring:
                 - gender = :gender
               where: id = :id
               key-column-names: id
+          updateWithReturningHolderAndClassAttribute:
+            update:
+              table: employee
+              update-sets:
+                - first_name = :firstName
+                - last_name = :lastName
+                - gender = :gender
+              where: id = :id
+              key-column-names: id
+              param-filters:
+                - firstName
+                - lastName
+                - gender
           updateComplexReturningHolder:
             update:
               table: department_employee

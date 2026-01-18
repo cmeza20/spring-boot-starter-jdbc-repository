@@ -10,4 +10,6 @@ public interface FunctionTestContract {
     void testFunctionEmployeeNamesWithOutParameters();
 
     void testFunctionEmployeesByObjectWithCursor();
+
+    void testFunctionEmployeesByObjectWithCursorAndClassAttributes();
 }

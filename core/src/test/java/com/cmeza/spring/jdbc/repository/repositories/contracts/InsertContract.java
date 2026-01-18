@@ -22,6 +22,8 @@ public interface InsertContract {
 
     int[] insertEmployeeBatchArrayAndReturnArray(Employee[] employees);
 
+    int[] insertEmployeeBatchArrayAndReturnArrayAndClassAttributes(Employee[] employees);
+
     int[] insertEmployeeBatchMapAndReturnArray(Map<String, Object> map);
 
 }

@@ -4,6 +4,7 @@ import com.cmeza.spring.jdbc.repository.support.annotations.JdbcRepository;
 import com.cmeza.spring.jdbc.repository.support.annotations.methods.operations.JdbcPagination;
 import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.JdbcCountQuery;
 import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.JdbcMapping;
+import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.JdbcParamFilter;
 import com.cmeza.spring.jdbc.repository.support.annotations.parameters.JdbcParam;
 import com.cmeza.spring.jdbc.repository.constants.TestConstants;
 import com.cmeza.spring.jdbc.repository.configurations.InformixInitializer;
@@ -24,6 +25,11 @@ public interface InformixPaginationRepository extends PaginationContract {
     @Override
     @JdbcPagination(table = "employee", where = "id = :id")
     JdbcPage<Employee> paginationEmployeesWithCondition(Integer id);
+
+    @Override
+    @JdbcParamFilter("id")
+    @JdbcPagination(table = "employee", where = "id = :id")
+    JdbcPage<Employee> paginationEmployeesWithConditionAndClassAttributes(Employee employee);
 
     @Override
     @JdbcPagination(table = "employee", where = "t.id between :from and :to", alias = "t")

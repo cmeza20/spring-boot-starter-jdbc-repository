@@ -19,3 +19,16 @@ spring:
                 - from: deptName
                   to: var_dept_name
                   type: VARCHAR
+          executeCallDepartmentCreateWithoutResultAndClassAttributes:
+            execute:
+              value: call sch_test.sp_department_create(:var_id, :var_dept_name)
+              mappings:
+                - from: id
+                  to: var_id
+                  type: VARCHAR
+                - from: deptName
+                  to: var_dept_name
+                  type: VARCHAR
+              param-filters:
+                - id
+                - deptName

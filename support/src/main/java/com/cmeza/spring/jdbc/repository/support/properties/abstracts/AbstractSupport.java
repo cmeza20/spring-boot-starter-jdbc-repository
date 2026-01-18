@@ -1,17 +1,13 @@
 package com.cmeza.spring.jdbc.repository.support.properties.abstracts;
 
-import com.cmeza.spring.jdbc.repository.support.properties.supports.JdbcMappingProperties;
 import com.cmeza.spring.jdbc.repository.support.transform.MapTransform;
 import lombok.Data;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Data
-public abstract class AbstractProperties implements MapTransform {
-    private List<JdbcMappingProperties> mappings;
-    private String[] paramFilters;
+public abstract class AbstractSupport implements MapTransform {
 
     public abstract void mapProperties(Map<String, Object> map);
 

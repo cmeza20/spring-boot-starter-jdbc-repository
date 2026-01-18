@@ -3,6 +3,7 @@ package com.cmeza.spring.jdbc.repository.repositories.informix;
 import com.cmeza.spring.jdbc.repository.support.annotations.JdbcRepository;
 import com.cmeza.spring.jdbc.repository.support.annotations.methods.operations.JdbcFunction;
 import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.JdbcMapping;
+import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.JdbcParamFilter;
 import com.cmeza.spring.jdbc.repository.support.annotations.parameters.Parameter;
 import com.cmeza.spring.jdbc.repository.constants.TestConstants;
 import com.cmeza.spring.jdbc.repository.configurations.InformixInitializer;
@@ -50,4 +51,12 @@ public interface InformixFunctionRepository extends FunctionContract {
     @JdbcMapping(from = "gender", to = "var_gender", type = Types.VARCHAR)
     @JdbcFunction(name = "fn_employees_by_object")
     Optional<Employee> functionEmployeesByObjectWithCursor(Employee employee);
+
+    @Override
+    @JdbcParamFilter({"firstName", "lastName", "gender"})
+    @JdbcMapping(from = "firstName", to = "var_first_name", type = Types.VARCHAR)
+    @JdbcMapping(from = "lastName", to = "var_last_name", type = Types.VARCHAR)
+    @JdbcMapping(from = "gender", to = "var_gender", type = Types.VARCHAR)
+    @JdbcFunction(name = "fn_employees_by_object")
+    Optional<Employee> functionEmployeesByObjectWithCursorAndClassAttributes(Employee employee);
 }

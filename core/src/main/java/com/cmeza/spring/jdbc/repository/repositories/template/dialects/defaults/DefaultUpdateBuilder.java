@@ -43,6 +43,7 @@ public class DefaultUpdateBuilder extends AbstractJdbcBuilder<JdbcUpdateBuilder>
             logger.info("| Sql: [{}]", query);
         }
         logger.info("| KeyColumnNames: {}", Objects.nonNull(keyColumnNames) ? keyColumnNames : "Not specified!");
+        super.printExtras(logger);
     }
 
     @Override

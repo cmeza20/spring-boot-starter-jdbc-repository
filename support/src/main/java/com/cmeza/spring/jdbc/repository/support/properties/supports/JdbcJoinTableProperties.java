@@ -1,13 +1,13 @@
 package com.cmeza.spring.jdbc.repository.support.properties.supports;
 
-import com.cmeza.spring.jdbc.repository.support.properties.abstracts.AbstractProperties;
 import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.JdbcJoinTable;
+import com.cmeza.spring.jdbc.repository.support.properties.abstracts.AbstractSupport;
 import lombok.Data;
 
 import java.util.Map;
 
 @Data
-public class JdbcJoinTableProperties extends AbstractProperties {
+public class JdbcJoinTableProperties extends AbstractSupport {
     private String catalog = "";
     private String schema = "";
     private String table;

@@ -3,24 +3,23 @@ package com.cmeza.spring.jdbc.repository.repositories.executors;
 import com.cmeza.spring.ioc.handler.metadata.MethodMetadata;
 import com.cmeza.spring.ioc.handler.metadata.TypeMetadata;
 import com.cmeza.spring.jdbc.repository.repositories.configuration.JdbcConfiguration;
-import com.cmeza.spring.jdbc.repository.support.definitions.ParameterDefinition;
 import com.cmeza.spring.jdbc.repository.repositories.executors.types.Direction;
 import com.cmeza.spring.jdbc.repository.repositories.executors.types.ReturnType;
 import com.cmeza.spring.jdbc.repository.repositories.template.JdbcRepositoryTemplate;
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.builders.generics.JdbcGenericBuilder;
+import com.cmeza.spring.jdbc.repository.support.definitions.ParamFilterDefinition;
+import com.cmeza.spring.jdbc.repository.support.definitions.ParameterDefinition;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.util.Assert;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Slf4j
 public abstract class AbstractJdbcExecutor<T extends JdbcGenericBuilder<T>> implements JdbcExecutor {
 
+    protected String[] paramFilters;
     private JdbcConfiguration configuration;
 
     protected abstract Object execute(ReturnType returnType, T jdbcBuilder, TypeMetadata typeMetadata, JdbcConfiguration configuration, RowMapper<?> rowMapper, boolean isBatch);
@@ -37,6 +36,11 @@ public abstract class AbstractJdbcExecutor<T extends JdbcGenericBuilder<T>> impl
 
         //Mappings
         Arrays.stream(configuration.getMappings()).forEach(builder::withMapping);
+
+        //Param filters
+        if (Objects.nonNull(paramFilters)) {
+            builder.withParamFilter(paramFilters);
+        }
 
         List<Parameter> parameters = new ArrayList<>();
 
@@ -55,10 +59,16 @@ public abstract class AbstractJdbcExecutor<T extends JdbcGenericBuilder<T>> impl
         this.configuration = jdbcConfiguration;
         this.validateConfiguration();
         this.validateConfiguration(jdbcConfiguration);
+
+        ParamFilterDefinition paramFilter = jdbcConfiguration.getParamFilter();
+        if (Objects.nonNull(paramFilter)) {
+            this.paramFilters = paramFilter.getValues();
+        }
     }
 
     @Override
     public void validateConfiguration(JdbcConfiguration jdbcConfiguration) {
+
     }
 
     @Override
@@ -79,7 +89,7 @@ public abstract class AbstractJdbcExecutor<T extends JdbcGenericBuilder<T>> impl
         int batchCount = 0;
         for (Object obj : arguments) {
             ParameterDefinition definition = parameterDefinitions[index];
-            batchCount += bindParamaters(builder, definition, obj, parameters);
+            batchCount += bindParameters(builder, definition, obj, parameters);
             index++;
         }
 
@@ -89,7 +99,7 @@ public abstract class AbstractJdbcExecutor<T extends JdbcGenericBuilder<T>> impl
     protected void bindParameters(T builder, List<Parameter> parameters) {
         parameters.forEach(param -> {
             if (param.isObject()) {
-                builder.withParameter(param.getValue());
+                builder.withParameter(param.getValue(), paramFilters);
             } else {
                 builder.withParameter(param.getName(), param.getValue(), param.getType());
             }
@@ -99,19 +109,21 @@ public abstract class AbstractJdbcExecutor<T extends JdbcGenericBuilder<T>> impl
     protected void eachParameter(T builder, ParameterDefinition parameterDefinition, Object obj) {
     }
 
-    private int bindParamaters(T builder, ParameterDefinition definition, Object obj, List<Parameter> parameters) {
+    private int bindParameters(T builder, ParameterDefinition definition, Object obj, List<Parameter> parameters) {
         int batchCount = 0;
         if (Objects.nonNull(definition)) {
             if (Objects.isNull(obj)) {
-                this.eachParameter(builder, definition, obj);
-                parameters.add(new Parameter(definition, obj, false, Direction.IN));
+                this.eachParameter(builder, definition, null);
+                parameters.add(new Parameter(definition, null, false, Direction.IN));
                 return 0;
             }
 
             Object inParam = obj.getClass().isArray() ? Arrays.asList((Object[]) obj) : obj;
             this.eachParameter(builder, definition, inParam);
 
-            if (definition.isBean() || definition.isBatch()) {
+            boolean isUUID = definition.getTypeMetadata().getRawClass().isAssignableFrom(UUID.class);
+
+            if (!isUUID && (definition.isBean() || definition.isBatch())) {
                 parameters.add(new Parameter(definition, inParam, true, Direction.IN));
                 if (definition.isCollection()) {
                     batchCount++;

@@ -8,16 +8,26 @@ import com.cmeza.spring.jdbc.repository.repositories.template.pagination.JdbcPag
 import com.cmeza.spring.jdbc.repository.tests.contracts.PaginationTestContract;
 import com.cmeza.spring.jdbc.repository.utils.AssertUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+@Slf4j
 @RequiredArgsConstructor
 public abstract class AbstractPaginationTest extends AbstractException implements PaginationTestContract {
 
     private final PaginationContract paginationContract;
 
+    @BeforeAll
+    static void setup() {
+        log.info("Setup PaginationTest");
+    }
+
     @Test
     @Override
     public void testPaginationEmployeesWithoutParameter() {
+        log.info("Init testPaginationEmployeesWithoutParameter");
+
         JdbcPage<Employee> page = paginationContract.paginationEmployeesWithoutParameter();
 
         AssertUtils.assertObject(page, JdbcPage.class);
@@ -30,6 +40,8 @@ public abstract class AbstractPaginationTest extends AbstractException implement
     @Test
     @Override
     public void testPaginationEmployeesWithCondition() {
+        log.info("Init testPaginationEmployeesWithCondition");
+
         Integer employeeId = 100;
         JdbcPage<Employee> page = paginationContract.paginationEmployeesWithCondition(employeeId);
 
@@ -42,7 +54,26 @@ public abstract class AbstractPaginationTest extends AbstractException implement
 
     @Test
     @Override
+    public void testPaginationEmployeesWithConditionAndClassAttributes() {
+        log.info("Init testPaginationEmployeesWithConditionAndClassAttributes");
+
+        Employee employee = new Employee();
+        employee.setId(100);
+
+        JdbcPage<Employee> page = paginationContract.paginationEmployeesWithConditionAndClassAttributes(employee);
+
+        AssertUtils.assertObject(page, JdbcPage.class);
+        AssertUtils.assertCollection(page.getContent(), 1);
+        AssertUtils.assertEquals(page.getCurrentPage(), 1, Integer.class);
+        AssertUtils.assertEquals(page.getTotalPages(), 1, Integer.class);
+        AssertUtils.assertEquals(page.getTotalElements(), 1L, Long.class);
+    }
+
+    @Test
+    @Override
     public void testPaginationEmployeesWithConditionAndPageRequest() {
+        log.info("Init testPaginationEmployeesWithConditionAndPageRequest");
+
         JdbcPageRequest pageRequest = JdbcPageRequest.ofPage(2, 50);
         JdbcPage<Employee> page = paginationContract.paginationEmployeesWithConditionAndPageRequest(1, 100, pageRequest);
 
@@ -56,6 +87,8 @@ public abstract class AbstractPaginationTest extends AbstractException implement
     @Test
     @Override
     public void testPaginationEmployeesWithConditionAndPageRequestBounds() {
+        log.info("Init testPaginationEmployeesWithConditionAndPageRequestBounds");
+
         JdbcPageRequest pageRequest = JdbcPageRequest.ofBounds(54, 9);
         JdbcPage<Employee> page = paginationContract.paginationEmployeesWithConditionAndPageRequest(1, 60, pageRequest);
 
@@ -69,7 +102,9 @@ public abstract class AbstractPaginationTest extends AbstractException implement
 
     @Test
     @Override
-    public void testPaginationEmployeeProyectionWithConditionAndPageRequestAndCountQuery() {
+    public void testPaginationEmployeeProjectionWithConditionAndPageRequestAndCountQuery() {
+        log.info("Init testPaginationEmployeeProjectionWithConditionAndPageRequestAndCountQuery");
+
         JdbcPageRequest pageRequest = JdbcPageRequest.ofPage(1, 10);
         JdbcPage<EmployeeProjection> page = paginationContract.paginationEmployeeProjectionWithConditionAndPageRequestAndCountQuery(100, pageRequest);
 

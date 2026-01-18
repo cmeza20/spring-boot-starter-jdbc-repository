@@ -41,6 +41,7 @@ public class JdbcContractFunctions implements ApplicationContextAware {
     public static final String METHOD_JOIN_TABLES = "METHOD_JOIN_TABLES";
     public static final String METHOD_FROM_TABLE = "METHOD_JOIN_TABLE";
     public static final String METHOD_COUNT_QUERY = "METHOD_COUNT_QUERY";
+    public static final String METHOD_PARAM_FILTERS = "METHOD_PARAM_FILTERS";
     public static final String PARAMETER_NAME = "PARAMETER_NAME";
     public static final String PARAMETER_TYPE = "PARAMETER_TYPE";
     protected final MethodConsumer afterAnnotationMethodProcessor = (classMetadata, methodMetadata) -> {
@@ -145,6 +146,9 @@ public class JdbcContractFunctions implements ApplicationContextAware {
 
             //Count Query
             builder.countQuery(methodMetadata.getAttribute(METHOD_COUNT_QUERY, QueryDefinition.class));
+
+            //Param Filters
+            builder.paramFilter(methodMetadata.getAttribute(METHOD_PARAM_FILTERS, ParamFilterDefinition.class));
 
             executor.attachConfiguration(builder.build());
             executor.print();

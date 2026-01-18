@@ -11,6 +11,8 @@ public interface UpdateContract {
 
     KeyHolder updateWithReturningHolder(Employee employee);
 
+    KeyHolder updateWithReturningHolderAndClassAttribute(Employee employee);
+
     KeyHolder updateComplexReturningHolder(String firstName, String lastName, String departmentId);
 
     KeyHolder updateComplexTwoReturningHolder(String firstName, String lastName, String deptName);

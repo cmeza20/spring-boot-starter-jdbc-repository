@@ -18,4 +18,6 @@ public interface FunctionContract {
     Map<String, Object> functionEmployeeNamesWithOutParameters(Integer id);
 
     Optional<Employee> functionEmployeesByObjectWithCursor(Employee employee);
+
+    Optional<Employee> functionEmployeesByObjectWithCursorAndClassAttributes(Employee employee);
 }

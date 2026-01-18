@@ -30,4 +30,6 @@ public interface JdbcConfiguration {
 
     QueryDefinition getCountQuery();
 
+    ParamFilterDefinition getParamFilter();
+
 }

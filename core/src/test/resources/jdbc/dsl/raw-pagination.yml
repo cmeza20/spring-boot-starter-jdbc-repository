@@ -7,6 +7,11 @@ spring:
             raw-pagination: select * from sch_test.employee
           paginationEmployeesWithCondition:
             raw-pagination: select * from sch_test.employee where id = :id
+          paginationEmployeesWithConditionAndClassAttributes:
+            raw-pagination:
+              value: select * from sch_test.employee where id = :id
+              param-filters:
+                - id
           paginationEmployeesWithConditionAndPageRequest:
             raw-pagination: select * from sch_test.employee where id between :from and :to
           paginationEmployeeProjectionWithConditionAndPageRequestAndCountQuery:

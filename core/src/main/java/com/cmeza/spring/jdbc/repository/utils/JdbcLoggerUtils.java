@@ -3,9 +3,10 @@ package com.cmeza.spring.jdbc.repository.utils;
 import com.cmeza.spring.ioc.handler.metadata.TypeMetadata;
 import com.cmeza.spring.ioc.handler.metadata.impl.SimpleTypeMetadata;
 import com.cmeza.spring.jdbc.repository.mappers.JdbcRowMapper;
-import com.cmeza.spring.jdbc.repository.support.definitions.MappingDefinition;
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.providers.InParameterSourceProvider;
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.providers.MappingSourceProvider;
+import com.cmeza.spring.jdbc.repository.support.definitions.MappingDefinition;
+import lombok.Data;
 import lombok.experimental.UtilityClass;
 import org.slf4j.Logger;
 import org.springframework.jdbc.core.RowMapper;
@@ -67,64 +68,68 @@ public final class JdbcLoggerUtils {
         }
     }
 
-    private void findParamInSourceProvider(SqlParameterSource source, int count, Map<SqlParameterSource, List<String>> sourcesFiltered, InParameterSourceProvider inParameterSourceProvider, MappingSourceProvider mappingSourceProvider) {
+    private void findParamInSourceProvider(SqlParameterSource source, int[] headerCount, int[] attributeCount, Map<SqlParameterSource, SourceDefinition> sourceDefinitionMap, InParameterSourceProvider inParameterSourceProvider, MappingSourceProvider mappingSourceProvider) {
         for (String paramName : source.getParameterNames()) {
             String paramNameFiltered = paramName;
-            if (inParameterSourceProvider.isSetAndNotContains(paramName)){
+            if (inParameterSourceProvider.isSetAndNotContains(paramName)) {
                 paramNameFiltered = null;
             } else if (mappingSourceProvider.isSetMappings()) {
-                Optional<MappingDefinition> mappingDefinitionOptional = mappingSourceProvider.findMappingByFromOrTo(paramName);
-                paramNameFiltered = mappingDefinitionOptional.map(MappingDefinition::getTo).orElse(paramName);
+                paramNameFiltered = mappingSourceProvider.findMappingByFromOrTo(paramName)
+                        .map(MappingDefinition::getTo).orElse(paramName);
             }
 
             if (Objects.isNull(paramNameFiltered)) {
                 continue;
             }
 
-            List<String> params = sourcesFiltered.get(source);
-            if (Objects.isNull(params)) {
-                params = new LinkedList<>();
+            SourceDefinition sourceDefinition = sourceDefinitionMap.get(source);
+            if (Objects.isNull(sourceDefinition)) {
+                sourceDefinition = new SourceDefinition();
+
+                if (source.hasValue(CLASS_ID)) {
+                    Object obj = source.getValue(CLASS_ID);
+                    if (Objects.nonNull(obj)) {
+                        sourceDefinition.setRaw(false);
+                        sourceDefinition.setHeader(String.format("| - %s", ((Class<?>) obj).getSimpleName()));
+                        headerCount[0]++;
+                    }
+                }
             }
-            params.add(String.format("|      * %s => %s", paramNameFiltered, source.getValue(paramName)));
-            sourcesFiltered.put(source, params);
-            count++;
+            sourceDefinition.attribute(String.format("|      * %s => %s", paramNameFiltered, source.getValue(paramName)));
+
+            sourceDefinitionMap.put(source, sourceDefinition);
+            attributeCount[0]++;
         }
     }
-
 
     public void printParametersLog(Logger logger, boolean loggable, SqlParameterSource[] sources, InParameterSourceProvider inParameterSourceProvider, MappingSourceProvider mappingSourceProvider) {
         if (loggable && logger.isInfoEnabled()) {
 
-            Map<SqlParameterSource, List<String>> sourcesFiltered = new LinkedHashMap<>();
-            int count = 0;
+            Map<SqlParameterSource, SourceDefinition> sourceDefinitionMap = new LinkedHashMap<>();
+            int[] attributeCount = {0};
+            int[] headerCount = {0};
             for (SqlParameterSource source : sources) {
                 if (Objects.isNull(source) || Objects.isNull(source.getParameterNames())) {
                     continue;
                 }
 
-                findParamInSourceProvider(source, count, sourcesFiltered, inParameterSourceProvider, mappingSourceProvider);
+                findParamInSourceProvider(source, headerCount, attributeCount, sourceDefinitionMap, inParameterSourceProvider, mappingSourceProvider);
             }
 
-            logger.info("| Parameters: {}", count);
+            logger.info("| Parameters: {}", headerCount[0] > 0 ? headerCount[0] : attributeCount[0]);
 
-            for (Map.Entry<SqlParameterSource, List<String>> entry : sourcesFiltered.entrySet()) {
-                printParameterDetailLog(logger, entry.getKey(), entry.getValue());
+            for (SourceDefinition sourceDefinition : sourceDefinitionMap.values()) {
+                printParameterDetailLog(logger, sourceDefinition);
             }
         }
     }
 
-    public void printParameterDetailLog(Logger logger, SqlParameterSource source, List<String> lista) {
-        if (source.hasValue(CLASS_ID)) {
-            Object obj = source.getValue(CLASS_ID);
-            if (Objects.nonNull(obj)) {
-                logger.info("| - {}", ((Class<?>) obj).getSimpleName());
-            }
+    private void printParameterDetailLog(Logger logger, SourceDefinition sourceDefinition) {
+        if (!sourceDefinition.isRaw()) {
+            logger.info(sourceDefinition.getHeader());
         }
-        if (Objects.nonNull(source.getParameterNames())) {
-            for (String name : lista) {
-                logger.info(name);
-            }
-        }
+
+        sourceDefinition.getAttributes().forEach(logger::info);
     }
 
     public void printResult(Logger logger, boolean loggable, Object obj, long mill) {
@@ -139,6 +144,18 @@ public final class JdbcLoggerUtils {
                 logger.info("| Result: null");
             }
             logger.info("|");
+        }
+    }
+
+    @Data
+    private static class SourceDefinition {
+        private final List<String> attributes = new ArrayList<>();
+        private boolean raw = true;
+        private String header;
+
+        public SourceDefinition attribute(String attribute) {
+            attributes.add(attribute);
+            return this;
         }
     }
 }

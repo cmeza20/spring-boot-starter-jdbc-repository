@@ -9,6 +9,7 @@ import com.cmeza.spring.jdbc.repository.constants.TestConstants;
 import com.cmeza.spring.jdbc.repository.configurations.PostgresInitializer;
 import com.cmeza.spring.jdbc.repository.models.Employee;
 import com.cmeza.spring.jdbc.repository.repositories.contracts.UpdateContract;
+import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.JdbcParamFilter;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,8 +28,15 @@ public interface PostgresUpdateRepository extends UpdateContract {
     int updateWithReturningInt(Employee employee);
 
     @Override
-    @JdbcUpdate(table = "employee", updateSets = {"first_name = :firstName", "last_name = :lastName", "gender = :gender"}, where = "id = :id", keyColumnNames = "id")
+    @JdbcUpdate(table = "employee", updateSets = {"first_name = :firstName", "last_name = :lastName", "gender = :gender"},
+            where = "id = :id", keyColumnNames = "id")
     KeyHolder updateWithReturningHolder(Employee employee);
+
+    @Override
+    @JdbcParamFilter({"firstName", "lastName", "gender"})
+    @JdbcUpdate(table = "employee", updateSets = {"first_name = :firstName", "last_name = :lastName", "gender = :gender"},
+            where = "id = :id", keyColumnNames = "id")
+    KeyHolder updateWithReturningHolderAndClassAttribute(Employee employee);
 
     @Override
     @JdbcFromTable(table = "employee", alias = "e")

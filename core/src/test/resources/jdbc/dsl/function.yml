@@ -58,3 +58,20 @@ spring:
                 - from: gender
                   to: var_gender
                   type: VARCHAR
+          functionEmployeesByObjectWithCursorAndClassAttributes:
+            function:
+              name: fn_employees_by_object
+              mappings:
+                - from: firstName
+                  to: var_first_name
+                  type: VARCHAR
+                - from: lastName
+                  to: var_last_name
+                  type: VARCHAR
+                - from: gender
+                  to: var_gender
+                  type: VARCHAR
+              param-filters:
+                - firstName
+                - lastName
+                - gender

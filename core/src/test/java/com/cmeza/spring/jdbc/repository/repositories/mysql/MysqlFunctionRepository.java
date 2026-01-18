@@ -38,4 +38,8 @@ public interface MysqlFunctionRepository extends FunctionContract {
     @Override
     @JdbcFunction(name = "MYSQL_UnsupportedOperationException")
     Optional<Employee> functionEmployeesByObjectWithCursor(Employee employee);
+
+    @Override
+    @JdbcFunction(name = "MYSQL_UnsupportedOperationException")
+    Optional<Employee> functionEmployeesByObjectWithCursorAndClassAttributes(Employee employee);
 }

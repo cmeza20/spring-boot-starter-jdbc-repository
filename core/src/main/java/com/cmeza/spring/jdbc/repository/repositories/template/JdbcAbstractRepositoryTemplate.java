@@ -135,7 +135,9 @@ public abstract class JdbcAbstractRepositoryTemplate<T> extends NamedParameterJd
         AbstractJdbcBuilder.Impl impl = new AbstractJdbcBuilder.Impl((JdbcRepositoryTemplate) (T) this, databaseMetaData, beanName);
 
         switch (dialect) {
-            case MYSQL, MARIADB, SQLITE:
+            case MYSQL:
+            case MARIADB:
+            case SQLITE:
                 jdbcRepositoryOperations = new MySQLDialect(impl);
                 break;
             case ORACLE:

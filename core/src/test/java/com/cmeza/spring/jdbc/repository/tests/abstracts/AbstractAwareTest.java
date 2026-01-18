@@ -7,9 +7,12 @@ import com.cmeza.spring.jdbc.repository.resolvers.JdbcPropertyResolver;
 import com.cmeza.spring.jdbc.repository.tests.contracts.AwareTestContract;
 import com.cmeza.spring.jdbc.repository.utils.AssertUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.PlaceholderResolutionException;
 
+@Slf4j
 @RequiredArgsConstructor
 public abstract class AbstractAwareTest extends AbstractException implements AwareTestContract {
 
@@ -19,9 +22,16 @@ public abstract class AbstractAwareTest extends AbstractException implements Awa
 
     protected abstract String dialectName();
 
+    @BeforeAll
+    static void setup() {
+        log.info("Setup AwareTest");
+    }
+
     @Test
     @Override
     public void testPropertiesResolver() {
+        log.info("Init testPropertiesResolver");
+
         JdbcPropertyResolver propertiesResolver = jdbcRepositoryAware.getJdbcPropertyResolver();
         AssertUtils.assertObject(propertiesResolver, JdbcPropertyResolver.class);
 
@@ -37,6 +47,8 @@ public abstract class AbstractAwareTest extends AbstractException implements Awa
     @Test
     @Override
     public void testJdbcRepositoryTemplate() {
+        log.info("Init testJdbcRepositoryTemplate");
+
         JdbcRepositoryTemplate jdbcRepositoryTemplateQualified = jdbcRepositoryAware.getJdbcRepositoryTemplate();
         AssertUtils.assertNotNull(jdbcRepositoryTemplateQualified);
 
@@ -50,6 +62,8 @@ public abstract class AbstractAwareTest extends AbstractException implements Awa
     @Test
     @Override
     public void testNamingStrategy() {
+        log.info("Init testNamingStrategy");
+
         NamingStrategy namingStrategy = jdbcRepositoryAware.getNamingStrategy();
         AssertUtils.assertNotNull(namingStrategy);
     }

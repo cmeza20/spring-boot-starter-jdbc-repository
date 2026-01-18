@@ -6,6 +6,15 @@ import com.cmeza.spring.jdbc.repository.repositories.template.dialects.builders.
 import com.cmeza.spring.jdbc.repository.utils.JdbcUtils;
 
 public enum InsertReturnType implements ExecuteImplementation<JdbcInsertBuilder> {
+    VOID {
+        @Override
+        public Object execute(JdbcInsertBuilder builder) {
+            if (builder.isBatch()) {
+                return builder.executeBatch();
+            }
+            return builder.execute();
+        }
+    },
     INTEGER {
         @Override
         public Object execute(JdbcInsertBuilder builder) {

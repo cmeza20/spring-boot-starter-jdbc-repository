@@ -75,9 +75,16 @@
 
 ## [2.2.0] - 2026-02-05
 ### Added
+- Add JdbcParamFilter annotation
+- Add param filter DSL
+- Add param filter contract for Builders
+- Add insert void return type
+- UUID param support
 - Test containers
+### Fix
+- Mapping DSL for support annotations
 
-[1.0.0]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/1.0.0
+- [1.0.0]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/1.0.0
 [1.0.1]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/1.0.1
 [1.0.2]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/1.0.2
 [1.0.3]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/1.0.3

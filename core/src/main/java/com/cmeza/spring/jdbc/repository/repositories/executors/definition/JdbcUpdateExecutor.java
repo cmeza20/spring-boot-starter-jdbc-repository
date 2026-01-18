@@ -1,8 +1,6 @@
 package com.cmeza.spring.jdbc.repository.repositories.executors.definition;
 
 import com.cmeza.spring.ioc.handler.metadata.TypeMetadata;
-import com.cmeza.spring.jdbc.repository.support.annotations.methods.operations.JdbcRawUpdate;
-import com.cmeza.spring.jdbc.repository.support.annotations.methods.operations.JdbcUpdate;
 import com.cmeza.spring.jdbc.repository.repositories.configuration.JdbcConfiguration;
 import com.cmeza.spring.jdbc.repository.repositories.executors.AbstractJdbcExecutor;
 import com.cmeza.spring.jdbc.repository.repositories.executors.types.ExecutorType;
@@ -10,6 +8,8 @@ import com.cmeza.spring.jdbc.repository.repositories.executors.types.ReturnType;
 import com.cmeza.spring.jdbc.repository.repositories.executors.types.providers.UpdateReturnType;
 import com.cmeza.spring.jdbc.repository.repositories.template.JdbcRepositoryTemplate;
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.builders.JdbcUpdateBuilder;
+import com.cmeza.spring.jdbc.repository.support.annotations.methods.operations.JdbcRawUpdate;
+import com.cmeza.spring.jdbc.repository.support.annotations.methods.operations.JdbcUpdate;
 import com.cmeza.spring.jdbc.repository.support.factories.JdbcUpdateFactory;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.KeyHolder;

@@ -2,6 +2,7 @@ package com.cmeza.spring.jdbc.repository.repositories.oracle.pagination;
 
 import com.cmeza.spring.jdbc.repository.support.annotations.JdbcRepository;
 import com.cmeza.spring.jdbc.repository.support.annotations.methods.operations.JdbcRawPagination;
+import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.JdbcParamFilter;
 import com.cmeza.spring.jdbc.repository.support.annotations.methods.supports.JdbcRawCountQuery;
 import com.cmeza.spring.jdbc.repository.constants.TestConstants;
 import com.cmeza.spring.jdbc.repository.configurations.OracleInitializer;
@@ -20,6 +21,11 @@ public interface OracleRawPaginationRepository extends PaginationContract {
     @Override
     @JdbcRawPagination(value = "select * from test.employee where id = :id")
     JdbcPage<Employee> paginationEmployeesWithCondition(Integer id);
+
+    @Override
+    @JdbcParamFilter("id")
+    @JdbcRawPagination(value = "select * from test.employee where id = :id")
+    JdbcPage<Employee> paginationEmployeesWithConditionAndClassAttributes(Employee employee);
 
     @Override
     @JdbcRawPagination(value = "select * from test.employee where id between :from and :to")

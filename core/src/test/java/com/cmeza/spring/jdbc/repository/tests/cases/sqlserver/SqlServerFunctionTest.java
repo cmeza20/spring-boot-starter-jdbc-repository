@@ -52,4 +52,13 @@ public class SqlServerFunctionTest extends AbstractFunctionTest {
                 "SqlServerFunctionTest::testFunctionEmployeesByObjectWithCursor",
                 "Optional not supported for SqlServer Function, use JdbcProcedure");
     }
+
+    @Test
+    @Override
+    public void testFunctionEmployeesByObjectWithCursorAndClassAttributes() {
+        testException(UnsupportedOperationException.class,
+                super::testFunctionEmployeesByObjectWithCursorAndClassAttributes,
+                "SqlServerFunctionTest::testFunctionEmployeesByObjectWithCursorAndClassAttributes",
+                "Optional not supported for SqlServer Function, use JdbcProcedure");
+    }
 }

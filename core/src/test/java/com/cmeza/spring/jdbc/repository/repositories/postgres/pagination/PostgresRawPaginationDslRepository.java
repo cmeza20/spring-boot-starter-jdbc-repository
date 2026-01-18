@@ -22,6 +22,10 @@ public interface PostgresRawPaginationDslRepository extends PaginationContract {
 
     @Override
     @JdbcRawPagination.DSL
+    JdbcPage<Employee> paginationEmployeesWithConditionAndClassAttributes(Employee employee);
+
+    @Override
+    @JdbcRawPagination.DSL
     JdbcPage<Employee> paginationEmployeesWithConditionAndPageRequest(Integer from, Integer to, JdbcPageRequest pageRequest);
 
     @Override

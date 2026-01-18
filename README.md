@@ -12,6 +12,7 @@ Jdbc template repositories, inspired by Spring data Jpa
 ***
 
 ### Methods
+
 * [@JdbcQuery annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcQuery-annotation)
 * [@JdbcRawQuery annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcRawQuery-annotation)
 * [@JdbcPagination annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcPagination-annotation)
@@ -23,27 +24,36 @@ Jdbc template repositories, inspired by Spring data Jpa
 * [@JdbcProcedure annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcProcedure-annotation)
 * [@JdbcCall annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcCall-annotation)
 * [@JdbcExecute annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcExecute-annotation)
+
 ***
 
 ### Supports
+
 * [@JdbcMapping annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcMapping-annotation)
 * [@JdbcCountQuery annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcCountQuery-annotation)
 * [@JdbcRawCountQuery annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcRawCountQuery-annotation)
 * [@JdbcFromTable annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcFromTable-annotation)
 * [@JdbcJoinTable annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcJoinTable-annotation)
+* [@JdbcParamFilter annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcParamFilter-annotation)
+
 ***
 
 ### Parameters
+
 * [@JdbcParam annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@JdbcParam-annotation)
 * [@Parameter annotation](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/@Parameter-annotation)
 
 ***
+
 ### Mappers
+
 * [JdbcRowMapper](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/JdbcRowMapper)
 * [JdbcProjectionRowMapper](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/JdbcProjectionRowMapper)
 
 ***
+
 ### Advanced
+
 * [Interface JdbcRepositoryAware](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/JdbcRepositoryAware)
 * [Properties Placeholder](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/Properties-Placeholder)
 * [JdbcRepositoryTemplate multi tenant](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/JdbcRepositoryTemplate-multi-tenant)
@@ -52,21 +62,25 @@ Jdbc template repositories, inspired by Spring data Jpa
 ## Maven Integration ##
 
 ```xml
+
 <dependency>
     <groupId>com.cmeza</groupId>
     <artifactId>spring-boot-starter-jdbc-repository</artifactId>
     <version>2.2.0</version>
 </dependency>
 ```
+
 ## Minimal dependencies ##
+
 - @EnableJdbcRepositories annotation and DataSource bean
 
 ```java
+
 @EnableJdbcRepositories
 @SpringBootApplication
 public class SpringBootStarterJdbcRepositoryTestApplication {
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
         SpringApplication.run(SpringBootStarterJdbcRepositoryTestApplication.class, args);
     }
 
@@ -89,7 +103,9 @@ public class SpringBootStarterJdbcRepositoryTestApplication {
 ## PostgresSql Example ##
 
 ### @JdbcQuery
+
 ```java
+
 @JdbcRepository
 public interface EmployeeQueryRepository {
     //Query
@@ -111,7 +127,9 @@ public interface EmployeeQueryRepository {
 ```
 
 ### @JdbcRawQuery
+
 ```java
+
 @JdbcRepository
 public interface EmployeeRawQueryRepository {
     //Raw Query
@@ -132,11 +150,21 @@ public interface EmployeeRawQueryRepository {
             "inner join sch_test.employee e on e.id = de.employee_id " +
             "where e.id = :employee_id and de.department_id = :department_id")
     Employee getOneEmployeeWithObjectCondition(DepartmentEmployee departmentEmployee);
+
+    @JdbcParamFilter({"employee.id", "department.id"})
+    @JdbcMapping(from = "employee.id", to = "employee_id", type = Types.BIGINT)
+    @JdbcMapping(from = "department.id", to = "department_id", type = Types.VARCHAR)
+    @JdbcRawQuery(value = "select e.* from sch_test.department_employee de " +
+            "inner join sch_test.employee e on e.id = de.employee_id " +
+            "where e.id = :employee_id and de.department_id = :department_id")
+    Employee getOneEmployeeWithObjectConditionAndClassAttribute(DepartmentEmployee departmentEmployee);
 }
 ```
 
 ### @JdbcPagination
+
 ```java
+
 @JdbcRepository
 public interface EmployeePaginationRepository {
     //Pagination
@@ -147,6 +175,10 @@ public interface EmployeePaginationRepository {
     @JdbcPagination(table = "employee", where = "id = :id")
     JdbcPage<Employee> paginationEmployeesWithCondition(Integer id);
 
+    @JdbcParamFilter("id")
+    @JdbcPagination(table = "employee", where = "id = :id")
+    JdbcPage<Employee> paginationEmployeesWithConditionAndClassAttributes(Employee employee);
+
     @JdbcPagination(table = "employee", where = "t.id between :from and :to", alias = "t")
     JdbcPage<Employee> paginationEmployeesWithConditionAndPageRequest(Integer from, Integer to, JdbcPageRequest pageRequest);
 
@@ -154,7 +186,9 @@ public interface EmployeePaginationRepository {
 ```
 
 ### @JdbcRawPagination
+
 ```java
+
 @JdbcRepository
 public interface EmployeeRawPaginationRepository {
     //Raw Pagination
@@ -170,7 +204,9 @@ public interface EmployeeRawPaginationRepository {
 ```
 
 ### @JdbcUpdate
+
 ```java
+
 @JdbcRepository
 public interface EmployeeUpdateRepository {
     //Update
@@ -195,7 +231,9 @@ public interface EmployeeUpdateRepository {
 ```
 
 ### @JdbcRawUpdate
+
 ```java
+
 @JdbcRepository
 public interface EmployeeRawUpdateRepository {
     //Raw Update
@@ -216,7 +254,9 @@ public interface EmployeeRawUpdateRepository {
 ```
 
 ### @JdbcInsert
+
 ```java
+
 @JdbcRepository
 public interface EmployeeInsertRepository {
     //Insert
@@ -238,7 +278,9 @@ public interface EmployeeInsertRepository {
 ```
 
 ### @JdbcFunction
+
 ```java
+
 @JdbcRepository
 public interface EmployeeFunctionRepository {
     //Function
@@ -273,17 +315,34 @@ public interface EmployeeFunctionRepository {
 ```
 
 ### @JdbcProcedure
+
 ```java
+
 @JdbcRepository
 public interface EmployeeProcedureRepository {
-    //Stored Procedure
-    //------------------------------------------------------
-    //POSTGRES_UnsupportedOperationException - Use @JdbcCall
+
+    @JdbcMapping(from = "gender", to = "var_gender", type = Types.VARCHAR)
+    @JdbcProcedure(name = "sp_employees_count_by_gender_with_out_parameter", outParameters = @Parameter(value = "result", type = Types.INTEGER))
+    Integer procedureEmployeeCountByGenderWithOutParameter(String gender);
+
+    @JdbcMapping(from = "gender", to = "var_gender", type = Types.VARCHAR)
+    @JdbcProcedure(name = "sp_employees_by_gender")
+    List<Employee> procedureEmployeesByGenderWithCursor(String gender);
+
+    @JdbcParamFilter("gender")
+    @JdbcMapping(from = "gender", to = "var_gender", type = Types.VARCHAR)
+    @JdbcProcedure(name = "sp_employees_by_gender")
+    List<Employee> procedureEmployeesByGenderWithCursorAndClassAttribute(Employee employee);
+
+    @JdbcProcedure(name = "sp_employees_by_id")
+    Optional<Employee> procedureEmployeeByIdWithCursor(@JdbcParam("id") Integer id);
 }
 ```
 
 ### @JdbcExecute
+
 ```java
+
 @JdbcRepository
 public interface EmployeeExecuteRepository {
     //Execute
@@ -306,7 +365,9 @@ public interface EmployeeExecuteRepository {
 ```
 
 ### @JdbcCall
+
 ```java
+
 @JdbcRepository
 public interface EmployeeCallRepository {
     //Call
@@ -320,11 +381,13 @@ public interface EmployeeCallRepository {
 ```
 
 ### DSL annotation
+
 ```java
+
 @JdbcRepository
 public interface DSLRepository {
-    
-    @@JdbcQuery.DSL
+
+    @JdbcQuery.DSL
     List<Employee> getAllEmployeeHardcoded();
 
     @JdbcRawQuery.DSL
@@ -335,7 +398,7 @@ public interface DSLRepository {
 
     @JdbcRawPagination.DSL
     JdbcPage<Employee> paginationEmployeesWithConditionAndPageRequestRaw(Integer from, Integer to, JdbcPageRequest pageRequest);
-    
+
     @JdbcUpdate.DSL
     int updateWithReturningInt(Employee employee);
 
@@ -355,7 +418,36 @@ public interface DSLRepository {
     void callDepartmentCreate(Department department);
 }
 ```
+
 #### It is necessary to see the documentation for the DSL properties: [Properties](https://github.com/cmeza20/spring-boot-starter-jdbc-repository/wiki/Properties)
+
+## Support by database
+
+| Database   | Call | Execute | Function | Insert | Pagination | Procedure | Query | Update |
+|------------|------|---------|----------|--------|------------|-----------|-------|--------|
+| Informix   | Yes  | Yes     | No       | Yes    | Yes        | Yes       | Yes   | Yes    |
+| Mysql      | Yes  | Yes     | Yes      | Yes    | Yes        | Yes       | Yes   | Yes    |
+| Oracle     | Yes  | Yes     | Yes      | Yes    | Yes        | Yes       | Yes   | Yes    |
+| Postgres   | Yes  | Yes     | Yes      | Yes    | Yes        | No        | Yes   | Yes    |
+| Sql Server | Yes  | Yes     | Yes      | Yes    | Yes        | Yes       | Yes   | Yes    |
+
+### Restrictions by database
+
+| Database   | Method    | Restriction                                    |
+|------------|-----------|------------------------------------------------|
+| Informix   | Function  | This functionality is not supported            |
+| Informix   | Procedure | Only native return data types are allowed      |
+| Informix   | Update    | KeyHolder not supported                        |
+| Mysql      | Function  | Only native return data types are allowed      |
+| Mysql      | Function  | OUT parameter not supported                    |
+| Mysql      | Update    | KeyHolder not supported                        |
+| Oracle     | Function  | OUT parameter not supported                    |
+| Oracle     | Update    | KeyHolder not supported                        |
+| Oracle     | Procedure | Only native return data types are allowed      |
+| Postgres   | Procedure | This functionality is not supported, use @Call |
+| Sql Server | Function  | Only native return data types are allowed      | 
+| Sql Server | Function  | OUT parameter not supported                    | 
+| Sql Server | Update    | KeyHolder not supported                        |
 
 License
 ----

@@ -9,6 +9,7 @@ import com.cmeza.spring.jdbc.repository.dsl.properties.JdbcRepositoryProperties;
 import com.cmeza.spring.jdbc.repository.contracts.JdbcContractFunctions;
 import com.cmeza.spring.jdbc.repository.dsl.properties.DslProperties;
 import com.cmeza.spring.jdbc.repository.processors.methods.supports.managers.MappingsManager;
+import com.cmeza.spring.jdbc.repository.processors.methods.supports.managers.ParamFilterManager;
 import com.cmeza.spring.jdbc.repository.repositories.executors.JdbcExecutor;
 import com.cmeza.spring.jdbc.repository.utils.JdbcUtils;
 import com.cmeza.spring.jdbc.repository.resolvers.JdbcPropertyResolver;
@@ -67,11 +68,19 @@ public abstract class AbstractAnnotatedMethodProcessor<A extends Annotation, D e
             this.dslParser(annotation, dslProperty);
         }
 
-
         //Mappings
         List<JdbcMappingProperties> mappings = dslProperty.getMappings();
-        MappingsManager mappingsManager = new MappingsManager(propertiesResolver, mappings);
-        mappingsManager.process(classMetadata, methodMetadata);
+        if (Objects.nonNull(mappings) && !mappings.isEmpty()) {
+            MappingsManager mappingsManager = new MappingsManager(propertiesResolver, mappings);
+            mappingsManager.process(classMetadata, methodMetadata);
+        }
+
+        //Param Filters
+        String[] paramFilters = dslProperty.getParamFilters();
+        if (Objects.nonNull(paramFilters) && paramFilters.length > 0) {
+            ParamFilterManager paramFilterManager = new ParamFilterManager(propertiesResolver, paramFilters);
+            paramFilterManager.process(classMetadata, methodMetadata);
+        }
 
         //Resolve placeholders
         this.resolvePlaceholders(dslProperty, jdbcRepository, methodMetadata);

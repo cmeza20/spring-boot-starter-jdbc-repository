@@ -6,4 +6,5 @@ import lombok.Data;
 public class Department {
     private String id;
     private String deptName;
+    private String ignoreAttribute;
 }

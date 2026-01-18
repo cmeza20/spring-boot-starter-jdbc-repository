@@ -65,6 +65,10 @@ public interface PostgresQueryDslRepository extends QueryContract {
 
     @Override
     @JdbcQuery.DSL
+    Employee getOneEmployeeWithObjectConditionAndClassAttribute(DepartmentEmployee departmentEmployee);
+
+    @Override
+    @JdbcQuery.DSL
     EmployeeProjection getOneEmployeeWithConditionWithProjection(Integer id);
 
     @Override

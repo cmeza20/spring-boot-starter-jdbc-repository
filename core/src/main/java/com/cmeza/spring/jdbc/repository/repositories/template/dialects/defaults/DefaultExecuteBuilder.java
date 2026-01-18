@@ -27,6 +27,7 @@ public class DefaultExecuteBuilder extends AbstractJdbcBuilder<JdbcExecuteBuilde
     @Override
     public void printExtras(Logger logger) {
         logger.info("| Sql: [{}]", query);
+        super.printExtras(logger);
     }
 
     @Override
@@ -40,7 +41,7 @@ public class DefaultExecuteBuilder extends AbstractJdbcBuilder<JdbcExecuteBuilde
             return execute(() -> jdbcRepositoryTemplate.getJdbcOperations().batchUpdate());
         } else {
             final ParsedJdbcSql parsedSql = jdbcRepositoryTemplate.getParsedJdbcSql(query);
-            final PreparedStatementCreatorFactory pscf = jdbcRepositoryTemplate.getPreparedStatementCreatorFactory(parsedSql, new SqlParameterSource[] {getParameterSources()[0]});
+            final PreparedStatementCreatorFactory pscf = jdbcRepositoryTemplate.getPreparedStatementCreatorFactory(parsedSql, new SqlParameterSource[]{getParameterSources()[0]});
             return execute(() -> jdbcRepositoryTemplate.getJdbcOperations().batchUpdate(pscf.getSql(), new BatchPreparedStatementSetter() {
                 public void setValues(PreparedStatement ps, int i) throws SQLException {
                     Object[] values = JdbcNamedParameterUtils.buildValueArray(parsedSql, getParameterSources()[i], null);

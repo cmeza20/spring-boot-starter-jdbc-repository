@@ -1,13 +1,13 @@
 package com.cmeza.spring.jdbc.repository.support.properties.supports;
 
 import com.cmeza.spring.jdbc.repository.support.binding.SqlType;
-import com.cmeza.spring.jdbc.repository.support.properties.abstracts.AbstractProperties;
+import com.cmeza.spring.jdbc.repository.support.properties.abstracts.AbstractSupport;
 import lombok.Data;
 
 import java.util.Map;
 
 @Data
-public class JdbcMappingProperties extends AbstractProperties {
+public class JdbcMappingProperties extends AbstractSupport {
 
     private String to;
     private String from = "";

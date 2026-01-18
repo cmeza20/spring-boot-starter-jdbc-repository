@@ -30,6 +30,10 @@ public interface InformixUpdateRepository extends UpdateContract {
 
     @Override
     @JdbcUpdate(table = "INFORMIX_UnsupportedOperationException", updateSets = "FIELD=VALUE")
+    KeyHolder updateWithReturningHolderAndClassAttribute(Employee employee);
+
+    @Override
+    @JdbcUpdate(table = "INFORMIX_UnsupportedOperationException", updateSets = "FIELD=VALUE")
     KeyHolder updateComplexReturningHolder(String firstName, String lastName, String departmentId);
 
     @Override

@@ -39,6 +39,7 @@ public abstract class AbstractJdbcBuilder<T> implements JdbcGenericBuilder<T>, J
     protected boolean loggable;
     protected String key;
     private JdbcDatabaseMatadata databaseMetaData;
+    protected String[] paramFilters;
 
     protected AbstractJdbcBuilder(Impl impl) {
         this.impl = impl;
@@ -67,17 +68,22 @@ public abstract class AbstractJdbcBuilder<T> implements JdbcGenericBuilder<T>, J
 
     @Override
     public T withParameter(Object object) {
+        return withParameter(object, null);
+    }
+
+    @Override
+    public T withParameter(Object object, String[] onlyAttributes) {
         if (Objects.nonNull(object)) {
             if (object instanceof List) {
-                return withParameterList((List<?>) object);
+                return withParameterList((List<?>) object, onlyAttributes);
             } else if (object instanceof Map) {
-                return withParameterMap((Map<?, ?>) object);
+                return withParameterMap((Map<?, ?>) object, onlyAttributes);
             } else if (object instanceof Set) {
-                return withParameterSet((Set<?>) object);
+                return withParameterSet((Set<?>) object, onlyAttributes);
             } else if (object.getClass().isArray()) {
-                return withParameterList(Arrays.asList((Object[]) object));
+                return withParameterList(Arrays.asList((Object[]) object), onlyAttributes);
             } else {
-                parameterSourceProvider.addBeanParameterSource(object);
+                parameterSourceProvider.addBeanParameterSource(object, onlyAttributes);
             }
         }
         return (T) this;
@@ -85,19 +91,34 @@ public abstract class AbstractJdbcBuilder<T> implements JdbcGenericBuilder<T>, J
 
     @Override
     public T withParameterList(List<?> objects) {
-        parameterSourceProvider.addBeanParameterSourceList(objects);
+        return withParameterList(objects, null);
+    }
+
+    @Override
+    public T withParameterList(List<?> objects, String[] onlyAttributes) {
+        parameterSourceProvider.addBeanParameterSourceList(objects, onlyAttributes);
         return (T) this;
     }
 
     @Override
     public T withParameterMap(Map<?, ?> objects) {
-        parameterSourceProvider.addBeanParameterSourceMap(objects);
+        return withParameterMap(objects, null);
+    }
+
+    @Override
+    public T withParameterMap(Map<?, ?> objects, String[] onlyAttributes) {
+        parameterSourceProvider.addBeanParameterSourceMap(objects, onlyAttributes);
         return (T) this;
     }
 
     @Override
     public T withParameterSet(Set<?> objects) {
-        parameterSourceProvider.addBeanParameterSourceSet(objects);
+        return withParameterSet(objects, null);
+    }
+
+    @Override
+    public T withParameterSet(Set<?> objects, String[] onlyAttributes) {
+        parameterSourceProvider.addBeanParameterSourceSet(objects, onlyAttributes);
         return (T) this;
     }
 
@@ -212,6 +233,21 @@ public abstract class AbstractJdbcBuilder<T> implements JdbcGenericBuilder<T>, J
     public T withMapping(MappingDefinition mappingDefinition) {
         mappingSourceProvider.addMapping(mappingDefinition);
         return (T) this;
+    }
+
+    @Override
+    public T withParamFilter(String... paramFilters) {
+        if (Objects.nonNull(paramFilters) && paramFilters.length > 0) {
+            this.paramFilters = paramFilters;
+        }
+        return (T) this;
+    }
+
+    @Override
+    public void printExtras(Logger logger) {
+        if (Objects.nonNull(paramFilters) && paramFilters.length > 0) {
+            logger.info("| Param Filters: {}", (Object) paramFilters);
+        }
     }
 
     protected void resultTypeRequired(Class<?> resultType) {

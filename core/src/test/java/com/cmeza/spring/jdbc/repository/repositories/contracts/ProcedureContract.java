@@ -12,5 +12,7 @@ public interface ProcedureContract {
 
     List<Employee> procedureEmployeesByGenderWithCursor(String gender);
 
+    List<Employee> procedureEmployeesByGenderWithCursorAndClassAttribute(Employee employee);
+
     Optional<Employee> procedureEmployeeByIdWithCursor(Integer id);
 }

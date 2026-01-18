@@ -1,7 +1,6 @@
 package com.cmeza.spring.jdbc.repository.repositories.executors.definition;
 
 import com.cmeza.spring.ioc.handler.metadata.TypeMetadata;
-import com.cmeza.spring.jdbc.repository.support.annotations.methods.operations.JdbcInsert;
 import com.cmeza.spring.jdbc.repository.repositories.configuration.JdbcConfiguration;
 import com.cmeza.spring.jdbc.repository.repositories.executors.AbstractJdbcExecutor;
 import com.cmeza.spring.jdbc.repository.repositories.executors.types.ExecutorType;
@@ -9,6 +8,7 @@ import com.cmeza.spring.jdbc.repository.repositories.executors.types.ReturnType;
 import com.cmeza.spring.jdbc.repository.repositories.executors.types.providers.InsertReturnType;
 import com.cmeza.spring.jdbc.repository.repositories.template.JdbcRepositoryTemplate;
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.builders.JdbcInsertBuilder;
+import com.cmeza.spring.jdbc.repository.support.annotations.methods.operations.JdbcInsert;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.util.Assert;
@@ -28,7 +28,6 @@ public class JdbcInsertExecutor extends AbstractJdbcExecutor<JdbcInsertBuilder> 
     public ExecutorType getExecuteType() {
         return ExecutorType.INSERT;
     }
-
 
     @Override
     protected Object execute(ReturnType returnType, JdbcInsertBuilder jdbcBuilder, TypeMetadata typeMetadata, JdbcConfiguration configuration, RowMapper<?> rowMapper, boolean isBatch) {
@@ -56,7 +55,8 @@ public class JdbcInsertExecutor extends AbstractJdbcExecutor<JdbcInsertBuilder> 
     public void validateConfiguration(JdbcConfiguration jdbcConfiguration) {
         TypeMetadata typeMetadata = jdbcConfiguration.getTypeMetadata();
         Assert.isTrue(
-                typeMetadata.isAssignableFrom(typeMetadata.getRawClass(), int.class) ||
+                typeMetadata.isVoid() ||
+                        typeMetadata.isAssignableFrom(typeMetadata.getRawClass(), int.class) ||
                         typeMetadata.isAssignableFrom(typeMetadata.getRawClass(), int[].class) ||
                         typeMetadata.isAssignableFrom(typeMetadata.getRawClass(), Integer.class) ||
                         typeMetadata.isAssignableFrom(typeMetadata.getRawClass(), Integer[].class) ||

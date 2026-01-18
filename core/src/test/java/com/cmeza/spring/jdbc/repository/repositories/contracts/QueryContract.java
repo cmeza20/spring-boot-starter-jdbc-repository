@@ -36,6 +36,8 @@ public interface QueryContract {
 
     Employee getOneEmployeeWithObjectCondition(DepartmentEmployee departmentEmployee);
 
+    Employee getOneEmployeeWithObjectConditionAndClassAttribute(DepartmentEmployee departmentEmployee);
+
     EmployeeProjection getOneEmployeeWithConditionWithProjection(Integer id);
 
     EmployeeAndSalaryProjection getOneEmployeeWithConditionWithComplexProjection(Integer id);

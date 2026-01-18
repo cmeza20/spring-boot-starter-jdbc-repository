@@ -35,4 +35,13 @@ public class InformixProcedureTest extends AbstractProcedureTest {
                 "InformixProcedureTest::testProcedureEmployeesByGenderWithCursor",
                 "Return List not supported for Informix Procedure");
     }
+
+    @Test
+    @Override
+    public void testProcedureEmployeesByGenderWithCursorAndClassAttribute() {
+        testException(UnsupportedOperationException.class,
+                super::testProcedureEmployeesByGenderWithCursorAndClassAttribute,
+                "InformixProcedureTest::testProcedureEmployeesByGenderWithCursorAndClassAttribute",
+                "Return List not supported for Informix Procedure");
+    }
 }
