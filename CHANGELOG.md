@@ -73,10 +73,8 @@
 ### Renamed
 - Loggeable -> Loggable
 
-## [3.0.0] - 2025-11-13
+## [2.2.0] - 2026-02-05
 ### Added
-- Java 17 support
-- Spring boot 3 support
 - Test containers
 
 [1.0.0]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/1.0.0
@@ -87,4 +85,4 @@
 [1.0.5]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/1.0.5
 [2.0.0]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/2.0.0
 [2.1.0]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/2.1.0
-[3.0.0]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/3.0.0
+[2.2.0]: https://github.com/cmeza20/spring-boot-starter-jdbc-repository/tree/2.2.0
