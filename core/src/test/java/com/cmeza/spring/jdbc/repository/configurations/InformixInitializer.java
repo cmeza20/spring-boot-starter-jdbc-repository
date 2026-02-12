@@ -9,13 +9,14 @@ import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.PortBinding;
 import com.github.dockerjava.api.model.Ports;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
@@ -26,30 +27,14 @@ import javax.sql.DataSource;
 
 @Configuration
 @Profile({TestConstants.INFORMIX, TestConstants.ALL})
-public class InformixInitializer {
+public class InformixInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
     public static final String JDBC_REPOSITORY_TEMPLATE_BEAN = "informixRepositoryTemplate";
     public static final String JDBC_REPOSITORY_TEMPLATE_POPULATOR = "informixRepositoryTemplatePopulator";
     public static final String JDBC_TRANSACTION_MANAGER = "informixTransactionManager";
     public static final String JDBC_DIALECT_NAME = "Informix Dynamic Server";
 
-    @Bean
-    @ServiceConnection
-    @ConditionalOnProperty(name = "spring.datasource.informix.docker.enabled", havingValue = "true")
-    public InformixContainer<?> informixContainer() {
-        try (InformixContainer<?> informixContainer = new InformixContainer<>(DockerImageName.parse(informixDataSourceProperties().getDocker().getName()))) {
-            informixContainer.withCreateContainerCmdModifier(cmd -> cmd.withHostConfig(
-                            new HostConfig().withPortBindings(new PortBinding(Ports.Binding.bindPort(informixDataSourceProperties().getPort()), new ExposedPort(9088))
-                            ))
-                    )
-                    .withDatabaseName(informixDataSourceProperties().getDatabase())
-                    .withUsername(informixDataSourceProperties().getUsername())
-                    .withPassword(informixDataSourceProperties().getPassword())
-                    .withReuse(true);
-
-            return informixContainer;
-        }
-    }
+    private static InformixContainer<?> informixContainer;
 
     @Bean
     @ConfigurationProperties("spring.datasource.informix")
@@ -83,5 +68,34 @@ public class InformixInitializer {
     @Bean(JDBC_TRANSACTION_MANAGER)
     public PlatformTransactionManager informixTransactionManager() {
         return new DataSourceTransactionManager(informixDataSource());
+    }
+
+    @Override
+    public void initialize(ConfigurableApplicationContext applicationContext) {
+        ConfigurableEnvironment environment = applicationContext.getEnvironment();
+        boolean enabled = environment.getRequiredProperty("spring.datasource.informix.docker.enabled", Boolean.class);
+        if (!enabled) return;
+
+        if (informixContainer == null) {
+
+            String dockerName = environment.getRequiredProperty("spring.datasource.informix.docker.name");
+            Integer port = environment.getRequiredProperty("spring.datasource.informix.port", Integer.class);
+            String database = environment.getRequiredProperty("spring.datasource.informix.database");
+            String username = environment.getRequiredProperty("spring.datasource.informix.username");
+            String password = environment.getRequiredProperty("spring.datasource.informix.password");
+
+            informixContainer = new InformixContainer<>(DockerImageName.parse(dockerName))
+                    .withCreateContainerCmdModifier(cmd -> cmd.withHostConfig(
+                            new HostConfig().withPortBindings(new PortBinding(Ports.Binding.bindPort(port), new ExposedPort(9088))
+                            ))
+                    )
+                    .withDatabaseName(database)
+                    .withUsername(username)
+                    .withPassword(password)
+                    .withReuse(true);
+
+            informixContainer.start();
+
+        }
     }
 }

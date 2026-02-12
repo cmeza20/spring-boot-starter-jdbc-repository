@@ -3,7 +3,7 @@ package com.cmeza.spring.jdbc.repository.dsl.properties;
 import com.cmeza.spring.jdbc.repository.support.naming.NamingStrategy;
 import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.bind.ConstructorBinding;
+import org.springframework.boot.context.properties.ConstructorBinding;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.validation.annotation.Validated;
 
@@ -13,6 +13,7 @@ import java.util.Objects;
 
 @Getter
 @Validated
+@ConstructorBinding
 @ConfigurationProperties("spring.jdbc.repository")
 public final class JdbcRepositoryProperties {
 
@@ -54,7 +55,7 @@ public final class JdbcRepositoryProperties {
      */
     private final Map<String, Map<String, DslProperties>> dsl;
 
-    @ConstructorBinding
+
     public JdbcRepositoryProperties(
             @DefaultValue(SQL_DEFAULT_FOLDER) String sqlFolder,
             @DefaultValue("false") boolean loggable,

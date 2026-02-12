@@ -1,5 +1,6 @@
 package com.cmeza.spring.jdbc.repository.tests.cases.informix;
 
+import com.cmeza.spring.jdbc.repository.configurations.InformixInitializer;
 import com.cmeza.spring.jdbc.repository.constants.TestConstants;
 import com.cmeza.spring.jdbc.repository.repositories.informix.query.InformixQueryRepository;
 import com.cmeza.spring.jdbc.repository.repositories.informix.update.InformixUpdateRepository;
@@ -8,9 +9,11 @@ import com.cmeza.spring.jdbc.repository.tests.utils.EnabledIfProfile;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 
 @SpringBootTest
 @EnabledIfProfile(profiles = TestConstants.INFORMIX)
+@ContextConfiguration(initializers = InformixInitializer.class)
 public class InformixUpdateTest extends AbstractUpdateTest {
 
     @Autowired

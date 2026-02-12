@@ -8,12 +8,13 @@ import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.PortBinding;
 import com.github.dockerjava.api.model.Ports;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
@@ -25,34 +26,13 @@ import javax.sql.DataSource;
 
 @Configuration
 @Profile({TestConstants.ORACLE, TestConstants.ALL})
-public class OracleInitializer {
+public class OracleInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
     public static final String JDBC_REPOSITORY_TEMPLATE_BEAN = "oracleRepositoryTemplate";
     public static final String JDBC_REPOSITORY_TEMPLATE_POPULATOR = "oracleRepositoryTemplatePopulator";
     public static final String JDBC_TRANSACTION_MANAGER = "oracleTransactionManager";
     public static final String JDBC_DIALECT_NAME = "Oracle";
-
-    @Bean
-    @ServiceConnection
-    @ConditionalOnProperty(name = "spring.datasource.oracle.docker.enabled", havingValue = "true")
-    public OracleContainer oracleContainer() {
-        DockerImageName myImage = DockerImageName.parse(oracleDataSourceProperties().getDocker().getName()).asCompatibleSubstituteFor("gvenzl/oracle-xe");
-
-        try (OracleContainer oracleContainer = new OracleContainer(myImage)) {
-            oracleContainer.withExposedPorts(1521);
-            oracleContainer.withCreateContainerCmdModifier(cmd -> {
-                cmd.withHostConfig(
-                        new HostConfig().withPortBindings(new PortBinding(Ports.Binding.bindPort(oracleDataSourceProperties().getPort()), new ExposedPort(1521)))
-                );
-            });
-            oracleContainer.withEnv("ORACLE_PASSWORD", oracleDataSourceProperties().getPassword());
-            oracleContainer.withEnv("APP_USER", oracleDataSourceProperties().getUsername());
-            oracleContainer.withEnv("APP_USER_PASSWORD", oracleDataSourceProperties().getPassword());
-            oracleContainer.withReuse(true);
-
-            return oracleContainer;
-        }
-    }
+    private static OracleContainer oracleContainer;
 
     @Bean
     @ConfigurationProperties("spring.datasource.oracle")
@@ -89,5 +69,36 @@ public class OracleInitializer {
     @Bean(JDBC_TRANSACTION_MANAGER)
     public PlatformTransactionManager oracleTransactionManager() {
         return new DataSourceTransactionManager(oracleDataSource());
+    }
+
+    @Override
+    public void initialize(ConfigurableApplicationContext applicationContext) {
+        ConfigurableEnvironment environment = applicationContext.getEnvironment();
+        boolean enabled = environment.getRequiredProperty("spring.datasource.oracle.docker.enabled", Boolean.class);
+        if (!enabled) return;
+
+        if (oracleContainer == null) {
+
+            String dockerName = environment.getRequiredProperty("spring.datasource.oracle.docker.name");
+            Integer port = environment.getRequiredProperty("spring.datasource.oracle.port", Integer.class);
+            String username = environment.getRequiredProperty("spring.datasource.oracle.username");
+            String password = environment.getRequiredProperty("spring.datasource.oracle.password");
+
+            DockerImageName myImage = DockerImageName.parse(dockerName).asCompatibleSubstituteFor("gvenzl/oracle-xe");
+
+            oracleContainer = new OracleContainer(myImage);
+            oracleContainer.withExposedPorts(1521);
+            oracleContainer.withCreateContainerCmdModifier(cmd -> {
+                cmd.withHostConfig(
+                        new HostConfig().withPortBindings(new PortBinding(Ports.Binding.bindPort(port), new ExposedPort(1521)))
+                );
+            });
+            oracleContainer.withEnv("ORACLE_PASSWORD", password);
+            oracleContainer.withEnv("APP_USER", username);
+            oracleContainer.withEnv("APP_USER_PASSWORD", password);
+            oracleContainer.withReuse(true);
+
+            oracleContainer.start();
+        }
     }
 }

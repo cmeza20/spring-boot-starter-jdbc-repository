@@ -8,12 +8,13 @@ import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.PortBinding;
 import com.github.dockerjava.api.model.Ports;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
@@ -25,28 +26,13 @@ import javax.sql.DataSource;
 
 @Configuration
 @Profile({TestConstants.MYSQL, TestConstants.ALL})
-public class MysqlInitializer {
+public class MysqlInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
     public static final String JDBC_REPOSITORY_TEMPLATE_BEAN = "mysqlRepositoryTemplate";
     public static final String JDBC_REPOSITORY_TEMPLATE_POPULATOR = "mysqlRepositoryTemplatePopulator";
     public static final String JDBC_TRANSACTION_MANAGER = "mysqlTransactionManager";
     public static final String JDBC_DIALECT_NAME = "MySQL";
-
-    @Bean
-    @ServiceConnection
-    @ConditionalOnProperty(name = "spring.datasource.mysql.docker.enabled", havingValue = "true")
-    public MySQLContainer<?> mysqlContainer() {
-        try (MySQLContainer<?> mySQLContainer = new MySQLContainer<>(DockerImageName.parse(mysqlDataSourceProperties().getDocker().getName()))) {
-            mySQLContainer.withDatabaseName(mysqlDataSourceProperties().getDatabase())
-                    .withCreateContainerCmdModifier(cmd -> cmd.withHostConfig(
-                            new HostConfig().withPortBindings(new PortBinding(Ports.Binding.bindPort(mysqlDataSourceProperties().getPort()), new ExposedPort(MySQLContainer.MYSQL_PORT)))
-                    ))
-                    .withUsername(mysqlDataSourceProperties().getUsername())
-                    .withPassword(mysqlDataSourceProperties().getPassword())
-                    .withReuse(true);
-            return mySQLContainer;
-        }
-    }
+    private static MySQLContainer<?> mySQLContainer;
 
     @Bean
     @ConfigurationProperties("spring.datasource.mysql")
@@ -80,5 +66,32 @@ public class MysqlInitializer {
     @Bean(JDBC_TRANSACTION_MANAGER)
     public PlatformTransactionManager mysqlTransactionManager() {
         return new DataSourceTransactionManager(mysqlDataSource());
+    }
+
+    @Override
+    public void initialize(ConfigurableApplicationContext applicationContext) {
+        ConfigurableEnvironment environment = applicationContext.getEnvironment();
+        boolean enabled = environment.getRequiredProperty("spring.datasource.mysql.docker.enabled", Boolean.class);
+        if (!enabled) return;
+
+        if (mySQLContainer == null) {
+
+            String dockerName = environment.getRequiredProperty("spring.datasource.mysql.docker.name");
+            String database = environment.getRequiredProperty("spring.datasource.mysql.database");
+            Integer port = environment.getRequiredProperty("spring.datasource.mysql.port", Integer.class);
+            String username = environment.getRequiredProperty("spring.datasource.mysql.username");
+            String password = environment.getRequiredProperty("spring.datasource.mysql.password");
+
+            mySQLContainer = new MySQLContainer<>(DockerImageName.parse(dockerName))
+                    .withDatabaseName(database)
+                    .withCreateContainerCmdModifier(cmd -> cmd.withHostConfig(
+                            new HostConfig().withPortBindings(new PortBinding(Ports.Binding.bindPort(port), new ExposedPort(MySQLContainer.MYSQL_PORT)))
+                    ))
+                    .withUsername(username)
+                    .withPassword(password)
+                    .withReuse(true);
+
+            mySQLContainer.start();
+        }
     }
 }

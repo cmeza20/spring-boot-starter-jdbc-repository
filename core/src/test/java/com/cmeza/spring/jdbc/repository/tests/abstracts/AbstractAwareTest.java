@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.util.PlaceholderResolutionException;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -41,7 +40,7 @@ public abstract class AbstractAwareTest extends AbstractException implements Awa
         String table = propertiesResolver.resolvePlaceholders("${properties.employee.query.table}");
         AssertUtils.assertEquals(table, "employee", String.class);
 
-        testException(PlaceholderResolutionException.class, () -> propertiesResolver.resolveRequiredPlaceholders("${required.not.found}"), "AbstractAwareTest::testPropertiesResolver", "Could not resolve placeholder 'required.not.found' in value \"${required.not.found}\"");
+        testException(IllegalArgumentException.class, () -> propertiesResolver.resolveRequiredPlaceholders("${required.not.found}"), "AbstractAwareTest::testPropertiesResolver", "Could not resolve placeholder 'required.not.found' in value \"${required.not.found}\"");
     }
 
     @Test

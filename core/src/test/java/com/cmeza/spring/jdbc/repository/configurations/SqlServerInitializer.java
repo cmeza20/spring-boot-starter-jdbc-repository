@@ -8,12 +8,13 @@ import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.PortBinding;
 import com.github.dockerjava.api.model.Ports;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
@@ -25,30 +26,14 @@ import javax.sql.DataSource;
 
 @Configuration
 @Profile({TestConstants.SQLSERVER, TestConstants.ALL})
-public class SqlServerInitializer {
+public class SqlServerInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
     public static final String JDBC_REPOSITORY_TEMPLATE_BEAN = "sqlserverRepositoryTemplate";
     public static final String JDBC_REPOSITORY_TEMPLATE_POPULATOR = "sqlserverRepositoryTemplatePopulator";
     public static final String JDBC_TRANSACTION_MANAGER = "sqlserverTransactionManager";
     public static final String JDBC_DIALECT_NAME = "Microsoft SQL Server";
 
-    @Bean
-    @ServiceConnection
-    @ConditionalOnProperty(name = "spring.datasource.sqlserver.docker.enabled", havingValue = "true")
-    public MSSQLServerContainer<?> sqlServerContainer() {
-        try (MSSQLServerContainer<?> sqlServerContainer = new MSSQLServerContainer<>(DockerImageName.parse(sqlserverDataSourceProperties().getDocker().getName()))) {
-            sqlServerContainer.withCreateContainerCmdModifier(cmd -> cmd.withHostConfig(
-                            new HostConfig().withPortBindings(new PortBinding(Ports.Binding.bindPort(sqlserverDataSourceProperties().getPort()), new ExposedPort(MSSQLServerContainer.MS_SQL_SERVER_PORT)))
-                    ))
-                    .withEnv("ACCEPT_EULA", "Y")
-                    .withPassword(sqlserverDataSourceProperties().getPassword())
-                    .withEnv("MSSQL_SA_PASSWORD", sqlserverDataSourceProperties().getPassword())
-                    .withReuse(true)
-                    .withInitScript("database/sqlserver/init.sql");
-
-            return sqlServerContainer;
-        }
-    }
+    private static MSSQLServerContainer<?> sqlServerContainer;
 
     @Bean
     @ConfigurationProperties("spring.datasource.sqlserver")
@@ -82,5 +67,31 @@ public class SqlServerInitializer {
     @Bean(JDBC_TRANSACTION_MANAGER)
     public PlatformTransactionManager sqlserverTransactionManager() {
         return new DataSourceTransactionManager(sqlserverDataSource());
+    }
+
+    @Override
+    public void initialize(ConfigurableApplicationContext applicationContext) {
+        ConfigurableEnvironment environment = applicationContext.getEnvironment();
+        boolean enabled = environment.getRequiredProperty("spring.datasource.sqlserver.docker.enabled", Boolean.class);
+        if (!enabled) return;
+
+        if (sqlServerContainer == null) {
+
+            String dockerName = environment.getRequiredProperty("spring.datasource.sqlserver.docker.name");
+            Integer port = environment.getRequiredProperty("spring.datasource.sqlserver.port", Integer.class);
+            String password = environment.getRequiredProperty("spring.datasource.sqlserver.password");
+
+            sqlServerContainer = new MSSQLServerContainer<>(DockerImageName.parse(dockerName))
+                    .withCreateContainerCmdModifier(cmd -> cmd.withHostConfig(
+                            new HostConfig().withPortBindings(new PortBinding(Ports.Binding.bindPort(port), new ExposedPort(MSSQLServerContainer.MS_SQL_SERVER_PORT)))
+                    ))
+                    .withEnv("ACCEPT_EULA", "Y")
+                    .withPassword(password)
+                    .withEnv("MSSQL_SA_PASSWORD", password)
+                    .withReuse(true)
+                    .withInitScript("database/sqlserver/init.sql");
+
+            sqlServerContainer.start();
+        }
     }
 }

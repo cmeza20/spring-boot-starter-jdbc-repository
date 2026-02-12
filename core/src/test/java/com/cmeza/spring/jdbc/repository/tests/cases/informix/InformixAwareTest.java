@@ -7,9 +7,11 @@ import com.cmeza.spring.jdbc.repository.tests.abstracts.AbstractAwareTest;
 import com.cmeza.spring.jdbc.repository.tests.utils.EnabledIfProfile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 
 @SpringBootTest
 @EnabledIfProfile(profiles = TestConstants.INFORMIX)
+@ContextConfiguration(initializers = InformixInitializer.class)
 public class InformixAwareTest extends AbstractAwareTest {
 
     @Autowired
