@@ -16,5 +16,5 @@ public @interface EnabledIfProfile {
 
     String[] profiles();
 
-    String inheritedProfile() default TestConstants.ALL;
+    String inheritedProfile() default TestConstants.NONE;
 }

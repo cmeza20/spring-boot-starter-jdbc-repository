@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile({TestConstants.SQLSERVER, TestConstants.ALL})
+@Profile(TestConstants.SQLSERVER)
 public class SqlServerJdbcRepositoryAware extends AbstractJdbcRepositoryAware {
     @Override
     public String getQualifier() {

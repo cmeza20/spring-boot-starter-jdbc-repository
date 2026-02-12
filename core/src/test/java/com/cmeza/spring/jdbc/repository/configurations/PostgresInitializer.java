@@ -26,7 +26,7 @@ import org.testcontainers.utility.DockerImageName;
 import javax.sql.DataSource;
 
 @Configuration
-@Profile({TestConstants.POSTGRES, TestConstants.ALL})
+@Profile(TestConstants.POSTGRES)
 public class PostgresInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
     public static final String JDBC_REPOSITORY_TEMPLATE_BEAN = "postgresRepositoryTemplate";

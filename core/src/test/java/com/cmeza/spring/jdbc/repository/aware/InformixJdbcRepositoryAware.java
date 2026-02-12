@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile({TestConstants.INFORMIX, TestConstants.ALL})
+@Profile(TestConstants.INFORMIX)
 public class InformixJdbcRepositoryAware extends AbstractJdbcRepositoryAware {
     @Override
     public String getQualifier() {

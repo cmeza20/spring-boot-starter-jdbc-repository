@@ -26,7 +26,7 @@ import org.testcontainers.utility.DockerImageName;
 import javax.sql.DataSource;
 
 @Configuration
-@Profile({TestConstants.INFORMIX, TestConstants.ALL})
+@Profile(TestConstants.INFORMIX)
 public class InformixInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
     public static final String JDBC_REPOSITORY_TEMPLATE_BEAN = "informixRepositoryTemplate";

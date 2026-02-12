@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile({TestConstants.ORACLE, TestConstants.ALL})
+@Profile(TestConstants.ORACLE)
 public class OracleJdbcRepositoryAware extends AbstractJdbcRepositoryAware {
     @Override
     public String getQualifier() {

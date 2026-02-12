@@ -25,7 +25,7 @@ import org.testcontainers.utility.DockerImageName;
 import javax.sql.DataSource;
 
 @Configuration
-@Profile({TestConstants.MYSQL, TestConstants.ALL})
+@Profile(TestConstants.MYSQL)
 public class MysqlInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
     public static final String JDBC_REPOSITORY_TEMPLATE_BEAN = "mysqlRepositoryTemplate";

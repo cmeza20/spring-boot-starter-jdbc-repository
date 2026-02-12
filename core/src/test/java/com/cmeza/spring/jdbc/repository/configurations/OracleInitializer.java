@@ -25,7 +25,7 @@ import org.testcontainers.utility.DockerImageName;
 import javax.sql.DataSource;
 
 @Configuration
-@Profile({TestConstants.ORACLE, TestConstants.ALL})
+@Profile(TestConstants.ORACLE)
 public class OracleInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
     public static final String JDBC_REPOSITORY_TEMPLATE_BEAN = "oracleRepositoryTemplate";
