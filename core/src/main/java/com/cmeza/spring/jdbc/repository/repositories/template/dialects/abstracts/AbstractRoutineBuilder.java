@@ -1,10 +1,11 @@
 package com.cmeza.spring.jdbc.repository.repositories.template.dialects.abstracts;
 
-import com.cmeza.spring.jdbc.repository.support.definitions.MappingDefinition;
 import com.cmeza.spring.jdbc.repository.repositories.executors.types.Direction;
 import com.cmeza.spring.jdbc.repository.repositories.template.dialects.builders.JdbcRoutineBuilder;
+import com.cmeza.spring.jdbc.repository.support.definitions.MappingDefinition;
 import com.cmeza.spring.jdbc.repository.utils.JdbcNamedParameterUtils;
 import com.cmeza.spring.jdbc.repository.utils.JdbcUtils;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.jdbc.core.*;
@@ -15,6 +16,7 @@ import org.springframework.util.Assert;
 
 import java.lang.reflect.Array;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @SuppressWarnings("unchecked")
@@ -24,9 +26,9 @@ public abstract class AbstractRoutineBuilder extends AbstractJdbcBuilder<JdbcRou
     private static final String OUTPARAMETER_NAME = "@OUT_RESULT";
     private static final String RESULTSET_NAME = "@ROWMAP_RESULT";
     protected final String routineName;
-    private final List<Map.Entry<Direction, SqlParameter>> parameters = new LinkedList<>();
     private final SimpleJdbcCall simpleJdbcCall;
     protected boolean hasOutParameter;
+    private List<CustomParameter> parameters = new LinkedList<>();
     private String rowMapperParameterName;
 
     protected AbstractRoutineBuilder(String routineName, Impl impl) {
@@ -61,8 +63,8 @@ public abstract class AbstractRoutineBuilder extends AbstractJdbcBuilder<JdbcRou
 
         super.printExtras(logger);
 
-        for (Map.Entry<Direction, SqlParameter> entry : parameters) {
-            printParameter(logger, entry.getKey(), entry.getValue().getName(), JdbcUtils.getType(entry.getValue().getSqlType()));
+        for (CustomParameter customParameter : parameters) {
+            printParameter(logger, customParameter.getDirection(), customParameter.getSqlParameter().getName(), JdbcUtils.getType(customParameter.getSqlParameter().getSqlType()));
         }
     }
 
@@ -163,7 +165,11 @@ public abstract class AbstractRoutineBuilder extends AbstractJdbcBuilder<JdbcRou
     public JdbcRoutineBuilder withOutParameters(SqlOutParameter... outParameters) {
         if (Objects.nonNull(outParameters) && outParameters.length > 0) {
             this.hasOutParameter = true;
-            Arrays.stream(outParameters).forEach(out -> parameters.add(new AbstractMap.SimpleEntry<>(Direction.OUT, out)));
+            int position = parameters.size();
+            for (SqlOutParameter outParameter : outParameters) {
+                parameters.add(new OutParameter(position, outParameter));
+                position++;
+            }
         }
         return this;
     }
@@ -172,8 +178,8 @@ public abstract class AbstractRoutineBuilder extends AbstractJdbcBuilder<JdbcRou
     public JdbcRoutineBuilder withOutParameter(String parameter, int sqlType) {
         if (Objects.nonNull(parameter)) {
             this.hasOutParameter = true;
-            SqlOutParameter outParameter = new SqlOutParameter(parameter, sqlType);
-            parameters.add(new AbstractMap.SimpleEntry<>(Direction.OUT, outParameter));
+            int position = parameters.size();
+            parameters.add(new OutParameter(position, parameter, sqlType));
         }
         return this;
     }
@@ -282,8 +288,8 @@ public abstract class AbstractRoutineBuilder extends AbstractJdbcBuilder<JdbcRou
             getBeanParameterSources()
                     .forEach(bean -> Arrays.stream(Objects.requireNonNull(bean.getParameterNames()))
                             .forEach(name -> {
-                                SqlParameter sqlParameter = new SqlParameter(name, bean.getSqlType(name));
-                                parameters.add(new AbstractMap.SimpleEntry<>(Direction.IN, sqlParameter));
+                                int position = parameters.size();
+                                parameters.add(new InParameter(position, name, bean.getSqlType(name)));
                             }));
         }
 
@@ -301,13 +307,12 @@ public abstract class AbstractRoutineBuilder extends AbstractJdbcBuilder<JdbcRou
             }
             simpleJdbcCall.returningResultSet(returnName, rowMapper);
         } else if (type != SqlTypeValue.TYPE_UNKNOWN && !hasOutParameter) {
-            SqlOutParameter sqlOutParameter = new SqlOutParameter(OUTPARAMETER_NAME, type);
-            parameters.add(0, new AbstractMap.SimpleEntry<>(Direction.OUT, sqlOutParameter));
+            parameters.add(new OutParameter(0, OUTPARAMETER_NAME, type));
             returnName = OUTPARAMETER_NAME;
         }
 
-        parameters.forEach(entry -> simpleJdbcCall.addDeclaredParameter(entry.getValue()));
-
+        parameters = parameters.stream().sorted(Comparator.comparing(CustomParameter::getPosition)).collect(Collectors.toList());
+        parameters.forEach(pa -> simpleJdbcCall.addDeclaredParameter(pa.getSqlParameter()));
 
         return new AbstractMap.SimpleEntry<>(returnName, simpleJdbcCall);
     }
@@ -315,26 +320,57 @@ public abstract class AbstractRoutineBuilder extends AbstractJdbcBuilder<JdbcRou
     private void addINParameter(String name, int type) {
         String paramName = name;
         int paramType = type;
+        int position = parameters.size();
         if (isSetAndNotContainsInParameter(name)) {
             paramName = null;
         } else if (isSetMappings()) {
             Optional<MappingDefinition> mappingDefinitionOptional = findMappingByFrom(name);
             if (mappingDefinitionOptional.isPresent()) {
-                paramName = mappingDefinitionOptional.get().getTo();
-                paramType = mappingDefinitionOptional.get().getType();
+                MappingDefinition mappingDefinition = mappingDefinitionOptional.get();
+                paramName = mappingDefinition.getTo();
+                paramType = mappingDefinition.getType();
+                position = mappingDefinition.getPosition();
             } else {
                 paramName = null;
             }
         }
 
         if (!StringUtils.isEmpty(paramName)) {
-            SqlParameter sqlParameter = new SqlParameter(paramName, paramType);
-            parameters.add(new AbstractMap.SimpleEntry<>(Direction.IN, sqlParameter));
+            parameters.add(new InParameter(position, paramName, paramType));
         }
     }
 
     private void addINParameter(MappingDefinition mappingDefinition) {
-        SqlParameter sqlParameter = new SqlParameter(mappingDefinition.getTo(), mappingDefinition.getType());
-        parameters.add(new AbstractMap.SimpleEntry<>(Direction.IN, sqlParameter));
+        int position = mappingDefinition.getPosition() != 0 ? mappingDefinition.getPosition() : parameters.size();
+        parameters.add(new InParameter(position, mappingDefinition.getTo(), mappingDefinition.getType()));
+    }
+
+    @Getter
+    private static abstract class CustomParameter {
+        private final int position;
+        private final Direction direction;
+        private final SqlParameter sqlParameter;
+
+        public CustomParameter(Direction direction, int position, SqlParameter sqlParameter) {
+            this.direction = direction;
+            this.position = position;
+            this.sqlParameter = sqlParameter;
+        }
+    }
+
+    private static class InParameter extends CustomParameter {
+        public InParameter(int position, String to, int type) {
+            super(Direction.IN, position, new SqlParameter(to, type));
+        }
+    }
+
+    private static class OutParameter extends CustomParameter {
+        public OutParameter(int position, SqlOutParameter sqlOutParameter) {
+            super(Direction.OUT, position, sqlOutParameter);
+        }
+
+        public OutParameter(int position, String to, int type) {
+            super(Direction.OUT, position, new SqlOutParameter(to, type));
+        }
     }
 }

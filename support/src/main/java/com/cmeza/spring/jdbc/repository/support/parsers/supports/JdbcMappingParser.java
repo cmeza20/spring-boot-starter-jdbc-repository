@@ -19,6 +19,9 @@ public class JdbcMappingParser implements IParser<JdbcMapping, JdbcMappingProper
         if (annotation.type() != 0) {
             dslProperty.setType(new SqlType(annotation.type()));
         }
+
+        dslProperty.setNulled(annotation.nulled());
+        dslProperty.setOrder(annotation.order());
     }
 
     public MappingDefinition parseFromMappingAnnotation(JdbcMapping annotation, int position) {
@@ -26,6 +29,7 @@ public class JdbcMappingParser implements IParser<JdbcMapping, JdbcMappingProper
                 .setTo(annotation.to())
                 .setFrom(annotation.from())
                 .setType(annotation.type())
-                .setPosition(position);
+                .setNulled(annotation.nulled())
+                .setPosition(annotation.order() != 0 ? annotation.order() : position);
     }
 }

@@ -12,11 +12,15 @@ public class JdbcMappingProperties extends AbstractSupport {
     private String to;
     private String from = "";
     private SqlType type = new SqlType(0);
+    private boolean nulled;
+    private int order = 0;
 
     @Override
     public void mapProperties(Map<String, Object> map) {
         map.put("to", to);
         map.put("from", from);
         map.put("type", type.getValue());
+        map.put("nulled", nulled);
+        map.put("order", order);
     }
 }

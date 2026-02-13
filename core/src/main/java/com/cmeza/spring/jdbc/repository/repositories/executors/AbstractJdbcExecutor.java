@@ -93,6 +93,11 @@ public abstract class AbstractJdbcExecutor<T extends JdbcGenericBuilder<T>> impl
             index++;
         }
 
+        for (int pos = index; pos < parameterDefinitions.length; pos++) {
+            ParameterDefinition definition = parameterDefinitions[pos];
+            parameters.add(new Parameter(definition, null, false, Direction.IN));
+        }
+
         return batchCount;
     }
 

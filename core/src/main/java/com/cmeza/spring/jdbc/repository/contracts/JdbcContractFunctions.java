@@ -6,17 +6,18 @@ import com.cmeza.spring.ioc.handler.contracts.consumers.ParameterConsumer;
 import com.cmeza.spring.ioc.handler.metadata.MethodMetadata;
 import com.cmeza.spring.ioc.handler.metadata.TypeMetadata;
 import com.cmeza.spring.ioc.handler.metadata.impl.SimpleTypeMetadata;
-import com.cmeza.spring.jdbc.repository.support.annotations.JdbcRepository;
 import com.cmeza.spring.jdbc.repository.dsl.properties.JdbcRepositoryProperties;
 import com.cmeza.spring.jdbc.repository.mappers.JdbcRowMapper;
 import com.cmeza.spring.jdbc.repository.projections.JdbcProjectionRowMapper;
 import com.cmeza.spring.jdbc.repository.repositories.configuration.SimpleJdbcConfiguration;
-import com.cmeza.spring.jdbc.repository.support.definitions.*;
-import com.cmeza.spring.jdbc.repository.support.exceptions.InvalidParameterSqlTypeException;
 import com.cmeza.spring.jdbc.repository.repositories.executors.JdbcExecutor;
 import com.cmeza.spring.jdbc.repository.repositories.template.JdbcRepositoryTemplate;
 import com.cmeza.spring.jdbc.repository.repositories.template.pagination.JdbcPageRequest;
+import com.cmeza.spring.jdbc.repository.support.annotations.JdbcRepository;
+import com.cmeza.spring.jdbc.repository.support.definitions.*;
+import com.cmeza.spring.jdbc.repository.support.exceptions.InvalidParameterSqlTypeException;
 import com.cmeza.spring.jdbc.repository.utils.JdbcUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -25,6 +26,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
 import org.springframework.util.Assert;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 
@@ -132,11 +134,20 @@ public class JdbcContractFunctions implements ApplicationContextAware {
                 }
             }
 
-            //Parameters
-            builder.parameters(methodMetadata.getAttribute(METHOD_PARAMETERS, ParameterDefinition[].class, new ParameterDefinition[0]));
-
             //Mappings
-            builder.mappings(methodMetadata.getAttribute(METHOD_PARAM_MAPPINGS, MappingDefinition[].class, new MappingDefinition[0]));
+            MappingDefinition[] mappings = methodMetadata.getAttribute(METHOD_PARAM_MAPPINGS, MappingDefinition[].class, new MappingDefinition[0]);
+            builder.mappings(mappings);
+
+            //Parameters
+            ParameterDefinition[] mappingParameterDefinitions = Arrays.stream(mappings)
+                    .filter(MappingDefinition::isNulled)
+                    .map(m -> new ParameterDefinition()
+                            .setParameterName(m.getTo())
+                            .setParameterType(m.getType())
+                            .setPosition(m.getPosition())).toArray(ParameterDefinition[]::new);
+
+            ParameterDefinition[] parameters = methodMetadata.getAttribute(METHOD_PARAMETERS, ParameterDefinition[].class, new ParameterDefinition[0]);
+            builder.parameters(ArrayUtils.addAll(parameters, mappingParameterDefinitions));
 
             //Join Tables
             builder.joinTables(methodMetadata.getAttribute(METHOD_JOIN_TABLES, JoinTableDefinition[].class, new JoinTableDefinition[0]));

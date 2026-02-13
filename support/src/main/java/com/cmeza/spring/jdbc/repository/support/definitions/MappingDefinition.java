@@ -9,4 +9,5 @@ public class MappingDefinition {
     private int type;
     private int position;
     private Object value;
+    private boolean nulled;
 }

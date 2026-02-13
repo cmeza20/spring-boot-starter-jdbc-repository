@@ -85,6 +85,10 @@
 - Mapping DSL for support annotations
 
 ## [2.2.1] - 2026-02-12
+### Added
+- Mapping order
+- Mapping nulled
+- DSL mapping order and nulled
 ### Fix
 - Spring boot 2.7.x version
 - Testcontainers without spring-boot-testcontainers

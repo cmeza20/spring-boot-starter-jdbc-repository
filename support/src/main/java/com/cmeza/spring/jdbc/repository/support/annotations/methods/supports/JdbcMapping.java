@@ -14,4 +14,8 @@ public @interface JdbcMapping {
     String from() default "";
 
     int type();
+
+    boolean nulled() default false;
+
+    int order() default 0;
 }
